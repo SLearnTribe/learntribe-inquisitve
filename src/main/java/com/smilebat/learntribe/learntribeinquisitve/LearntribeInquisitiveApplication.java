@@ -1,0 +1,31 @@
+package com.smilebat.learntribe.learntribeinquisitve;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.ComponentScan;
+
+/**
+ * A Generic request mock
+ *
+ * <p>Copyright &copy; 2022 Smile .Bat
+ *
+ * @author Pai,Sai Nandan
+ */
+@SpringBootApplication
+@EnableEurekaClient
+@ComponentScan(
+    basePackages = {"com.smilebat.learntribe.learntribeclients", "com.smilebat.learntribe"})
+@EnableFeignClients(basePackages = "com.smilebat.learntribe.learntribeclients")
+public class LearntribeInquisitiveApplication {
+
+  /**
+   * Main method
+   *
+   * @param args the args
+   */
+  public static void main(String[] args) {
+    SpringApplication.run(LearntribeInquisitiveApplication.class, args);
+  }
+}

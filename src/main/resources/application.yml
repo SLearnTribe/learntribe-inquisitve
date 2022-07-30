@@ -5,10 +5,32 @@ spring:
     name: learntribe-inquisitive
   security:
     oauth2:
+      client:
+        registration:
+          keycloak:
+            authorization-grant-type: client_credentials
+            client-id: cloud-gateway-client
+            client-secret: 8CwDfo6yxWAUQuSz5j6QZHP3ElhfvcOQ
+        provider:
+          keycloak:
+            token-uri: http://localhost:8085/realms/master/protocol/openid-connect/token
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8085/auth/realms/test-realm
+          issuer-uri: http://localhost:8085/realms/master
 eureka:
   instance:
     instance-id: ${spring.application.name}:${random.uuid}
+
+feign:
+  client:
+    config:
+      default:
+        loggerLevel: full
+logging:
+  level:
+    com:
+      smilebat:
+        learntribe:
+          learntribeclients: DEBUG
+
 
