@@ -50,6 +50,6 @@ jobs:
         repositories: '[{ "id": "github", "url": "https://maven.pkg.github.com/smilebat96/Releases", "snapshots": {"enabled": "true"} }]'
         servers: '[{ "id": "github", "username": "smilebat96", "password": "${{ secrets.MY_GITHUB_TOKEN }}" }]'
     - name: Build with Maven
-      run: mvn -B clean install --file pom.xml -DskipTests
+      run: mvn -B clean install --file pom.xml --settings foo/settings.xml -DskipTests
     - name: Publish to GitHub Packages Apache Maven
       run: mvn -B --settings foo/settings.xml deploy
