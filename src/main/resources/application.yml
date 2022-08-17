@@ -1,8 +1,21 @@
+
 server:
   port: 8089
 spring:
   application:
     name: learntribe-inquisitive
+  datasource:
+    url: jdbc:postgresql://localhost:5032/inquisitive
+    password: password
+    username: keycloak
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
   security:
     oauth2:
       client:
