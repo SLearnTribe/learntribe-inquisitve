@@ -2,7 +2,7 @@ package com.smilebat.learntribe.learntribeinquisitve.mappers;
 
 import com.smilebat.learntribe.inquisitive.request.WorkExperienceDTO;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.entity.WorkExperience;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
 
 /** Mapper for the entity {@link WorkExperience} and its DTO {@link WorkExperienceDTO}. */
 @Mapper(componentModel = "spring")
