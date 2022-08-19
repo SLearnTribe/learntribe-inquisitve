@@ -18,24 +18,20 @@ spring:
     show-sql: true
   security:
     oauth2:
-      client:
-        registration:
-          keycloak:
-            authorization-grant-type: client_credentials
-            client-id: cloud-gateway-client
-            client-secret: 8CwDfo6yxWAUQuSz5j6QZHP3ElhfvcOQ
-        provider:
-          keycloak:
-            token-uri: http://localhost:8085/realms/master/protocol/openid-connect/token
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8085/realms/master
+          issuer-uri: ${feign.client.url.keycloak}/realms/master
 eureka:
   instance:
     instance-id: ${spring.application.name}:${random.uuid}
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
 
 feign:
   client:
+    url:
+      keycloak: http://localhost:8085
     config:
       default:
         loggerLevel: full
