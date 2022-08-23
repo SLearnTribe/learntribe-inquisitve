@@ -1,4 +1,4 @@
-package com.smilebat.learntribe.learntribeinquisitve;
+package com.smilebat.learntribe.learntribeinquisitve.configuration;
 
 import feign.codec.Encoder;
 import feign.form.spring.SpringFormEncoder;

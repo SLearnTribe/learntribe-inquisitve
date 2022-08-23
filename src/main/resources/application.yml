@@ -5,7 +5,7 @@ spring:
   application:
     name: learntribe-inquisitive
   datasource:
-    url: jdbc:postgresql://localhost:5032/inquisitive
+    url: jdbc:postgresql://localhost:5432/inquisitve
     password: password
     username: keycloak
   jpa:
@@ -31,7 +31,7 @@ eureka:
 feign:
   client:
     url:
-      keycloak: http://localhost:8085
+      keycloak: http://host.docker.internal:8085
     config:
       default:
         loggerLevel: full
