@@ -42,9 +42,9 @@ public class UserDetailsController {
   @ResponseBody
   public ResponseEntity<String> saveUserDetails(@RequestBody UserProfileRequest request) {
 
-    Long userId = service.saveUserInfo(request);
+    service.saveUserInfo(request);
 
-    return ResponseEntity.ok(userId.toString());
+    return ResponseEntity.status(HttpStatus.OK).body("Created User");
   }
 
   /**

@@ -29,6 +29,23 @@ public class UserProfileConverter {
   private final SkillConverter skillConverter;
 
   /**
+   * Updates the entity
+   *
+   * @param request the {@link UserProfileRequest}
+   * @param userProfile the {@link UserProfile}
+   */
+  public void updateEntity(UserProfileRequest request, UserProfile userProfile) {
+    userProfile.setKeyCloakId(request.getKeyCloakId());
+    userProfile.setName(request.getName());
+    userProfile.setEmail(request.getEmail());
+    userProfile.setCountry(request.getCountry());
+    userProfile.setLinkedIn(request.getLinkedIn());
+    userProfile.setGitHub(request.getGitHub());
+    userProfile.setAbout(request.getAbout());
+    userProfile.setPhone(request.getPhone());
+  }
+
+  /**
    * Converts {@link UserProfileRequest} to {@link UserProfile}.
    *
    * @param request the {@link UserProfileRequest}
@@ -53,7 +70,7 @@ public class UserProfileConverter {
    * @param requests the {@link UserProfileRequest}
    * @return the {@link UserProfile}
    */
-  public List<UserProfile> toEntities(Collection<UserProfileRequest> requests) {
+  public List<UserProfile> toEntities(final Collection<UserProfileRequest> requests) {
     return requests.stream().map(this::toEntity).collect(Collectors.toList());
   }
 
@@ -91,7 +108,6 @@ public class UserProfileConverter {
 
     response.setWorkExperiences(workExperienceResponses);
     response.setSkills(skillResponses);
-
     return response;
   }
 }

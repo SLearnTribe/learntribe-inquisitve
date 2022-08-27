@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  * @author Pai,Sai Nandan
  */
 @Component
-public class WorkExperienceConverter {
+public final class WorkExperienceConverter {
 
   /**
    * Converts {@link WorkExperienceRequest} to {@link WorkExperience}.
