@@ -14,16 +14,12 @@ import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.WorkExperienc
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Skill;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.WorkExperience;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UserInfoService {
 
   private final UserDetailsRepository userDetailsRepository;
@@ -55,11 +50,7 @@ public class UserInfoService {
   @Transactional
   public Long saveUserInfo(UserProfileRequest profileRequest) {
     Verify.verifyNotNull(profileRequest, "User Profile Request Cannot be Null");
-    List<SkillRequest> skillsRequest = profileRequest.getSkills();
-    List<WorkExperienceRequest> workExperienceRequests = profileRequest.getWorkExperiences();
     UserProfile userProfile = saveUserProfile(profileRequest);
-    saveUserSkills(userProfile, skillsRequest);
-    saveWorkExperiences(userProfile, workExperienceRequests);
     return userProfile.getId();
   }
 
@@ -84,10 +75,12 @@ public class UserInfoService {
   private UserProfile saveUserProfile(UserProfileRequest profileRequest) {
     String keycloakId = profileRequest.getKeyCloakId();
     UserProfile userProfile = userDetailsRepository.findByKeyCloakId(keycloakId);
-    if (userProfile == null) {
-      userProfile = profileConverter.toEntity(profileRequest);
-      userDetailsRepository.save(userProfile);
-    }
+    profileConverter.updateEntity(profileRequest, userProfile);
+    userDetailsRepository.save(userProfile);
+    List<SkillRequest> skillsRequest = profileRequest.getSkills();
+    List<WorkExperienceRequest> workExperienceRequests = profileRequest.getWorkExperiences();
+    saveUserSkills(userProfile, skillsRequest);
+    saveWorkExperiences(userProfile, workExperienceRequests);
     return userProfile;
   }
 
@@ -103,7 +96,7 @@ public class UserInfoService {
       return Collections.emptyList();
     }
     Set<Skill> existingSkills = profile.getSkills();
-    Set<Skill> requestSkills = skillConverter.toEntities(skillsRequest,profile);
+    Set<Skill> requestSkills = skillConverter.toEntities(skillsRequest, profile);
     Set<Skill> updatedSkills = new HashSet<>();
     updatedSkills.addAll(requestSkills);
     updatedSkills.addAll(existingSkills);

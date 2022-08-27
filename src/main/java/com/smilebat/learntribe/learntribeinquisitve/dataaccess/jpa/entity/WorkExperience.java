@@ -3,6 +3,7 @@ package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sun.istack.NotNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,8 +13,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Objects;
 
 /**
  * Work Experience representation of DB.
@@ -32,6 +31,7 @@ public class WorkExperience {
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", nullable = false)
   private Long id;
+
   private String orgName;
   private String designation;
   private String startDate;
@@ -48,18 +48,18 @@ public class WorkExperience {
 
   @Override
   public int hashCode() {
-    return Objects.hash(designation,userDetails);
+    return Objects.hash(startDate, endDate, designation, userDetails);
   }
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
+    if (this == obj) return true;
+    if (obj == null) return false;
+    if (getClass() != obj.getClass()) return false;
     WorkExperience other = (WorkExperience) obj;
-    return Objects.equals(designation, other.designation) && Objects.equals(userDetails, other.userDetails);
+    return Objects.equals(designation, other.designation)
+        && Objects.equals(startDate, other.startDate)
+        && Objects.equals(endDate, other.endDate)
+        && Objects.equals(userDetails, other.userDetails);
   }
 }

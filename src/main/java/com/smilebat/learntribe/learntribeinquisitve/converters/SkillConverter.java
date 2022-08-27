@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  * @author Pai,Sai Nandan
  */
 @Component
-public class SkillConverter {
+public final class SkillConverter {
 
   /**
    * Converts the {@link SkillRequest} to {@link Skill}.
