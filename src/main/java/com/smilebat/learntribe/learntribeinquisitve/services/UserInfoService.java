@@ -97,9 +97,22 @@ public class UserInfoService {
     }
     Set<Skill> existingSkills = profile.getSkills();
     Set<Skill> requestSkills = skillConverter.toEntities(skillsRequest, profile);
+    System.out.println("\n\n\n\n");
+    for (Skill s : existingSkills) {
+      System.out.println(s.getSkillName() + "\n" + s.getId() + "\n");
+    }
+    for (Skill s : requestSkills) {
+      System.out.println(s.getSkillName() + "\n" + s.getId() + "\n");
+    }
+    System.out.println("\n\n\n\n");
+    System.out.println(existingSkills.equals(requestSkills));
     Set<Skill> updatedSkills = new HashSet<>();
     updatedSkills.addAll(requestSkills);
     updatedSkills.addAll(existingSkills);
+    for (Skill s : updatedSkills) {
+      System.out.println(s.getSkillName() + "\n" + s.getId() + "\n");
+    }
+    updatedSkills.removeAll(existingSkills);
     skillRepository.saveAll(updatedSkills);
     return updatedSkills;
   }

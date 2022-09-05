@@ -52,7 +52,7 @@ public class Skill {
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
     Skill other = (Skill) obj;
-    return Objects.equals(skillName, other.skillName)
-        && Objects.equals(userDetails, other.userDetails);
+    return Objects.equals(this.skillName, other.skillName)
+        && Objects.equals(this.userDetails, other.userDetails);
   }
 }

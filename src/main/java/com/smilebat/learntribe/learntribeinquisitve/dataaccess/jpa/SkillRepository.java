@@ -20,9 +20,7 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
    * @return the List of {@link Skill}
    */
   @Query(
-      value =
-          "SELECT S FROM SKILL AS S WHERE S.SKILL_NAME IN :skillNames AND S.USER_DETAILS_ID = :userId",
+      value = "SELECT ID, SKILL_NAME, USER_DETAILS_ID FROM SKILL WHERE SKILL_NAME = :skillName",
       nativeQuery = true)
-  List<Skill> findAllBySkillName(
-      @Param("skillNames") Collection<String> skillNames, @Param("userId") Long userId);
+  List<Skill> findAllBySkillName(@Param("skillName") String skillName);
 }
