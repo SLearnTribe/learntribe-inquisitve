@@ -42,6 +42,11 @@ public class Assessment {
   private AssessmentType type;
   private float progress;
   private long questions;
+  private String status;
+  private String difficulty;
+  private String description;
+  private String title;
+  private String subTitle;
 
   @ManyToOne(optional = false)
   @NotNull
@@ -59,6 +64,10 @@ public class Assessment {
     assessment1.setProgress(33.33f);
     assessment1.setQuestions(40);
     assessment1.setType(AssessmentType.OBJECTIVE);
+    assessment1.setDescription("Real Time description");
+    assessment1.setSubTitle("THis is the subtitle");
+    assessment1.setDifficulty("Easy");
+    assessment1.setStatus("Pending");
 
     Assessment assessment2 = new Assessment();
     assessment2.setId(3L);
@@ -66,6 +75,10 @@ public class Assessment {
     assessment2.setProgress(0f);
     assessment2.setQuestions(25);
     assessment2.setType(AssessmentType.OBJECTIVE);
+    assessment2.setDescription("Real Time description");
+    assessment2.setSubTitle("THis is the subtitle");
+    assessment2.setDifficulty("Difficult");
+    assessment2.setStatus("Completed");
 
     List<Assessment> assessments = new ArrayList<>(2);
 

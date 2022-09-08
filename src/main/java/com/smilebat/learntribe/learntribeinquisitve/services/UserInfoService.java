@@ -55,7 +55,7 @@ public class UserInfoService {
   }
 
   /**
-   * Retrieves all the user profile details.
+   * Retrieves all the user profile details based on id.
    *
    * @param userId the {@link String} user id
    * @return the {@link UserProfileResponse}
@@ -63,6 +63,23 @@ public class UserInfoService {
   public UserProfileResponse getUserInfo(String userId) {
     Verify.verifyNotNull(userId, "User Id cannot be null");
     UserProfile userProfile = userDetailsRepository.findByKeyCloakId(userId);
+    if (userProfile == null) {
+      return new UserProfileResponse();
+    }
+    return profileConverter.toResponse(userProfile);
+  }
+
+  /**
+   * Retrieves all the user profile details.
+   *
+   * @return the List of {@link UserProfileResponse}
+   */
+  public List<UserProfileResponse> getAllUserInfo() {
+    List<UserProfile> userProfile = userDetailsRepository.findAll();
+    if (userProfile == null || userProfile.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     return profileConverter.toResponse(userProfile);
   }
 
@@ -75,7 +92,12 @@ public class UserInfoService {
   private UserProfile saveUserProfile(UserProfileRequest profileRequest) {
     String keycloakId = profileRequest.getKeyCloakId();
     UserProfile userProfile = userDetailsRepository.findByKeyCloakId(keycloakId);
-    profileConverter.updateEntity(profileRequest, userProfile);
+    if (userProfile == null) {
+      userProfile = profileConverter.toEntity(profileRequest);
+    } else {
+      profileConverter.updateEntity(profileRequest, userProfile);
+    }
+
     userDetailsRepository.save(userProfile);
     List<SkillRequest> skillsRequest = profileRequest.getSkills();
     List<WorkExperienceRequest> workExperienceRequests = profileRequest.getWorkExperiences();

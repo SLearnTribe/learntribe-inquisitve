@@ -5,12 +5,24 @@ import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.SkillService;
 import com.smilebat.learntribe.learntribeinquisitve.services.UserInfoService;
 import java.util.List;
+
 import javax.validation.Valid;
+
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 /**
  * User Controller
@@ -22,7 +34,6 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/profile/user")
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class UserDetailsController {
 
@@ -63,11 +74,27 @@ public class UserDetailsController {
     return ResponseEntity.ok(userInfo);
   }
 
+
   @GetMapping("/skill")
   @ResponseBody
   public ResponseEntity<List<UserProfileResponse>> getUserDetailsFromSkill(
       @RequestParam String skillName) {
     List<UserProfileResponse> userProfileResponses = skillService.getUserInfo(skillName);
     return ResponseEntity.ok(userProfileResponses);
+  }
+
+  /**
+   * Retrieves the all the user information.
+   *
+   * @return the {@link ResponseEntity} of genric type.
+   */
+  @GetMapping
+  @ResponseBody
+  public ResponseEntity<?> getAllUserDetails() {
+    log.info("Fetching User Details");
+
+    final List<UserProfileResponse> users = userInfoService.getAllUserInfo();
+
+    return ResponseEntity.ok(users);
   }
 }
