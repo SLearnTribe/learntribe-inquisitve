@@ -53,14 +53,7 @@ public class UserProfileConverter {
    */
   public UserProfile toEntity(UserProfileRequest request) {
     UserProfile profile = new UserProfile();
-    profile.setKeyCloakId(request.getKeyCloakId());
-    profile.setName(request.getName());
-    profile.setEmail(request.getEmail());
-    profile.setCountry(request.getCountry());
-    profile.setLinkedIn(request.getLinkedIn());
-    profile.setGitHub(request.getGitHub());
-    profile.setAbout(request.getAbout());
-    profile.setPhone(request.getPhone());
+    updateEntity(request, profile);
     return profile;
   }
 
@@ -82,7 +75,6 @@ public class UserProfileConverter {
    */
   public UserProfileResponse toResponse(UserProfile profile) {
     UserProfileResponse response = new UserProfileResponse();
-    response.setKeyCloakId(profile.getKeyCloakId());
     response.setAbout(profile.getAbout());
     response.setCountry(profile.getCountry());
     response.setEmail(profile.getEmail());
@@ -109,5 +101,15 @@ public class UserProfileConverter {
     response.setWorkExperiences(workExperienceResponses);
     response.setSkills(skillResponses);
     return response;
+  }
+
+  /**
+   * Converts List of {@link UserProfile} to List of {@link UserProfileResponse}.
+   *
+   * @param profiles the List of {@link UserProfile}
+   * @return the List of {@link UserProfileResponse}
+   */
+  public List<UserProfileResponse> toResponse(Collection<UserProfile> profiles) {
+    return profiles.stream().map(this::toResponse).collect(Collectors.toList());
   }
 }
