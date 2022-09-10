@@ -41,8 +41,12 @@ public class SecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
     final CorsConfiguration configuration = new CorsConfiguration();
 
+
     configuration.setAllowedOrigins(ImmutableList.of("*")); // www - obligatory
-    //        configuration.setAllowedOrigins(ImmutableList.of("*"));  //set access from all domains
+
+    //configuration.setAllowedOrigins(ImmutableList.of("http://localhost:3000")); // www - obligatory
+
+    //configuration.setAllowedOrigins(ImmutableList.of("*"));  //set access from all domains
     configuration.setAllowedMethods(ImmutableList.of("GET", "POST", "PUT", "DELETE"));
     // configuration.setAllowCredentials(true);
     // configuration.setAllowedHeaders(ImmutableList.of("Authorization", "Cache-Control",
