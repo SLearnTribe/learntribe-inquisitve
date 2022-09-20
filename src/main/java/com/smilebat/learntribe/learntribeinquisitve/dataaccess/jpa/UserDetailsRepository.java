@@ -1,7 +1,9 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa;
 
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /** Returns Data Access by User Repo */
@@ -15,4 +17,12 @@ public interface UserDetailsRepository extends JpaRepository<UserProfile, Long> 
    * @return the {@link UserProfile}
    */
   UserProfile findByKeyCloakId(String keycloakId);
+
+  /**
+   * Finds all valid user profiles
+   *
+   * @return the List of {@link UserProfile}
+   */
+  @Query(value = "SELECT * FROM USER_PROFILE WHERE KEY_CLOAK_ID is not null", nativeQuery = true)
+  List<UserProfile> findAll();
 }

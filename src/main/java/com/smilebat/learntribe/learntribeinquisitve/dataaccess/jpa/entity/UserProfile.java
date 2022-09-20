@@ -60,10 +60,4 @@ public class UserProfile {
       value = {USER_DETAILS_NAME},
       allowSetters = true)
   private Set<WorkExperience> workExperiences = new HashSet<>();
-
-  @OneToMany(mappedBy = USER_DETAILS_NAME)
-  @JsonIgnoreProperties(
-      value = {USER_DETAILS_NAME},
-      allowSetters = true)
-  private Set<Assessment> assessments = new HashSet<>();
 }
