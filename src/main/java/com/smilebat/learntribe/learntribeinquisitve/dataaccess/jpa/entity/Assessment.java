@@ -1,18 +1,19 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.smilebat.learntribe.inquisitve.AssessmentType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedNativeQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,16 +24,14 @@ import lombok.Setter;
  *
  * @author Pai,Sai Nandan
  */
-@Getter
-@Setter
 @Table(name = "ASSESSMENT")
 @Entity
-@NamedNativeQuery(
-    name = "Assessment.findByUserId",
-    query = "SELECT * FROM assessment WHERE user_details_id = ?",
-    resultClass = UserProfile.class)
+@Getter
+@Setter
 @SuppressFBWarnings(justification = "Generated code")
 public class Assessment {
+  public static final String ASSESSMENT_NAME = "assessmentInfo";
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", nullable = false)
@@ -47,10 +46,13 @@ public class Assessment {
   private String description;
   private String title;
   private String subTitle;
+  private String createdBy;
 
-  @ManyToOne(optional = false)
-  @NotNull
-  private UserProfile userDetails;
+  @OneToMany(mappedBy = ASSESSMENT_NAME)
+  @JsonIgnoreProperties(
+      value = {ASSESSMENT_NAME},
+      allowSetters = true)
+  private Set<Challenge> challenges = new HashSet<>();
 
   /**
    * Mock getter method.

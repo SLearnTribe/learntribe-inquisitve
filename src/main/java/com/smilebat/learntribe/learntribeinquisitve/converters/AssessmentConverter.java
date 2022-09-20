@@ -1,5 +1,6 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
+import com.smilebat.learntribe.inquisitve.AssessmentRequest;
 import com.smilebat.learntribe.inquisitve.AssessmentType;
 import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
@@ -16,6 +17,20 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public final class AssessmentConverter {
+
+  /**
+   * Converts the {@link AssessmentRequest} to {@link Assessment}.
+   *
+   * @param request the {@link AssessmentRequest}
+   * @return the {@link Assessment}
+   */
+  public Assessment toEntity(AssessmentRequest request) {
+    Assessment assessment = new Assessment();
+    assessment.setTitle(request.getTitle());
+    assessment.setDifficulty(request.getDifficulty());
+    // assessment.setDescription(request.getDescription());
+    return assessment;
+  }
 
   /**
    * Converts the {@link Assessment} to {@link AssessmentResponse}.
