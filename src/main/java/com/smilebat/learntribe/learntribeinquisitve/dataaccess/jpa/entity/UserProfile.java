@@ -1,6 +1,7 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.smilebat.learntribe.inquisitve.UserRole;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -46,8 +48,11 @@ public class UserProfile {
   private String country;
   private String linkedIn;
   private String gitHub;
+
+  @Lob
   private String about;
   private Long phone;
+  private UserRole role;
 
   @OneToMany(mappedBy = USER_DETAILS_NAME)
   @JsonIgnoreProperties(

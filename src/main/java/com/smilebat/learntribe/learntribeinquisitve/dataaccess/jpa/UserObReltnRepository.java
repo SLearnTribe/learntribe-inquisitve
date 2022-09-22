@@ -18,6 +18,6 @@ public interface UserObReltnRepository extends JpaRepository<UserObReltn, Long> 
    * @param keyCloakId the profile id
    * @return the List of {@link Assessment}
    */
-  @Query(value = "SELECT * FROM user_ob_reltn uob WHERE uob.user_id = :userId", nativeQuery = true)
+  @Query(value = "SELECT * FROM usr_ob_reltn uob WHERE uob.user_id = :userId", nativeQuery = true)
   List<UserObReltn> findByUserId(@Param("userId") String keyCloakId);
 }

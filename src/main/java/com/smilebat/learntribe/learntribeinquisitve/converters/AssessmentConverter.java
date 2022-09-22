@@ -28,7 +28,7 @@ public final class AssessmentConverter {
     Assessment assessment = new Assessment();
     assessment.setTitle(request.getTitle());
     assessment.setDifficulty(request.getDifficulty());
-    // assessment.setDescription(request.getDescription());
+    assessment.setDescription(request.getDescription());
     return assessment;
   }
 
@@ -41,7 +41,7 @@ public final class AssessmentConverter {
   public AssessmentResponse toResponse(Assessment assessment) {
     AssessmentResponse response = new AssessmentResponse();
     response.setId(assessment.getId());
-    response.setTitle(assessment.getName());
+    response.setTitle(assessment.getTitle());
     response.setProgress(assessment.getProgress());
     response.setNumOfQuestions(assessment.getQuestions());
     response.setDescription(assessment.getDescription());

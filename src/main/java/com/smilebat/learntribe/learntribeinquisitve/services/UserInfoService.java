@@ -60,6 +60,7 @@ public class UserInfoService {
    * @param userId the {@link String} user id
    * @return the {@link UserProfileResponse}
    */
+  @Transactional
   public UserProfileResponse getUserInfo(String userId) {
     Verify.verifyNotNull(userId, "User Id cannot be null");
     UserProfile userProfile = userDetailsRepository.findByKeyCloakId(userId);
