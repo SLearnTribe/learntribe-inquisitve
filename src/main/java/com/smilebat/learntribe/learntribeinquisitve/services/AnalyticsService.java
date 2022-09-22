@@ -18,6 +18,7 @@ import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserObReltnRe
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserObReltn;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
+import java.util.Collection;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +54,7 @@ public class AnalyticsService {
     final UserProfile profile = userDetailsRepository.findByKeyCloakId(keyCloakId);
     AnalyticsResponse analyticsResponse = new AnalyticsResponse();
 
-    if (UserRole.ROLE_CANDIDATE.equals(profile.getRole())) {
+    if (UserRole.ROLE_CANDIDATE == profile.getRole()) {
       analyticsResponse.setCandidateDashboardStatus(evaluateCandidateAnalytics(keyCloakId));
       return analyticsResponse;
     }
@@ -71,7 +72,7 @@ public class AnalyticsService {
   private HrDashboardStatus evaluateHrAnalytics(String keyCloakId) {
     List<UserObReltn> userObReltns = userObReltnRepository.findByUserId(keyCloakId);
 
-    if (userObReltns == null || userObReltns.isEmpty()) {
+    if (userObReltns.isEmpty()) {
       log.info("No Results found in Database");
     }
 
@@ -96,7 +97,7 @@ public class AnalyticsService {
   private CandidateDashboardStatus evaluateCandidateAnalytics(String keyCloakId) {
     List<UserAstReltn> userAstReltns = userAstReltnRepository.findByUserId(keyCloakId);
 
-    if (userAstReltns == null || userAstReltns.isEmpty()) {
+    if (userAstReltns.isEmpty()) {
       log.info("No Results found in Database");
     }
 
@@ -122,11 +123,8 @@ public class AnalyticsService {
    * @return the count of status matched elements.
    */
   private long countWithStatus(
-      List<UserAstReltn> userAstReltns, AssessmentStatus assessmentStatus) {
-    return userAstReltns
-        .stream()
-        .filter(reltn -> assessmentStatus.equals(reltn.getStatus()))
-        .count();
+      Collection<UserAstReltn> userAstReltns, AssessmentStatus assessmentStatus) {
+    return userAstReltns.stream().filter(reltn -> assessmentStatus == reltn.getStatus()).count();
   }
 
   /**
@@ -136,10 +134,7 @@ public class AnalyticsService {
    * @param hiringStatus the {@link HiringStatus}
    * @return the count of status matched elements.
    */
-  private long countWithReltnType(List<UserObReltn> userObReltns, HiringStatus hiringStatus) {
-    return userObReltns
-        .stream()
-        .filter(reltn -> hiringStatus.equals(reltn.getHiringStatus()))
-        .count();
+  private long countWithReltnType(Collection<UserObReltn> userObReltns, HiringStatus hiringStatus) {
+    return userObReltns.stream().filter(reltn -> hiringStatus == reltn.getHiringStatus()).count();
   }
 }
