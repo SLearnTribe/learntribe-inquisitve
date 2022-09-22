@@ -41,6 +41,7 @@ public class UserDetailsController {
    * Retrieves all user details.
    *
    * @param request the {@link UserProfileRequest}
+   * @param id the user id.
    * @return the {@link UserProfileRequest} as response.
    */
   @PostMapping(value = "/id/{id}")

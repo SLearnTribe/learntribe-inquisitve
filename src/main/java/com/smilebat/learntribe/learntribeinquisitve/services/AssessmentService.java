@@ -14,12 +14,7 @@ import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.ChallengeRepo
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserAstReltnRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.OthersBusiness;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserObReltn;
-import com.smilebat.learntribe.openai.OpenAiRequest;
-import com.smilebat.learntribe.openai.response.Choice;
-import com.smilebat.learntribe.openai.response.OpenAiResponse;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -107,25 +102,25 @@ public class AssessmentService {
     Assessment assessment = assessmentConverter.toEntity(request);
     assessment.setCreatedBy(userId);
 
-     List<Assessment> byTitle = assessmentRepository.findByTitle(request.getTitle());
+    List<Assessment> byTitle = assessmentRepository.findByTitle(request.getTitle());
 
-     if (byTitle != null && !byTitle.isEmpty()) {
-       final Assessment usrAssessment = byTitle.get(0);
-       Optional<Assessment> byId = assessmentRepository.findById(usrAssessment.getId());
-       if (byId.isPresent()) {
-         return assessmentConverter.toResponse(byId.get());
-       }
-     }
+    if (byTitle != null && !byTitle.isEmpty()) {
+      final Assessment usrAssessment = byTitle.get(0);
+      Optional<Assessment> byId = assessmentRepository.findById(usrAssessment.getId());
+      if (byId.isPresent()) {
+        return assessmentConverter.toResponse(byId.get());
+      }
+    }
 
     assessmentRepository.save(assessment);
 
-//    final OpenAiResponse completions = openAiService.getCompletions(new OpenAiRequest());
-//
-//    final List<Choice> choices = completions.getChoices();
-//
-//    if (choices == null || choices.isEmpty()) {
-//      log.info("Unable to create open ai completion text");
-//    }
+    //    final OpenAiResponse completions = openAiService.getCompletions(new OpenAiRequest());
+    //
+    //    final List<Choice> choices = completions.getChoices();
+    //
+    //    if (choices == null || choices.isEmpty()) {
+    //      log.info("Unable to create open ai completion text");
+    //    }
 
     //    Choice choice = choices.get(0);
     //    String completedText = choice.getText();
@@ -141,15 +136,15 @@ public class AssessmentService {
             + "$age\nc. #value\nd. name%\n\nAnswer: c. #value\n\n5. "
             + "What is the range of a char data type in java?\n\na. "
             + "-128 to 127\nb. 0 to 255\nc. -32768 to 32767\nd. Unicode\n\nAnswer: Unknown";
-    Set<Challenge> challenges = parseCompletedText(completedText,assessment);
-
+    Set<Challenge> challenges = parseCompletedText(completedText, assessment);
 
     challengeRepository.saveAll(challenges);
     Long assessmentId = assessment.getId();
     UserAstReltn userAstReltnForHr = createUserAstReltnForHr(userId, assessmentId);
-    UserAstReltn userAstReltnForCandidate = createUserAstReltnForCandidate(request.getCreatedFor(), assessmentId);
+    UserAstReltn userAstReltnForCandidate =
+        createUserAstReltnForCandidate(request.getCreatedFor(), assessmentId);
 
-    userAstReltnRepository.saveAll(List.of(userAstReltnForHr,userAstReltnForCandidate));
+    userAstReltnRepository.saveAll(List.of(userAstReltnForHr, userAstReltnForCandidate));
 
     return assessmentConverter.toResponse(assessment);
   }
@@ -158,6 +153,7 @@ public class AssessmentService {
    * Parses the text completion for query extractions.
    *
    * @param str the completed open ai text.
+   * @param assessment the {@link Assessment} entity.
    * @return the Set of {@link Challenge}.
    */
   private Set<Challenge> parseCompletedText(String str, Assessment assessment) {
@@ -207,5 +203,4 @@ public class AssessmentService {
     userAstReltn.setUserAstReltnType(UserAstReltnType.ASSIGNED);
     return userAstReltn;
   }
-
 }

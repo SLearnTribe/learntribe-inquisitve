@@ -49,8 +49,7 @@ public class UserProfile {
   private String linkedIn;
   private String gitHub;
 
-  @Lob
-  private String about;
+  @Lob private String about;
   private Long phone;
   private UserRole role;
 
