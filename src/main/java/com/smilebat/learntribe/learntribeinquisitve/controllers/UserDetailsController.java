@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/profile/user")
-@CrossOrigin(origins = "*")
+// @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class UserDetailsController {
 
@@ -44,10 +43,12 @@ public class UserDetailsController {
    * @param request the {@link UserProfileRequest}
    * @return the {@link UserProfileRequest} as response.
    */
-  @PostMapping
+  @PostMapping(value = "/id/{id}")
   @ResponseBody
-  public ResponseEntity<String> saveUserDetails(@Valid @RequestBody UserProfileRequest request) {
+  public ResponseEntity<String> saveUserDetails(
+      @PathVariable String id, @Valid @RequestBody UserProfileRequest request) {
 
+    request.setKeyCloakId(id);
     userInfoService.saveUserInfo(request);
 
     return ResponseEntity.status(HttpStatus.OK).body("Created User");
@@ -96,7 +97,7 @@ public class UserDetailsController {
    */
   @GetMapping
   @ResponseBody
-  public ResponseEntity<?> getAllUserDetails() {
+  public ResponseEntity<List<UserProfileResponse>> getAllUserDetails() {
     log.info("Fetching User Details");
 
     final List<UserProfileResponse> users = userInfoService.getAllUserInfo();

@@ -39,10 +39,12 @@ public class JobController {
    * @return the List of {@link AssessmentResponse}
    */
   @GetMapping(value = "/id/{id}")
-  public ResponseEntity<List<OthersBusinessResponse>> retrieveJob(@PathVariable String keyCloakId) {
+  public ResponseEntity<List<OthersBusinessResponse>> retrieveJob(
+      @PathVariable(value = "id") String keyCloakId) {
 
     // return ResponseEntity.ok(service.retrieveAssessments(id));
-    final List<OthersBusinessResponse> responses = jobService.retrieveJobs(keyCloakId);
+    List<OthersBusinessResponse> responses = null;
+    responses = jobService.retrieveJobs(keyCloakId);
 
     return ResponseEntity.ok(responses);
   }

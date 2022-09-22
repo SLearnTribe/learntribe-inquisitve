@@ -2,6 +2,7 @@ package com.smilebat.learntribe.learntribeinquisitve.services;
 
 import com.google.common.base.Verify;
 import com.smilebat.learntribe.inquisitve.AssessmentRequest;
+import com.smilebat.learntribe.inquisitve.AssessmentStatus;
 import com.smilebat.learntribe.inquisitve.OthersBusinessRequest;
 import com.smilebat.learntribe.inquisitve.UserAstReltnType;
 import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
@@ -22,6 +23,7 @@ import com.smilebat.learntribe.openai.response.OpenAiResponse;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -65,13 +67,7 @@ public class AssessmentService {
 
     List<UserAstReltn> userAstReltns = null;
 
-    try {
-      userAstReltns = userAstReltnRepository.findByUserId(keyCloakId);
-    } catch (Exception ex) {
-      log.info("Assessments for User {} does not exist", keyCloakId);
-      // ex.printStackTrace();
-      return Collections.emptyList();
-    }
+    userAstReltns = userAstReltnRepository.findByUserId(keyCloakId);
 
     if (userAstReltns == null || userAstReltns.isEmpty()) {
       log.info("Assessments for User {} does not exist", keyCloakId);
@@ -111,13 +107,25 @@ public class AssessmentService {
     Assessment assessment = assessmentConverter.toEntity(request);
     assessment.setCreatedBy(userId);
 
-    final OpenAiResponse completions = openAiService.getCompletions(new OpenAiRequest());
+     List<Assessment> byTitle = assessmentRepository.findByTitle(request.getTitle());
 
-    final List<Choice> choices = completions.getChoices();
+     if (byTitle != null && !byTitle.isEmpty()) {
+       final Assessment usrAssessment = byTitle.get(0);
+       Optional<Assessment> byId = assessmentRepository.findById(usrAssessment.getId());
+       if (byId.isPresent()) {
+         return assessmentConverter.toResponse(byId.get());
+       }
+     }
 
-    if (choices == null || choices.isEmpty()) {
-      log.info("Unable to create open ai completion text");
-    }
+    assessmentRepository.save(assessment);
+
+//    final OpenAiResponse completions = openAiService.getCompletions(new OpenAiRequest());
+//
+//    final List<Choice> choices = completions.getChoices();
+//
+//    if (choices == null || choices.isEmpty()) {
+//      log.info("Unable to create open ai completion text");
+//    }
 
     //    Choice choice = choices.get(0);
     //    String completedText = choice.getText();
@@ -133,14 +141,15 @@ public class AssessmentService {
             + "$age\nc. #value\nd. name%\n\nAnswer: c. #value\n\n5. "
             + "What is the range of a char data type in java?\n\na. "
             + "-128 to 127\nb. 0 to 255\nc. -32768 to 32767\nd. Unicode\n\nAnswer: Unknown";
-    Set<Challenge> challenges = parseCompletedText(completedText);
+    Set<Challenge> challenges = parseCompletedText(completedText,assessment);
 
-    assessment.setChallenges(challenges);
-    assessmentRepository.save(assessment);
 
-    UserAstReltn userAstReltnForHr = createUserAstReltn(userId, assessment);
-    // UserAstReltn userAstReltnForCandidate = createUserAstReltn(userId, assessment);
-    userAstReltnRepository.saveAll(List.of(userAstReltnForHr));
+    challengeRepository.saveAll(challenges);
+    Long assessmentId = assessment.getId();
+    UserAstReltn userAstReltnForHr = createUserAstReltnForHr(userId, assessmentId);
+    UserAstReltn userAstReltnForCandidate = createUserAstReltnForCandidate(request.getCreatedFor(), assessmentId);
+
+    userAstReltnRepository.saveAll(List.of(userAstReltnForHr,userAstReltnForCandidate));
 
     return assessmentConverter.toResponse(assessment);
   }
@@ -151,7 +160,7 @@ public class AssessmentService {
    * @param str the completed open ai text.
    * @return the Set of {@link Challenge}.
    */
-  private Set<Challenge> parseCompletedText(String str) {
+  private Set<Challenge> parseCompletedText(String str, Assessment assessment) {
     String[] arr = str.split("\n\n");
     Set<Challenge> challenges = new HashSet<>(15);
     int index = 1;
@@ -161,23 +170,42 @@ public class AssessmentService {
       challenge.setQuestion(arr[index++]);
       challenge.setOptions(arr[index++].split("\n"));
       challenge.setAnswer(arr[index++]);
+      challenge.setAssessmentInfo(assessment);
       challenges.add(challenge);
     }
     return challenges;
   }
 
   /**
-   * Creates a User Job relation object.
+   * Creates a User Assessment relation object for HR.
    *
    * @param userId the keyCloak user Id
-   * @param assessment the {@link OthersBusiness}
-   * @return the {@link UserObReltn}
+   * @param assessmentId the assessmentId
+   * @return the {@link UserAstReltn}
    */
-  private UserAstReltn createUserAstReltn(String userId, Assessment assessment) {
+  private UserAstReltn createUserAstReltnForHr(String userId, Long assessmentId) {
     UserAstReltn userAstReltn = new UserAstReltn();
     userAstReltn.setUserId(userId);
-    userAstReltn.setAssessmentId(assessment.getId());
+    userAstReltn.setAssessmentId(assessmentId);
+    userAstReltn.setStatus(AssessmentStatus.DEFAULT);
     userAstReltn.setUserAstReltnType(UserAstReltnType.CREATED);
     return userAstReltn;
   }
+
+  /**
+   * Creates a User Assessment relation object for HR.
+   *
+   * @param userId the keyCloak user Id
+   * @param assessmentId the assessmentId
+   * @return the {@link UserAstReltn}
+   */
+  private UserAstReltn createUserAstReltnForCandidate(String userId, Long assessmentId) {
+    UserAstReltn userAstReltn = new UserAstReltn();
+    userAstReltn.setUserId(userId);
+    userAstReltn.setAssessmentId(assessmentId);
+    userAstReltn.setStatus(AssessmentStatus.PENDING);
+    userAstReltn.setUserAstReltnType(UserAstReltnType.ASSIGNED);
+    return userAstReltn;
+  }
+
 }

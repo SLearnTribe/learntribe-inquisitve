@@ -1,5 +1,6 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
+import com.smilebat.learntribe.inquisitve.HiringStatus;
 import com.smilebat.learntribe.inquisitve.UserObReltnType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.persistence.Column;
@@ -30,6 +31,7 @@ public class UserObReltn {
   private Long id;
 
   private String userId;
+  private HiringStatus hiringStatus;
   private UserObReltnType userObReltn;
   private Long jobId;
 }
