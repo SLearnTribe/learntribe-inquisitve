@@ -6,6 +6,7 @@ import com.smilebat.learntribe.learntribeinquisitve.services.SkillService;
 import com.smilebat.learntribe.learntribeinquisitve.services.UserInfoService;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -104,5 +106,23 @@ public class UserDetailsController {
     final List<UserProfileResponse> users = userInfoService.getAllUserInfo();
 
     return ResponseEntity.ok(users);
+  }
+
+  /**
+   * Creates a new user role for the user.
+   *
+   * @param id the IAM id
+   * @param role the user role
+   * @return success on role creation.
+   */
+  @PutMapping(value = "/id/{id}")
+  @ResponseBody
+  public ResponseEntity<Map<String, Boolean>> saveUserRole(
+      @PathVariable String id, @RequestParam(value = "role") String role) {
+    UserProfileRequest request = new UserProfileRequest();
+    request.setKeyCloakId(id);
+    request.setRole(role);
+    userInfoService.updateUserRole(request);
+    return ResponseEntity.ok().build();
   }
 }

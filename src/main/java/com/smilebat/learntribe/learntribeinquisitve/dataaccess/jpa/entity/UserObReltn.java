@@ -5,6 +5,8 @@ import com.smilebat.learntribe.inquisitve.UserObReltnType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -31,7 +33,12 @@ public class UserObReltn {
   private Long id;
 
   private String userId;
+
+  @Enumerated(EnumType.STRING)
   private HiringStatus hiringStatus;
+
+  @Enumerated(EnumType.STRING)
   private UserObReltnType userObReltn;
+
   private Long jobId;
 }

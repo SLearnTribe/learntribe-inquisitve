@@ -5,6 +5,8 @@ import com.smilebat.learntribe.inquisitve.UserAstReltnType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -33,6 +35,10 @@ public class UserAstReltn {
 
   private String userId;
   private Long assessmentId;
+
+  @Enumerated(EnumType.STRING)
   private AssessmentStatus status;
+
+  @Enumerated(EnumType.STRING)
   private UserAstReltnType userAstReltnType;
 }

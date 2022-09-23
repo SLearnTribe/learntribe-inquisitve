@@ -3,8 +3,10 @@ package com.smilebat.learntribe.learntribeinquisitve.services;
 import com.google.common.base.Verify;
 import com.smilebat.learntribe.inquisitve.AssessmentRequest;
 import com.smilebat.learntribe.inquisitve.AssessmentStatus;
+import com.smilebat.learntribe.inquisitve.HiringStatus;
 import com.smilebat.learntribe.inquisitve.OthersBusinessRequest;
 import com.smilebat.learntribe.inquisitve.UserAstReltnType;
+import com.smilebat.learntribe.inquisitve.UserObReltnType;
 import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeclients.openai.OpenAiService;
@@ -12,13 +14,14 @@ import com.smilebat.learntribe.learntribeinquisitve.converters.AssessmentConvert
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.AssessmentRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.ChallengeRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserAstReltnRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserObReltnRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserObReltn;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -42,6 +45,7 @@ public class AssessmentService {
   private final AssessmentRepository assessmentRepository;
   private final AssessmentConverter assessmentConverter;
   private final UserAstReltnRepository userAstReltnRepository;
+  private final UserObReltnRepository userObReltnRepository;
 
   private final ChallengeRepository challengeRepository;
 
@@ -99,21 +103,72 @@ public class AssessmentService {
     Verify.verifyNotNull(userId, "User Id cannot be null");
     Verify.verifyNotNull(request, "Job Request cannot be null");
 
-    Assessment assessment = assessmentConverter.toEntity(request);
-    assessment.setCreatedBy(userId);
+    final String title = request.getTitle();
+    final String candidateId = request.getCreatedFor();
+    final Long relatedJobId = request.getRelatedJobId();
 
-    List<Assessment> byTitle = assessmentRepository.findByTitle(request.getTitle());
+    List<Assessment> hrAssessments = assessmentRepository.findByTitle(userId, title);
 
-    if (byTitle != null && !byTitle.isEmpty()) {
-      final Assessment usrAssessment = byTitle.get(0);
-      Optional<Assessment> byId = assessmentRepository.findById(usrAssessment.getId());
-      if (byId.isPresent()) {
-        return assessmentConverter.toResponse(byId.get());
-      }
+    if (hrAssessments != null && !hrAssessments.isEmpty()) {
+      Assessment assessment = hrAssessments.get(0);
+      assignExistingAssessments(candidateId, assessment);
+      return assessmentConverter.toResponse(assessment);
     }
 
-    assessmentRepository.save(assessment);
+    /*Create a fresh assignment*/
 
+    Assessment assessment = assessmentConverter.toEntity(request);
+    assessment.setCreatedBy(userId);
+    assessmentRepository.save(assessment);
+    Long assessmentId = assessment.getId();
+
+    createFreshAssessment(assessment);
+    createUserAssessmentRelation(userId, candidateId, assessmentId);
+    createUserJobReltn(candidateId, relatedJobId);
+
+    return assessmentConverter.toResponse(assessment);
+  }
+
+  @Transactional
+  private void createUserJobReltn(String candidateId, Long jobId) {
+    UserObReltn userObReltn = createUserObReltn(candidateId, jobId);
+    userObReltnRepository.save(userObReltn);
+  }
+
+  private UserObReltn createUserObReltn(String candidateId, Long jobId) {
+    UserObReltn userObReltn = new UserObReltn();
+
+    userObReltn.setUserObReltn(UserObReltnType.CANDIDATE);
+    userObReltn.setHiringStatus(HiringStatus.IN_PROGRESS);
+    userObReltn.setUserId(candidateId);
+    userObReltn.setJobId(jobId);
+    return userObReltn;
+  }
+
+  @Transactional
+  private void createUserAssessmentRelation(String userId, String candidateId, Long assessmentId) {
+    UserAstReltn userAstReltnForHr = createUserAstReltnForHr(userId, assessmentId);
+
+    UserAstReltn userAstReltnForCandidate =
+        createUserAstReltnForCandidate(candidateId, assessmentId);
+
+    userAstReltnRepository.saveAll(List.of(userAstReltnForHr, userAstReltnForCandidate));
+  }
+
+  @Transactional
+  private void assignExistingAssessments(String candidateId, Assessment hrAssessment) {
+    final Long hrAssessmentId = hrAssessment.getId();
+    List<UserAstReltn> userAstReltns =
+        userAstReltnRepository.findByUserAstReltn(candidateId, hrAssessmentId);
+    if (userAstReltns.isEmpty()) {
+      UserAstReltn userAstReltnForCandidate =
+          createUserAstReltnForCandidate(candidateId, hrAssessmentId);
+      userAstReltnRepository.save(userAstReltnForCandidate);
+    }
+  }
+
+  @Transactional
+  private void createFreshAssessment(Assessment assessment) {
     //    final OpenAiResponse completions = openAiService.getCompletions(new OpenAiRequest());
     //
     //    final List<Choice> choices = completions.getChoices();
@@ -124,7 +179,6 @@ public class AssessmentService {
 
     //    Choice choice = choices.get(0);
     //    String completedText = choice.getText();
-
     String completedText =
         "\n\n1. What is the most important feature of Java?\n\na. Platform independent\nb. "
             + "Object oriented\nc. Simple\nd. Secure\n\nAnswer: "
@@ -139,14 +193,6 @@ public class AssessmentService {
     Set<Challenge> challenges = parseCompletedText(completedText, assessment);
 
     challengeRepository.saveAll(challenges);
-    Long assessmentId = assessment.getId();
-    UserAstReltn userAstReltnForHr = createUserAstReltnForHr(userId, assessmentId);
-    UserAstReltn userAstReltnForCandidate =
-        createUserAstReltnForCandidate(request.getCreatedFor(), assessmentId);
-
-    userAstReltnRepository.saveAll(List.of(userAstReltnForHr, userAstReltnForCandidate));
-
-    return assessmentConverter.toResponse(assessment);
   }
 
   /**

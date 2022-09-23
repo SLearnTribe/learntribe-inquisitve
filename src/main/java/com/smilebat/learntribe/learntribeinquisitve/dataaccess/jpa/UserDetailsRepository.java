@@ -4,6 +4,7 @@ import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserPr
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /** Returns Data Access by User Repo */
@@ -16,7 +17,10 @@ public interface UserDetailsRepository extends JpaRepository<UserProfile, Long> 
    * @param keycloakId the IAM user id.
    * @return the {@link UserProfile}
    */
-  UserProfile findByKeyCloakId(String keycloakId);
+  @Query(
+      value = "SELECT * FROM USER_PROFILE a WHERE a.key_cloak_id = :keyCloakId",
+      nativeQuery = true)
+  UserProfile findByKeyCloakId(@Param("keyCloakId") String keycloakId);
 
   /**
    * Finds all valid user profiles

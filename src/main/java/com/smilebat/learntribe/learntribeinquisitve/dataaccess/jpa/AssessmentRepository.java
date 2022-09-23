@@ -12,11 +12,14 @@ import org.springframework.stereotype.Repository;
 public interface AssessmentRepository extends JpaRepository<Assessment, Long> {
 
   /**
-   * Queries assessments based on title.
+   * Queries assessments based on title and user id.
    *
+   * @param userId the IAM userId
    * @param title the title
    * @return the List of {@link Assessment}.
    */
-  @Query(value = "SELECT * FROM assessment a WHERE a.title like :title", nativeQuery = true)
-  List<Assessment> findByTitle(@Param("title") String title);
+  @Query(
+      value = "SELECT * FROM assessment a WHERE a.title like :title and a.created_by = :userId",
+      nativeQuery = true)
+  List<Assessment> findByTitle(@Param("userId") String userId, @Param("title") String title);
 }

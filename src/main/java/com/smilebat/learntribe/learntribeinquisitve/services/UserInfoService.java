@@ -3,6 +3,7 @@ package com.smilebat.learntribe.learntribeinquisitve.services;
 import com.google.common.base.Verify;
 import com.smilebat.learntribe.inquisitve.SkillRequest;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
+import com.smilebat.learntribe.inquisitve.UserRole;
 import com.smilebat.learntribe.inquisitve.WorkExperienceRequest;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.learntribeinquisitve.converters.SkillConverter;
@@ -20,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserInfoService {
 
   private final UserDetailsRepository userDetailsRepository;
@@ -40,6 +43,35 @@ public class UserInfoService {
   private final UserProfileConverter profileConverter;
   private final SkillConverter skillConverter;
   private final WorkExperienceConverter workExperienceConverter;
+
+  @Transactional
+  public boolean updateUserRole(UserProfileRequest profileRequest) {
+    Verify.verifyNotNull(profileRequest, "User Profile Request Cannot be Null");
+
+    String keyCloakId = profileRequest.getKeyCloakId();
+    UserRole role = evaluateUserRole(profileRequest);
+
+    UserProfile userProfile = userDetailsRepository.findByKeyCloakId(keyCloakId);
+
+    if (userProfile == null) {
+      userProfile = new UserProfile();
+    }
+
+    userProfile.setKeyCloakId(keyCloakId);
+    userProfile.setRole(role);
+
+    userDetailsRepository.save(userProfile);
+    return true;
+  }
+
+  private UserRole evaluateUserRole(UserProfileRequest profileRequest) {
+    switch (profileRequest.getRole()) {
+      case "HR":
+        return UserRole.ROLE_HR;
+      default:
+        return UserRole.ROLE_CANDIDATE;
+    }
+  }
 
   /**
    * Saves all user information.

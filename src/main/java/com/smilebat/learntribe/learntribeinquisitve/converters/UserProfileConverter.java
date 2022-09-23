@@ -84,6 +84,9 @@ public class UserProfileConverter {
     response.setName(profile.getName());
     response.setPhone(profile.getPhone());
     response.setKeyCloakId(profile.getKeyCloakId());
+    if (profile.getRole() != null) {
+      response.setRole(profile.getRole().name());
+    }
 
     final Set<WorkExperience> experienceSet = profile.getWorkExperiences();
     List<WorkExperienceResponse> workExperienceResponses = Collections.emptyList();
