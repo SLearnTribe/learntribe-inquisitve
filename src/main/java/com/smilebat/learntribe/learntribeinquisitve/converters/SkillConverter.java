@@ -38,19 +38,6 @@ public final class SkillConverter {
   }
 
   /**
-   * Converts the {@link Skill} to {@link SkillRequest}.
-   *
-   * @param skill the {@link Skill}
-   * @return the {@link SkillRequest}
-   */
-  public SkillRequest toRequest(Skill skill) {
-    SkillRequest skillRequest = new SkillRequest();
-    skillRequest.setId(skill.getId());
-    skillRequest.setSkillName(skill.getSkillName());
-    return skillRequest;
-  }
-
-  /**
    * Converts the List of {@link SkillRequest} to List of {@link Skill}.
    *
    * @param requestList the List of {@link SkillRequest}
