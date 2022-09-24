@@ -44,7 +44,7 @@ public class UserDetailsController {
    * @param id the user id.
    * @return the {@link UserProfileRequest} as response.
    */
-  @PostMapping(value = "/id/{id}")
+  @PostMapping(value = "id/{id}")
   @ResponseBody
   public ResponseEntity<String> saveUserDetails(
       @PathVariable String id, @Valid @RequestBody UserProfileRequest request) {

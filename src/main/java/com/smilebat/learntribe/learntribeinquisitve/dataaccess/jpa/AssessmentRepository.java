@@ -19,4 +19,13 @@ public interface AssessmentRepository extends JpaRepository<Assessment, Long> {
    */
   @Query(value = "SELECT * FROM assessment a WHERE a.title like :title", nativeQuery = true)
   List<Assessment> findByTitle(@Param("title") String title);
+
+  /**
+   * Queries assessments based on Assessment ID.
+   *
+   * @param id Assessment ID
+   * @return assessment.
+   */
+  @Query(value = "SELECT * FROM assessment a WHERE a.id = :id", nativeQuery = true)
+  Assessment findByAssessmentId(@Param("id") Long id );
 }

@@ -6,6 +6,8 @@ import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
 import org.springframework.stereotype.Component;
 
 /**

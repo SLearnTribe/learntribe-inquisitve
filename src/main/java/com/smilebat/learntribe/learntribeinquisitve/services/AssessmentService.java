@@ -19,10 +19,8 @@ import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assess
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Skill;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.transaction.Transactional;
@@ -92,6 +90,26 @@ public class AssessmentService {
   }
 
   /**
+   * Retrieves user & skill related assessments.
+   *
+   * @param assessmentId the ID provided by IAM (keycloak)
+   * @return AssessmentResponse
+   */
+  public AssessmentResponse retrieveAssessment(Long assessmentId) {
+    Verify.verifyNotNull(assessmentId, "Assessment ID cannnot be null");
+
+    log.info("Fetching Assessments with id {}", assessmentId);
+
+    Assessment assessment = assessmentRepository.findByAssessmentId(assessmentId);
+
+    if (assessment == null) {
+      log.info("No Assessment found");
+      return (AssessmentResponse) Collections.emptyList();
+    }
+    return assessmentConverter.toResponse(assessment);
+  }
+
+  /**
    * Creates a assessment as per the requirements.
    *
    * @param userId the keycloak id of the recruiter.
@@ -141,7 +159,7 @@ public class AssessmentService {
             + "What is the range of a char data type in java?\n\na. "
             + "-128 to 127\nb. 0 to 255\nc. -32768 to 32767\nd. Unicode\n\nAnswer: Unknown";
     Set<Challenge> challenges = parseCompletedText(completedText, assessment);
-
+    assessment.setChallenges(challenges);
     challengeRepository.saveAll(challenges);
     Long assessmentId = assessment.getId();
     UserAstReltn userAstReltnForHr = createUserAstReltnForHr(userId, assessmentId);
