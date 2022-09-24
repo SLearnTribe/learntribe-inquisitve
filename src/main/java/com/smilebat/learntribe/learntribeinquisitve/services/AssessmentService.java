@@ -187,7 +187,7 @@ public class AssessmentService {
     UserAstReltn userAstReltn = new UserAstReltn();
     userAstReltn.setUserId(userId);
     userAstReltn.setAssessmentId(assessmentId);
-    userAstReltn.setStatus(AssessmentStatus.DEFAULT);
+    userAstReltn.setStatus(AssessmentStatus.PENDING);
     userAstReltn.setUserAstReltnType(UserAstReltnType.CREATED);
     return userAstReltn;
   }
