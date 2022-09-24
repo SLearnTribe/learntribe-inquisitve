@@ -9,13 +9,16 @@ import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeclients.openai.OpenAiService;
 import com.smilebat.learntribe.learntribeinquisitve.converters.AssessmentConverter;
+import com.smilebat.learntribe.learntribeinquisitve.converters.SkillConverter;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.AssessmentRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.ChallengeRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.SkillRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserAstReltnRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserDetailsRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Skill;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +44,10 @@ public class AssessmentService {
 
   private final AssessmentRepository assessmentRepository;
   private final AssessmentConverter assessmentConverter;
+  private final SkillConverter skillConverter;
   private final UserAstReltnRepository userAstReltnRepository;
+  private final SkillRepository skillRepository;
+  private final UserDetailsRepository userDetailsRepository;
 
   private final ChallengeRepository challengeRepository;
 
@@ -68,8 +74,7 @@ public class AssessmentService {
       log.info("Assessments for User {} does not exist", keyCloakId);
 
       // return default assessments from oepn ai based on his skills.
-
-      return Collections.emptyList();
+      return List.of(createDefaultAssessment(keyCloakId));
     }
 
     final List<Long> assessmentIds =
@@ -81,8 +86,7 @@ public class AssessmentService {
       log.info("No Existing Assessments found for the current user");
       // assessments = Assessment.generateMockAssessments();
       // get default assessments from oepn ai based on his skills.
-
-      return Collections.emptyList();
+      return List.of(createDefaultAssessment(keyCloakId));
     }
     return assessmentConverter.toResponse(assessments);
   }
@@ -202,5 +206,28 @@ public class AssessmentService {
     userAstReltn.setStatus(AssessmentStatus.PENDING);
     userAstReltn.setUserAstReltnType(UserAstReltnType.ASSIGNED);
     return userAstReltn;
+  }
+
+  /**
+   * Generate a default assessment based on his skills.
+   *
+   * @param keyCloakId the keyCloak user Id
+   * @return assessmentResponse sent by the createAssessment method
+   */
+  private AssessmentResponse createDefaultAssessment(String keyCloakId) {
+    AssessmentRequest assessmentRequest = new AssessmentRequest();
+    assessmentRequest.setCreatedFor(keyCloakId);
+    List<Skill> skills =
+        skillRepository.findByUserId(userDetailsRepository.findByKeyCloakId(keyCloakId).getId());
+    assessmentRequest.setSkillRequest(skillConverter.toRequest(skills.get(0)));
+    assessmentRequest.setProgress(0);
+    assessmentRequest.setNumOfQuestions(15);
+    assessmentRequest.setType("MCQ");
+    assessmentRequest.setStatus("");
+    assessmentRequest.setDifficulty("Easy");
+    assessmentRequest.setDescription("Default assessment");
+    assessmentRequest.setTitle(skills.get(0).getSkillName());
+    assessmentRequest.setSubTitle("");
+    return createAssessment(keyCloakId, assessmentRequest);
   }
 }
