@@ -46,17 +46,13 @@ public class UserProfile {
   private String linkedIn;
   private String gitHub;
 
+  @Lob private String skills;
+
   @Lob private String about;
   private Long phone;
 
   @Enumerated(EnumType.STRING)
   private UserRole role;
-
-  @OneToMany(mappedBy = USER_DETAILS_NAME)
-  @JsonIgnoreProperties(
-      value = {USER_DETAILS_NAME},
-      allowSetters = true)
-  private Set<Skill> skills = new HashSet<>();
 
   @OneToMany(mappedBy = USER_DETAILS_NAME)
   @JsonIgnoreProperties(

@@ -1,7 +1,6 @@
 package com.smilebat.learntribe.learntribeinquisitve.services;
 
 import com.google.common.base.Verify;
-import com.smilebat.learntribe.inquisitve.SkillRequest;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.UserRole;
 import com.smilebat.learntribe.inquisitve.WorkExperienceRequest;
@@ -12,7 +11,6 @@ import com.smilebat.learntribe.learntribeinquisitve.converters.WorkExperienceCon
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.SkillRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserDetailsRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.WorkExperienceRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Skill;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.WorkExperience;
 import java.util.Collection;
@@ -44,6 +42,12 @@ public class UserInfoService {
   private final SkillConverter skillConverter;
   private final WorkExperienceConverter workExperienceConverter;
 
+  /**
+   * Updates the user role on sign in
+   *
+   * @param profileRequest the {@link UserProfileRequest}
+   * @return the boolean true/false.
+   */
   @Transactional
   public boolean updateUserRole(UserProfileRequest profileRequest) {
     Verify.verifyNotNull(profileRequest, "User Profile Request Cannot be Null");
@@ -125,6 +129,7 @@ public class UserInfoService {
   private UserProfile saveUserProfile(UserProfileRequest profileRequest) {
     String keycloakId = profileRequest.getKeyCloakId();
     UserProfile userProfile = userDetailsRepository.findByKeyCloakId(keycloakId);
+
     if (userProfile == null) {
       userProfile = profileConverter.toEntity(profileRequest);
     } else {
@@ -132,32 +137,9 @@ public class UserInfoService {
     }
 
     userDetailsRepository.save(userProfile);
-    List<SkillRequest> skillsRequest = profileRequest.getSkills();
     List<WorkExperienceRequest> workExperienceRequests = profileRequest.getWorkExperiences();
-    saveUserSkills(userProfile, skillsRequest);
     saveWorkExperiences(userProfile, workExperienceRequests);
     return userProfile;
-  }
-
-  /**
-   * Saves all the user skills.
-   *
-   * @param profile the {@link UserProfile}
-   * @param skillsRequest the List of {@link SkillRequest}
-   * @return the List of {@link Skill}
-   */
-  private Collection<Skill> saveUserSkills(UserProfile profile, List<SkillRequest> skillsRequest) {
-    if (skillsRequest == null || skillsRequest.isEmpty()) {
-      return Collections.emptyList();
-    }
-    Set<Skill> existingSkills = profile.getSkills();
-    Set<Skill> requestSkills = skillConverter.toEntities(skillsRequest, profile);
-    Set<Skill> updatedSkills = new HashSet<>();
-    updatedSkills.addAll(requestSkills);
-    updatedSkills.addAll(existingSkills);
-    updatedSkills.removeAll(existingSkills);
-    skillRepository.saveAll(updatedSkills);
-    return updatedSkills;
   }
 
   /**

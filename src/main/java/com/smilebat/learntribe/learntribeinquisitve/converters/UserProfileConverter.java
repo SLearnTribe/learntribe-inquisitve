@@ -1,10 +1,8 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
-import com.smilebat.learntribe.inquisitve.response.SkillResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.WorkExperienceResponse;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Skill;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.WorkExperience;
 import java.util.Collection;
@@ -43,6 +41,7 @@ public class UserProfileConverter {
     userProfile.setGitHub(request.getGitHub());
     userProfile.setAbout(request.getAbout());
     userProfile.setPhone(request.getPhone());
+    userProfile.setSkills(request.getSkills());
   }
 
   /**
@@ -84,6 +83,7 @@ public class UserProfileConverter {
     response.setName(profile.getName());
     response.setPhone(profile.getPhone());
     response.setKeyCloakId(profile.getKeyCloakId());
+    response.setSkills(profile.getSkills());
     if (profile.getRole() != null) {
       response.setRole(profile.getRole().name());
     }
@@ -95,15 +95,7 @@ public class UserProfileConverter {
           workExperienceConverter.toResponse(experienceSet.stream().collect(Collectors.toList()));
     }
 
-    final Set<Skill> skillSet = profile.getSkills();
-    List<SkillResponse> skillResponses = Collections.emptyList();
-    if (skillSet != null && !skillSet.isEmpty()) {
-      skillResponses =
-          skillConverter.toResponse(profile.getSkills().stream().collect(Collectors.toList()));
-    }
-
     response.setWorkExperiences(workExperienceResponses);
-    response.setSkills(skillResponses);
     return response;
   }
 
