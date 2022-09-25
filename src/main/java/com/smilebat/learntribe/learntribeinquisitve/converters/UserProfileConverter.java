@@ -42,6 +42,7 @@ public class UserProfileConverter {
     userProfile.setAbout(request.getAbout());
     userProfile.setPhone(request.getPhone());
     userProfile.setSkills(request.getSkills().toLowerCase());
+    userProfile.setSkills(request.getSkills());
   }
 
   /**
