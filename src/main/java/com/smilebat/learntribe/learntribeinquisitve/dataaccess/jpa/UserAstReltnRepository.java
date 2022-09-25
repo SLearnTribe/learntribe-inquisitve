@@ -21,6 +21,13 @@ public interface UserAstReltnRepository extends JpaRepository<UserAstReltn, Long
   @Query(value = "SELECT * FROM usr_ast_reltn ua WHERE ua.user_id = :userId", nativeQuery = true)
   List<UserAstReltn> findByUserId(@Param("userId") String keyCloakId);
 
+  /**
+   * Finds Assessments based on the inputs.
+   *
+   * @param keyCloakId the IAM id
+   * @param assessmentId the assessment id
+   * @return the List of {@link UserAstReltn}
+   */
   @Query(
       value =
           "SELECT * FROM usr_ast_reltn ua WHERE ua.user_id = :userId and ua.assessment_id = :assessmentId",

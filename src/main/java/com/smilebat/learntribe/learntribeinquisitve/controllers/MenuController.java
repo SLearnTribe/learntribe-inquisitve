@@ -50,15 +50,15 @@ public class MenuController {
     List<AssessmentResponse> responses = null;
 
     UserProfile profile = userDetailsRepository.findByKeyCloakId(keyCloakId);
+    UserRole userRole = UserRole.ROLE_CANDIDATE;
+    Map<Integer, String> map = getCandidateMenu();
 
-    UserRole userRole = UserRole.valueOf(profile.getRole().name());
+    if (profile.getRole() != null) {
+      userRole = UserRole.valueOf(profile.getRole().name());
+    }
 
-    Map<Integer, String> map = null;
-
-    if (userRole.name() == UserRole.ROLE_HR.name()) {
+    if (userRole.name().equals(UserRole.ROLE_HR.name())) {
       map = getHrMenu();
-    } else {
-      map = getCandidateMenu();
     }
 
     return ResponseEntity.ok(map);
