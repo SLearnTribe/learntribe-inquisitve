@@ -73,4 +73,17 @@ public final class SkillConverter {
   public List<SkillResponse> toResponse(List<Skill> skills) {
     return skills.stream().map(this::toResponse).collect(Collectors.toList());
   }
+
+  /**
+   * Converts the {@link Skill} to {@link SkillRequest}.
+   *
+   * @param skill the {@link Skill}
+   * @return the {@link SkillRequest}
+   */
+  public SkillRequest toRequest(Skill skill) {
+    SkillRequest skillRequest = new SkillRequest();
+    skillRequest.setId(skill.getId());
+    skillRequest.setSkillName(skill.getSkillName());
+    return skillRequest;
+  }
 }

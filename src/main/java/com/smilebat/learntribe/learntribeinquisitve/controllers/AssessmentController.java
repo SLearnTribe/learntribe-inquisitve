@@ -65,4 +65,20 @@ public class AssessmentController {
 
     return ResponseEntity.ok(response);
   }
+
+  /**
+   * Retrieves all the related assessments to User Id
+   *
+   * @param assessmentId the user keycloak id
+   * @return {@link ResponseEntity} of {@link AssessmentResponse}
+   */
+  @GetMapping(value = "/id/{id}")
+  @ResponseBody
+  public ResponseEntity<AssessmentResponse> retrieveAssessment(
+      @PathVariable(value = "id") Long assessmentId) {
+
+    AssessmentResponse response = assessmentService.retrieveAssessment(assessmentId);
+
+    return ResponseEntity.ok(response);
+  }
 }
