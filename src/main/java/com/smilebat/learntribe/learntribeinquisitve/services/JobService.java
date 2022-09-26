@@ -44,9 +44,7 @@ public class JobService {
   public List<OthersBusinessResponse> retrieveJobs(String userId) {
     Verify.verifyNotNull(userId, "User Id cannot be null");
 
-    List<UserObReltn> userObReltns = null;
-
-    userObReltns = userObReltnRepository.findByUserId(userId);
+    List<UserObReltn> userObReltns = userObReltnRepository.findByUserId(userId);
 
     if (userObReltns == null || userObReltns.isEmpty()) {
       return Collections.emptyList();

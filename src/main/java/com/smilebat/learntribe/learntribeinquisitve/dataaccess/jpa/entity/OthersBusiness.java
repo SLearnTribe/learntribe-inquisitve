@@ -1,13 +1,12 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.List;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.Table;
 import lombok.Getter;
@@ -36,14 +35,11 @@ public class OthersBusiness {
   @Column(name = "id", nullable = false)
   private Long id;
 
-  private String title;
-  private String description;
+  @Lob private String title;
+  @Lob private String description;
 
-  @ElementCollection(targetClass = String.class)
-  private List<String> rolesAndResponsibilities;
-
-  @ElementCollection(targetClass = String.class)
-  private List<String> requiredSkills;
+  @Lob private String rolesAndResponsibilities;
+  @Lob private String requiredSkills;
 
   private String createdBy;
 }

@@ -20,6 +20,7 @@ import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserOb
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
 import java.util.Collection;
 import java.util.List;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,7 @@ public class AnalyticsService {
    * @param keyCloakId the IAM ID.
    * @return the {@link AnalyticsResponse}.
    */
+  @Transactional
   public AnalyticsResponse retrieveDashBoardStatus(String keyCloakId) {
     Verify.verifyNotNull(keyCloakId, "User Id cannot be null");
 
