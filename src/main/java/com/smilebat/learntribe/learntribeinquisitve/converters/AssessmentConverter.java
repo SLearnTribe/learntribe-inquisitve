@@ -4,6 +4,8 @@ import com.smilebat.learntribe.inquisitve.AssessmentRequest;
 import com.smilebat.learntribe.inquisitve.AssessmentType;
 import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Component;
 @Component
 public final class AssessmentConverter {
 
+  final ChallengeConverter challengeConverter = new ChallengeConverter();
   /**
    * Converts the {@link AssessmentRequest} to {@link Assessment}.
    *
@@ -50,6 +53,8 @@ public final class AssessmentConverter {
     response.setDifficulty(assessment.getDifficulty());
     response.setSubTitle(assessment.getSubTitle());
     response.setStatus(assessment.getStatus());
+    List<Challenge> challenges = new ArrayList<>(assessment.getChallenges());
+    response.setChallengeResponses(challengeConverter.toResponse(challenges));
 
     // response.setDescription();
 
