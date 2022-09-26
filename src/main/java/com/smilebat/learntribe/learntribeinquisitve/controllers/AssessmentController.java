@@ -75,7 +75,7 @@ public class AssessmentController {
   @GetMapping(value = "/id/{id}")
   @ResponseBody
   public ResponseEntity<AssessmentResponse> retrieveAssessment(
-          @PathVariable(value = "id") Long assessmentId) {
+      @PathVariable(value = "id") Long assessmentId) {
 
     AssessmentResponse response = assessmentService.retrieveAssessment(assessmentId);
 

@@ -27,5 +27,5 @@ public interface AssessmentRepository extends JpaRepository<Assessment, Long> {
    * @return assessment.
    */
   @Query(value = "SELECT * FROM assessment a WHERE a.id = :id", nativeQuery = true)
-  Assessment findByAssessmentId(@Param("id") Long id );
+  Assessment findByAssessmentId(@Param("id") Long id);
 }
