@@ -31,12 +31,12 @@ public class JobConverter {
     response.setDescription(jobEntity.getDescription());
     response.setCreatedBy(jobEntity.getCreatedBy());
 
-    final List<String> requiredSkills = jobEntity.getRequiredSkills();
+    final String requiredSkills = jobEntity.getRequiredSkills();
     if (requiredSkills != null && !requiredSkills.isEmpty()) {
       response.setRequiredSkills(requiredSkills);
     }
 
-    final List<String> rolesAndResponsibilities = jobEntity.getRolesAndResponsibilities();
+    final String rolesAndResponsibilities = jobEntity.getRolesAndResponsibilities();
     if (rolesAndResponsibilities != null && !rolesAndResponsibilities.isEmpty()) {
       response.setRolesAndResponsibilities(rolesAndResponsibilities);
     }

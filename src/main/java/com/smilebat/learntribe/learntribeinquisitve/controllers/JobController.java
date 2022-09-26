@@ -58,7 +58,7 @@ public class JobController {
    */
   @PostMapping(value = "/id/{id}")
   public ResponseEntity<OthersBusinessResponse> createJob(
-      @PathVariable String keyCloakId, @RequestBody OthersBusinessRequest request) {
+      @PathVariable(value = "id") String keyCloakId, @RequestBody OthersBusinessRequest request) {
 
     final OthersBusinessResponse response = jobService.createJob(keyCloakId, request);
 
