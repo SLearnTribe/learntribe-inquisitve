@@ -4,8 +4,11 @@ import com.smilebat.learntribe.inquisitve.AssessmentRequest;
 import com.smilebat.learntribe.inquisitve.AssessmentType;
 import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,7 +19,10 @@ import org.springframework.stereotype.Component;
  * @author Pai,Sai Nandan
  */
 @Component
+@RequiredArgsConstructor
 public final class AssessmentConverter {
+
+  private final ChallengeConverter challengeConverter;
 
   /**
    * Converts the {@link AssessmentRequest} to {@link Assessment}.
@@ -48,6 +54,8 @@ public final class AssessmentConverter {
     response.setDifficulty(assessment.getDifficulty());
     response.setSubTitle(assessment.getSubTitle());
     response.setStatus(assessment.getStatus());
+    List<Challenge> challenges = new ArrayList<>(assessment.getChallenges());
+    response.setChallengeResponses(challengeConverter.toResponse(challenges));
 
     // response.setDescription();
 

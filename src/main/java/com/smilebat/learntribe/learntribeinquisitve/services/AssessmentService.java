@@ -11,15 +11,18 @@ import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeclients.openai.OpenAiService;
 import com.smilebat.learntribe.learntribeinquisitve.converters.AssessmentConverter;
+import com.smilebat.learntribe.learntribeinquisitve.converters.SkillConverter;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.AssessmentRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.ChallengeRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.SkillRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserAstReltnRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserDetailsRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserObReltnRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Skill;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserObReltn;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +54,10 @@ public class AssessmentService {
 
   private final OpenAiService openAiService;
 
+  private final SkillConverter skillConverter;
+  private final SkillRepository skillRepository;
+  private final UserDetailsRepository userDetailsRepository;
+
   /**
    * Retrieves user & skill related assessments.
    *
@@ -73,7 +80,7 @@ public class AssessmentService {
 
       // return default assessments from oepn ai based on his skills.
 
-      return Collections.emptyList();
+      return List.of(createDefaultAssessment(keyCloakId));
     }
 
     final List<Long> assessmentIds =
@@ -86,9 +93,30 @@ public class AssessmentService {
       // assessments = Assessment.generateMockAssessments();
       // get default assessments from oepn ai based on his skills.
 
-      return Collections.emptyList();
+      return List.of(createDefaultAssessment(keyCloakId));
     }
     return assessmentConverter.toResponse(assessments);
+  }
+
+  /**
+   * Retrieves user & skill related assessments.
+   *
+   * @param assessmentId the ID provided by IAM (keycloak)
+   * @return AssessmentResponse
+   */
+  @Transactional
+  public AssessmentResponse retrieveAssessment(Long assessmentId) {
+    Verify.verifyNotNull(assessmentId, "Assessment ID cannnot be null");
+
+    log.info("Fetching Assessments with id {}", assessmentId);
+
+    Assessment assessment = assessmentRepository.findByAssessmentId(assessmentId);
+
+    if (assessment == null) {
+      log.info("No Assessment found");
+      return new AssessmentResponse();
+    }
+    return assessmentConverter.toResponse(assessment);
   }
 
   /**
@@ -191,8 +219,32 @@ public class AssessmentService {
             + "What is the range of a char data type in java?\n\na. "
             + "-128 to 127\nb. 0 to 255\nc. -32768 to 32767\nd. Unicode\n\nAnswer: Unknown";
     Set<Challenge> challenges = parseCompletedText(completedText, assessment);
+    assessment.setChallenges(challenges);
 
     challengeRepository.saveAll(challenges);
+  }
+
+  /**
+   * Generate a default assessment based on his skills.
+   *
+   * @param keyCloakId the keyCloak user Id
+   * @return assessmentResponse sent by the createAssessment method
+   */
+  private AssessmentResponse createDefaultAssessment(String keyCloakId) {
+    AssessmentRequest assessmentRequest = new AssessmentRequest();
+    assessmentRequest.setCreatedFor(keyCloakId);
+    List<Skill> skills =
+        skillRepository.findByUserId(userDetailsRepository.findByKeyCloakId(keyCloakId).getId());
+    assessmentRequest.setSkillRequest(skillConverter.toRequest(skills.get(0)));
+    assessmentRequest.setProgress(0);
+    assessmentRequest.setNumOfQuestions(15);
+    assessmentRequest.setType("MCQ");
+    assessmentRequest.setStatus("");
+    assessmentRequest.setDifficulty("Easy");
+    assessmentRequest.setDescription("Default assessment");
+    assessmentRequest.setTitle(skills.get(0).getSkillName());
+    assessmentRequest.setSubTitle("");
+    return createAssessment(keyCloakId, assessmentRequest);
   }
 
   /**
