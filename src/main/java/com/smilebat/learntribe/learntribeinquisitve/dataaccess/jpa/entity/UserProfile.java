@@ -1,15 +1,18 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.smilebat.learntribe.inquisitve.UserRole;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.NamedNativeQuery;
+import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Getter;
@@ -24,10 +27,6 @@ import lombok.Setter;
  */
 @Table(name = "USER_PROFILE")
 @Entity
-@NamedNativeQuery(
-    name = "UserProfile.findByKeycloakId",
-    query = "SELECT * FROM user_profile WHERE keycloak_id = ?",
-    resultClass = UserProfile.class)
 @SuppressFBWarnings(justification = "Generated code")
 @Getter
 @Setter
@@ -46,24 +45,18 @@ public class UserProfile {
   private String country;
   private String linkedIn;
   private String gitHub;
-  private String about;
+
+  @Lob private String skills;
+
+  @Lob private String about;
   private Long phone;
 
-  @OneToMany(mappedBy = USER_DETAILS_NAME)
-  @JsonIgnoreProperties(
-      value = {USER_DETAILS_NAME},
-      allowSetters = true)
-  private Set<Skill> skills = new HashSet<>();
+  @Enumerated(EnumType.STRING)
+  private UserRole role;
 
   @OneToMany(mappedBy = USER_DETAILS_NAME)
   @JsonIgnoreProperties(
       value = {USER_DETAILS_NAME},
       allowSetters = true)
   private Set<WorkExperience> workExperiences = new HashSet<>();
-
-  @OneToMany(mappedBy = USER_DETAILS_NAME)
-  @JsonIgnoreProperties(
-      value = {USER_DETAILS_NAME},
-      allowSetters = true)
-  private Set<Assessment> assessments = new HashSet<>();
 }

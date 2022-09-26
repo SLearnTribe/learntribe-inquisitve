@@ -9,7 +9,7 @@
 
 	<groupId>com.smilebat.learntribe</groupId>
 	<artifactId>learntribe-inquisitve</artifactId>
-	<version>1.0.3-SNAPSHOT</version>
+	<version>1.0.6-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>learntribe-inquisitve</name>
 	<description>Initial</description>
@@ -17,8 +17,8 @@
 		<java.version>11</java.version>
 		<jackson.version>2.5.2</jackson.version>
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-		<model.version>1.1.0-SNAPSHOT</model.version>
-		<commons.version>1.1.0-SNAPSHOT</commons.version>
+		<model.version>1.0.10-SNAPSHOT</model.version>
+		<commons.version>1.0.10-SNAPSHOT</commons.version>
 	</properties>
 
 	<scm>
@@ -132,6 +132,14 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>9</source>
+					<target>9</target>
+				</configuration>
 			</plugin>
 		</plugins>
 		<pluginManagement>

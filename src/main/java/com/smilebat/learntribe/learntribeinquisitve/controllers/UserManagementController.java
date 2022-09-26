@@ -4,6 +4,7 @@ import com.smilebat.learntribe.keycloak.response.UserRepresentation;
 import com.smilebat.learntribe.learntribeclients.keycloak.KeycloakService;
 import java.util.Collections;
 import java.util.List;
+import javax.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -56,13 +57,17 @@ public class UserManagementController {
    */
   @GetMapping(value = "/email")
   @ResponseBody
-  public ResponseEntity<List<UserRepresentation>> fetchUserByEmail(@RequestParam String email) {
+  public ResponseEntity<List<UserRepresentation>> fetchUserByEmail(
+      @RequestParam
+          @Pattern(regexp = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.com$", message = "Invalid Email ID")
+          String email) {
     log.info("Fetching User Details");
 
-    //   if (!validator.isValid(email)){
-    //     log.error("Invalid Email");
-    //     return ResponseEntity.ok(Collections.emptyList());
-    //   }
+    /*   if (!validator.isValid(email)){
+        log.error("Invalid Email");
+        return ResponseEntity.ok(Collections.emptyList());
+      }
+    */
 
     List<UserRepresentation> users = keycloak.fetchUserByEmail(email);
     if (users == null || users.isEmpty()) {

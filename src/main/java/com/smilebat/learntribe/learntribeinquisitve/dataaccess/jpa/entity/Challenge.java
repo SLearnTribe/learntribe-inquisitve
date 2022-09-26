@@ -15,35 +15,39 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Skill Entity Representation of DB
+ * Represents a single Objective Question for user.
  *
  * <p>Copyright &copy; 2022 Smile .Bat
  *
- * @author Sanjay
+ * @author Pai,Sai Nandan
  */
+@Table(name = "CHALLENGE")
+@Entity
 @Getter
 @Setter
-@Table(name = "SKILL")
-@Entity
 @SuppressFBWarnings(justification = "Generated code")
-public class Skill {
+public class Challenge {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", nullable = false)
   private Long id;
 
-  private String skillName;
+  private String question;
+  private String[] options;
+  private String answer;
+
+  //  private ChallengeCategory
 
   @ManyToOne(optional = false)
   @NotNull
   @JsonIgnoreProperties(
-      value = {"skills", "workExperiences"},
+      value = {"challenges"},
       allowSetters = true)
-  private UserProfile userDetails;
+  private Assessment assessmentInfo;
 
   @Override
   public int hashCode() {
-    return Objects.hash(skillName, userDetails);
+    return Objects.hash(question, answer);
   }
 
   @Override
@@ -51,8 +55,8 @@ public class Skill {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    Skill other = (Skill) obj;
-    return Objects.equals(this.skillName, other.skillName)
-        && Objects.equals(this.userDetails, other.userDetails);
+    Challenge other = (Challenge) obj;
+    return Objects.equals(this.question, other.question)
+        && Objects.equals(this.answer, other.answer);
   }
 }
