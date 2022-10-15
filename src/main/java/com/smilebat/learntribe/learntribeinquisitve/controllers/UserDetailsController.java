@@ -89,7 +89,8 @@ public class UserDetailsController {
     if (skillName == null) {
       return ResponseEntity.ok(Collections.emptyList());
     }
-    List<UserProfileResponse> userProfileResponses = skillService.getUserInfo(skillName);
+    List<UserProfileResponse> userProfileResponses =
+        userInfoService.getUserInfoBySkill(skillName.toLowerCase());
     return ResponseEntity.ok(userProfileResponses);
   }
 

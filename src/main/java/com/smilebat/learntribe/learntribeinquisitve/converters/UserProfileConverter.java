@@ -41,7 +41,7 @@ public class UserProfileConverter {
     userProfile.setGitHub(request.getGitHub());
     userProfile.setAbout(request.getAbout());
     userProfile.setPhone(request.getPhone());
-    userProfile.setSkills(request.getSkills());
+    userProfile.setSkills(request.getSkills().toLowerCase());
   }
 
   /**

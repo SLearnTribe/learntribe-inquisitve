@@ -29,4 +29,13 @@ public interface UserDetailsRepository extends JpaRepository<UserProfile, Long> 
    */
   @Query(value = "SELECT * FROM USER_PROFILE WHERE KEY_CLOAK_ID is not null", nativeQuery = true)
   List<UserProfile> findAll();
+
+  /**
+   * Finds the profile based on skill.
+   *
+   * @param skill skill needed in the candidate.
+   * @return the List of {@link UserProfile}
+   */
+  @Query(value = "FROM UserProfile A WHERE A.skills like %:skill%", nativeQuery = false)
+  List<UserProfile> findBySkills(@Param("skill") String skill);
 }

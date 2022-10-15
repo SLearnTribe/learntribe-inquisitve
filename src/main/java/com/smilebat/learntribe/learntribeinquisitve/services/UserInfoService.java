@@ -108,6 +108,22 @@ public class UserInfoService {
   }
 
   /**
+   * Retrieves all the user profile based on skill.
+   *
+   * @param skill skill necessary in the candidate.
+   * @return the {@link UserProfileResponse}
+   */
+  @Transactional
+  public List<UserProfileResponse> getUserInfoBySkill(String skill) {
+    Verify.verifyNotNull(skill, "Skill cannot be empty");
+    List<UserProfile> userProfile = userDetailsRepository.findBySkills(skill);
+    if (userProfile == null) {
+      return Collections.emptyList();
+    }
+    return profileConverter.toResponse(userProfile);
+  }
+
+  /**
    * Retrieves all the user profile details.
    *
    * @return the List of {@link UserProfileResponse}

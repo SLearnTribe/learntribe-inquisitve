@@ -46,7 +46,7 @@ public class UserProfile {
   private String linkedIn;
   private String gitHub;
 
-  @Lob private String skills;
+  private String skills;
 
   @Lob private String about;
   private Long phone;
