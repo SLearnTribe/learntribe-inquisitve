@@ -2,7 +2,6 @@ package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa;
 
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
 import java.util.List;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -34,10 +33,9 @@ public interface UserDetailsRepository extends JpaRepository<UserProfile, Long> 
   /**
    * Finds the profile based on skill.
    *
-   * @param pageable object for pageination.
    * @param skill skill needed in the candidate.
    * @return the List of {@link UserProfile}
    */
   @Query(value = "FROM UserProfile A WHERE A.skills like %:skill%", nativeQuery = false)
-  List<UserProfile> findBySkills(@Param("skill") String skill, Pageable pageable);
+  List<UserProfile> findBySkills(@Param("skill") String skill);
 }
