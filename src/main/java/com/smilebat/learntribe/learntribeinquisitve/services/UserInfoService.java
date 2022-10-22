@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -111,24 +113,31 @@ public class UserInfoService {
    * Retrieves all the user profile based on skill.
    *
    * @param skill skill necessary in the candidate.
+   * @param pageNo page number for pageination
+   * @param pageSize for pageination
    * @return the {@link UserProfileResponse}
    */
   @Transactional
-  public List<UserProfileResponse> getUserInfoBySkill(String skill) {
+  public List<UserProfileResponse> getUserInfoBySkill(String skill, int pageNo, int pageSize) {
     Verify.verifyNotNull(skill, "Skill cannot be empty");
-    List<UserProfile> userProfile = userDetailsRepository.findBySkills(skill);
+    Pageable pageable = PageRequest.of(pageNo, pageSize);
+    List<UserProfile> userProfile = userDetailsRepository.findBySkills(skill, pageable);
     if (userProfile == null) {
       return Collections.emptyList();
     }
+
     return profileConverter.toResponse(userProfile);
   }
 
   /**
    * Retrieves all the user profile details.
    *
+   * @param pageNo page number for pageination.
+   * @param pageSize for pageination.
    * @return the List of {@link UserProfileResponse}
    */
-  public List<UserProfileResponse> getAllUserInfo() {
+  public List<UserProfileResponse> getAllUserInfo(int pageNo, int pageSize) {
+    Pageable pageable = PageRequest.of(pageNo, pageSize);
     List<UserProfile> userProfile = userDetailsRepository.findAll();
     if (userProfile == null || userProfile.isEmpty()) {
       return Collections.emptyList();

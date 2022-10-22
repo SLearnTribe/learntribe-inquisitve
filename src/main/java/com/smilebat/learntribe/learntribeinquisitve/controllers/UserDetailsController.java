@@ -80,31 +80,38 @@ public class UserDetailsController {
    * Retrieves all User information based on the input skillName.
    *
    * @param skillName the {@link String}
+   * @param pageNo page number for pageination.
+   * @param pageSize for pageination.
    * @return the List of {@link UserProfileResponse}
    */
-  @GetMapping("/skill")
+  @GetMapping("/skill/{pageNo}/{pageSize}")
   @ResponseBody
   public ResponseEntity<List<UserProfileResponse>> getUserDetailsFromSkill(
-      @RequestParam String skillName) {
+      @RequestParam String skillName,
+      @PathVariable(value = "pageNo") int pageNo,
+      @PathVariable(value = "pageSize") int pageSize) {
     if (skillName == null) {
       return ResponseEntity.ok(Collections.emptyList());
     }
     List<UserProfileResponse> userProfileResponses =
-        userInfoService.getUserInfoBySkill(skillName.toLowerCase());
+        userInfoService.getUserInfoBySkill(skillName.toLowerCase(), pageNo, pageSize);
     return ResponseEntity.ok(userProfileResponses);
   }
 
   /**
    * Retrieves the all the user information.
    *
+   * @param pageNo page number for pageination.
+   * @param pageSize for pageination.
    * @return the {@link ResponseEntity} of generic type.
    */
-  @GetMapping
+  @GetMapping("/{pageNo}/{pageSize}")
   @ResponseBody
-  public ResponseEntity<List<UserProfileResponse>> getAllUserDetails() {
+  public ResponseEntity<List<UserProfileResponse>> getAllUserDetails(
+      @PathVariable(value = "pageNo") int pageNo, @PathVariable(value = "pageSize") int pageSize) {
     log.info("Fetching User Details");
 
-    final List<UserProfileResponse> users = userInfoService.getAllUserInfo();
+    final List<UserProfileResponse> users = userInfoService.getAllUserInfo(pageNo, pageSize);
 
     return ResponseEntity.ok(users);
   }
