@@ -25,11 +25,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -58,11 +59,13 @@ public class AssessmentService {
    * Retrieves user & skill related assessments.
    *
    * @param keyCloakId the ID provided by IAM (keycloak)
+   * @param pageNo page number for pagination
+   * @param pageSize page size for pagination
    * @return the List of {@link AssessmentResponse}
    */
   @Transactional
   @Nullable
-  public List<AssessmentResponse> retrieveAssessments(String keyCloakId) {
+  public List<AssessmentResponse> retrieveAssessments(String keyCloakId, int pageNo, int pageSize) {
     Verify.verifyNotNull(keyCloakId, "User Keycloak Id cannnot be null");
 
     log.info("Fetching Assessments for User {}", keyCloakId);
@@ -79,10 +82,11 @@ public class AssessmentService {
       return List.of(createDefaultAssessment(keyCloakId));
     }
 
-    final List<Long> assessmentIds =
-        userAstReltns.stream().map(UserAstReltn::getAssessmentId).collect(Collectors.toList());
+    final Long[] assessmentIds =
+        userAstReltns.stream().map(UserAstReltn::getAssessmentId).toArray(s -> new Long[s]);
 
-    List<Assessment> assessments = assessmentRepository.findAllById(assessmentIds);
+    Pageable paging = PageRequest.of(pageNo, pageSize);
+    List<Assessment> assessments = assessmentRepository.findAllByIds(assessmentIds, paging);
 
     if (assessments == null || assessments.isEmpty()) {
       log.info("No Existing Assessments found for the current user");
@@ -120,10 +124,13 @@ public class AssessmentService {
    *
    * @param userId the keycloak id of the recruiter.
    * @param request the {@link OthersBusinessRequest}.
+   * @param pageNo page number for pagination
+   * @param pageSize page size for pagination
    * @return the {@link OthersBusinessResponse}.
    */
   @Transactional
-  public AssessmentResponse createAssessment(String userId, AssessmentRequest request) {
+  public AssessmentResponse createAssessment(
+      String userId, AssessmentRequest request, int pageNo, int pageSize) {
     Verify.verifyNotNull(userId, "User Id cannot be null");
     Verify.verifyNotNull(request, "Job Request cannot be null");
 
@@ -131,7 +138,8 @@ public class AssessmentService {
     final String candidateId = request.getCreatedFor();
     final Long relatedJobId = request.getRelatedJobId();
 
-    List<Assessment> hrAssessments = assessmentRepository.findByTitle(userId, title);
+    Pageable pageable = PageRequest.of(pageNo, pageSize);
+    List<Assessment> hrAssessments = assessmentRepository.findByTitle(userId, title, pageable);
 
     if (hrAssessments != null && !hrAssessments.isEmpty()) {
       Assessment assessment = hrAssessments.get(0);
@@ -240,7 +248,7 @@ public class AssessmentService {
     assessmentRequest.setDescription("Default assessment");
     assessmentRequest.setTitle(skills.get(0));
     assessmentRequest.setSubTitle("");
-    return createAssessment(keyCloakId, assessmentRequest);
+    return createAssessment(keyCloakId, assessmentRequest, 0, 1);
   }
 
   /**

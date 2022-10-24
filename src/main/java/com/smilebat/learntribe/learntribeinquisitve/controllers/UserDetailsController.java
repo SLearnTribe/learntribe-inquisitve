@@ -2,7 +2,6 @@ package com.smilebat.learntribe.learntribeinquisitve.controllers;
 
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
-import com.smilebat.learntribe.learntribeinquisitve.services.SkillService;
 import com.smilebat.learntribe.learntribeinquisitve.services.UserInfoService;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserDetailsController {
 
   private final UserInfoService userInfoService;
-  private final SkillService skillService;
 
   /**
    * Retrieves all user details.

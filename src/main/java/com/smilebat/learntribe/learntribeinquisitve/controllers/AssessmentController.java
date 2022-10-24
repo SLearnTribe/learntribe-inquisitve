@@ -36,16 +36,20 @@ public class AssessmentController {
    * Retrieves all the related assessments to User Id
    *
    * @param keyCloakId the user keycloak id
+   * @param pageSize page size for pagination
+   * @param pageNo page number for pagination
    * @return the {@link List} of {@link AssessmentResponse}
    */
-  @GetMapping(value = "/user/id/{id}")
+  @GetMapping(value = "/user/id/{id}/{no}/{size}")
   @ResponseBody
   public ResponseEntity<List<AssessmentResponse>> retrieveAssessments(
-      @PathVariable(value = "id") String keyCloakId) {
+      @PathVariable(value = "id") String keyCloakId,
+      @PathVariable(value = "no") int pageNo,
+      @PathVariable(value = "size") int pageSize) {
 
     List<AssessmentResponse> responses = null;
 
-    responses = assessmentService.retrieveAssessments(keyCloakId);
+    responses = assessmentService.retrieveAssessments(keyCloakId, pageNo, pageSize);
 
     return ResponseEntity.ok(responses);
   }
@@ -54,14 +58,20 @@ public class AssessmentController {
    * Creates a new assessment.
    *
    * @param keyCloakId the IAM user id.
+   * @param pageSize page size for pagination
+   * @param pageNo page number for pagination
    * @param request the {@link AssessmentRequest}.
    * @return the {@link AssessmentResponse}.
    */
-  @PostMapping(value = "/user/id/{id}")
+  @PostMapping(value = "/user/id/{id}/{no}/{size}")
   public ResponseEntity<AssessmentResponse> createAssessment(
-      @PathVariable(value = "id") String keyCloakId, @RequestBody AssessmentRequest request) {
+      @PathVariable(value = "id") String keyCloakId,
+      @RequestBody AssessmentRequest request,
+      @PathVariable(value = "no") int pageNo,
+      @PathVariable(value = "size") int pageSize) {
 
-    final AssessmentResponse response = assessmentService.createAssessment(keyCloakId, request);
+    final AssessmentResponse response =
+        assessmentService.createAssessment(keyCloakId, request, pageNo, pageSize);
 
     return ResponseEntity.ok(response);
   }
