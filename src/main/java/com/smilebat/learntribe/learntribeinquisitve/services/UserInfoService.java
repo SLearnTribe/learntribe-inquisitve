@@ -136,9 +136,10 @@ public class UserInfoService {
    * @param pageSize for pageination.
    * @return the List of {@link UserProfileResponse}
    */
+  @Transactional
   public List<UserProfileResponse> getAllUserInfo(int pageNo, int pageSize) {
     Pageable pageable = PageRequest.of(pageNo, pageSize);
-    List<UserProfile> userProfile = userDetailsRepository.findAll();
+    List<UserProfile> userProfile = userDetailsRepository.findAllUsers(pageable);
     if (userProfile == null || userProfile.isEmpty()) {
       return Collections.emptyList();
     }
