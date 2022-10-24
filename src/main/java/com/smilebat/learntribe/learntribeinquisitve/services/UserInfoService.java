@@ -126,6 +126,12 @@ public class UserInfoService {
   /**
    * Retrieves all the user profile details.
    *
+<<<<<<< HEAD
+   * @param pageNo page number for pageination.
+   * @param pageSize for pageination.
+   *                 
+=======
+>>>>>>> parent of d0bfe90 (Pageinations)
    * @return the List of {@link UserProfileResponse}
    */
   public List<UserProfileResponse> getAllUserInfo() {
