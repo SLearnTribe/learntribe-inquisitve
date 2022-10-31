@@ -27,10 +27,20 @@ public interface UserDetailsRepository extends PagingAndSortingRepository<UserPr
    * Finds all valid user profiles
    *
    * @param pageable pageable object for pagination
+   * @param keyword for searching users
+   * @param skill for searching users based on skill
    * @return the List of {@link UserProfile}
    */
-  @Query(value = "SELECT * FROM USER_PROFILE WHERE KEY_CLOAK_ID is not null", nativeQuery = true)
-  List<UserProfile> findAllUsers(Pageable pageable);
+  @Query(
+      value =
+          "SELECT * FROM USER_PROFILE WHERE ( KEY_CLOAK_ID is not null AND "
+              + "skills ~* :skill AND "
+              + "skills ~* :keyword OR "
+              + "country ~* :keyword OR "
+              + "about ~* :keyword)",
+      nativeQuery = true)
+  List<UserProfile> findAllUsers(
+      Pageable pageable, @Param("skill") String skill, @Param("keyword") String keyword);
 
   /**
    * Finds the profile based on skill.

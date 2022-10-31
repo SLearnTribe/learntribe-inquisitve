@@ -78,38 +78,42 @@ public class UserDetailsController {
    * Retrieves all User information based on the input skillName.
    *
    * @param skillName the {@link String}
-   * @param pageNo page number for pageination.
-   * @param pageSize for pageination.
+   * @param page page number for pageination.
+   * @param limit for pageination.
    * @return the List of {@link UserProfileResponse}
    */
-  @GetMapping("/skill/{pageNo}/{pageSize}")
+  @GetMapping("/skill")
   @ResponseBody
   public ResponseEntity<List<UserProfileResponse>> getUserDetailsFromSkill(
-      @RequestParam String skillName,
-      @PathVariable(value = "pageNo") int pageNo,
-      @PathVariable(value = "pageSize") int pageSize) {
+      @RequestParam String skillName, @RequestParam int page, @RequestParam int limit) {
     if (skillName == null) {
       return ResponseEntity.ok(Collections.emptyList());
     }
     List<UserProfileResponse> userProfileResponses =
-        userInfoService.getUserInfoBySkill(skillName.toLowerCase(), pageNo, pageSize);
+        userInfoService.getUserInfoBySkill(skillName.toLowerCase(), page, limit);
     return ResponseEntity.ok(userProfileResponses);
   }
 
   /**
    * Retrieves the all the user information.
    *
-   * @param pageNo page number for pageination.
-   * @param pageSize for pageination.
+   * @param page page number for pageination.
+   * @param limit for pageination.
+   * @param skill to search for users with given skills
+   * @param keyword to search for users
    * @return the {@link ResponseEntity} of generic type.
    */
-  @GetMapping("/{pageNo}/{pageSize}")
+  @GetMapping("/")
   @ResponseBody
   public ResponseEntity<List<UserProfileResponse>> getAllUserDetails(
-      @PathVariable(value = "pageNo") int pageNo, @PathVariable(value = "pageSize") int pageSize) {
+      @RequestParam int page,
+      @RequestParam int limit,
+      @RequestParam(defaultValue = "") String skill,
+      @RequestParam(defaultValue = "") String keyword) {
     log.info("Fetching User Details");
 
-    final List<UserProfileResponse> users = userInfoService.getAllUserInfo(pageNo, pageSize);
+    final List<UserProfileResponse> users =
+        userInfoService.getAllUserInfo(page, limit, skill, keyword);
 
     return ResponseEntity.ok(users);
   }

@@ -17,14 +17,12 @@ public interface AssessmentRepository extends PagingAndSortingRepository<Assessm
    *
    * @param userId the IAM userId
    * @param title the title
-   * @param pageable pageable object for pagination
    * @return the List of {@link Assessment}.
    */
   @Query(
       value = "SELECT * FROM assessment a WHERE a.title like :title and a.created_by = :userId",
       nativeQuery = true)
-  List<Assessment> findByTitle(
-      @Param("userId") String userId, @Param("title") String title, Pageable pageable);
+  List<Assessment> findByTitle(@Param("userId") String userId, @Param("title") String title);
 
   /**
    * Queries assessments based on Assessment ID.

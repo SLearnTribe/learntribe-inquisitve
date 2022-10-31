@@ -42,13 +42,13 @@ public class UserProfile {
   private String keyCloakId;
   private String name;
   private String email;
-  private String country;
+  private String country; /*IMportant*/
   private String linkedIn;
   private String gitHub;
 
-  private String skills;
+  private String skills; /*IMportant*/
 
-  @Lob private String about;
+  @Lob private String about; /*IMportant*/
   private Long phone;
 
   @Enumerated(EnumType.STRING)

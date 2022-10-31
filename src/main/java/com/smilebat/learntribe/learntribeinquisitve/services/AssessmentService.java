@@ -85,7 +85,7 @@ public class AssessmentService {
     final Long[] assessmentIds =
         userAstReltns.stream().map(UserAstReltn::getAssessmentId).toArray(s -> new Long[s]);
 
-    Pageable paging = PageRequest.of(pageNo, pageSize);
+    Pageable paging = PageRequest.of(pageNo - 1, pageSize);
     List<Assessment> assessments = assessmentRepository.findAllByIds(assessmentIds, paging);
 
     if (assessments == null || assessments.isEmpty()) {
@@ -123,23 +123,18 @@ public class AssessmentService {
    * Creates a assessment as per the requirements.
    *
    * @param userId the keycloak id of the recruiter.
-   * @param request the {@link OthersBusinessRequest}.
-   * @param pageNo page number for pagination
-   * @param pageSize page size for pagination
+   * @param request the {@link OthersBusinessRequest}
    * @return the {@link OthersBusinessResponse}.
    */
   @Transactional
-  public AssessmentResponse createAssessment(
-      String userId, AssessmentRequest request, int pageNo, int pageSize) {
+  public AssessmentResponse createAssessment(String userId, AssessmentRequest request) {
     Verify.verifyNotNull(userId, "User Id cannot be null");
     Verify.verifyNotNull(request, "Job Request cannot be null");
 
     final String title = request.getTitle();
     final String candidateId = request.getCreatedFor();
     final Long relatedJobId = request.getRelatedJobId();
-
-    Pageable pageable = PageRequest.of(pageNo, pageSize);
-    List<Assessment> hrAssessments = assessmentRepository.findByTitle(userId, title, pageable);
+    List<Assessment> hrAssessments = assessmentRepository.findByTitle(userId, title);
 
     if (hrAssessments != null && !hrAssessments.isEmpty()) {
       Assessment assessment = hrAssessments.get(0);
@@ -248,7 +243,7 @@ public class AssessmentService {
     assessmentRequest.setDescription("Default assessment");
     assessmentRequest.setTitle(skills.get(0));
     assessmentRequest.setSubTitle("");
-    return createAssessment(keyCloakId, assessmentRequest, 0, 1);
+    return createAssessment(keyCloakId, assessmentRequest);
   }
 
   /**

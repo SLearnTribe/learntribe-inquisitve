@@ -120,7 +120,7 @@ public class UserInfoService {
   @Transactional
   public List<UserProfileResponse> getUserInfoBySkill(String skill, int pageNo, int pageSize) {
     Verify.verifyNotNull(skill, "Skill cannot be empty");
-    Pageable pageable = PageRequest.of(pageNo, pageSize);
+    Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
     List<UserProfile> userProfile = userDetailsRepository.findBySkills(skill, pageable);
     if (userProfile == null) {
       return Collections.emptyList();
@@ -132,14 +132,18 @@ public class UserInfoService {
   /**
    * Retrieves all the user profile details.
    *
-   * @param pageNo page number for pageination.
-   * @param pageSize for pageination.
+   * @param page page number for pageination.
+   * @param limit for pageination per page.
+   * @param skill for skill search in participant
+   * @param keyword to match with participant
    * @return the List of {@link UserProfileResponse}
    */
   @Transactional
-  public List<UserProfileResponse> getAllUserInfo(int pageNo, int pageSize) {
-    Pageable pageable = PageRequest.of(pageNo, pageSize);
-    List<UserProfile> userProfile = userDetailsRepository.findAllUsers(pageable);
+  public List<UserProfileResponse> getAllUserInfo(
+      int page, int limit, String skill, String keyword) {
+    Pageable pageable = PageRequest.of(page - 1, limit);
+    List<UserProfile> userProfile =
+        userDetailsRepository.findAllUsers(pageable, skill.replace(',', '|'), keyword);
     if (userProfile == null || userProfile.isEmpty()) {
       return Collections.emptyList();
     }
