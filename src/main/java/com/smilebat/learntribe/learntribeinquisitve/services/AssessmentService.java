@@ -70,9 +70,7 @@ public class AssessmentService {
 
     log.info("Fetching Assessments for User {}", keyCloakId);
 
-    List<UserAstReltn> userAstReltns = null;
-
-    userAstReltns = userAstReltnRepository.findByUserId(keyCloakId);
+    List<UserAstReltn> userAstReltns = userAstReltnRepository.findByUserId(keyCloakId);
 
     if (userAstReltns == null || userAstReltns.isEmpty()) {
       log.info("Assessments for User {} does not exist", keyCloakId);

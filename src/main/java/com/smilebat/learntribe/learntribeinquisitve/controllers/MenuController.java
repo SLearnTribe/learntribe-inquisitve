@@ -68,9 +68,8 @@ public class MenuController {
     Map<Integer, String> map = new HashMap<>();
     map.put(1, "Dashboard");
     map.put(2, "Applicants");
-    map.put(3, "Post Job");
-    map.put(4, "Profile");
-    map.put(5, "Assessments");
+    map.put(3, "Assessments");
+    map.put(4, "Jobs");
     return map;
   }
 
@@ -78,7 +77,8 @@ public class MenuController {
     Map<Integer, String> map = new HashMap<>();
     map.put(1, "Dashboard");
     map.put(2, "Assessments");
-    map.put(3, "Profile");
+    map.put(3, "Jobs");
+    map.put(4, "Help");
     return map;
   }
 }

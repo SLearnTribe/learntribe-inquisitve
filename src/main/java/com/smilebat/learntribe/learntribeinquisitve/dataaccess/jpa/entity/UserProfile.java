@@ -45,7 +45,7 @@ public class UserProfile {
   private String country; /*IMportant*/
   private String linkedIn;
   private String gitHub;
-  
+
   private String skills; /*IMportant*/
 
   @Lob private String about; /*IMportant*/
