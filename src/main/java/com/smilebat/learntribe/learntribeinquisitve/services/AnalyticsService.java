@@ -1,28 +1,24 @@
 package com.smilebat.learntribe.learntribeinquisitve.services;
 
-import static com.smilebat.learntribe.inquisitve.AssessmentStatus.BLOCKED;
-import static com.smilebat.learntribe.inquisitve.AssessmentStatus.COMPLETED;
-import static com.smilebat.learntribe.inquisitve.AssessmentStatus.PASSED;
-import static com.smilebat.learntribe.inquisitve.AssessmentStatus.PENDING;
-
 import com.google.common.base.Verify;
-import com.smilebat.learntribe.inquisitve.AssessmentStatus;
-import com.smilebat.learntribe.inquisitve.HiringStatus;
-import com.smilebat.learntribe.inquisitve.UserRole;
-import com.smilebat.learntribe.inquisitve.response.AnalyticsResponse;
-import com.smilebat.learntribe.inquisitve.response.CandidateDashboardStatus;
-import com.smilebat.learntribe.inquisitve.response.HrDashboardStatus;
+import com.smilebat.learntribe.inquisitve.response.CandidateActivitiesResponse;
+import com.smilebat.learntribe.inquisitve.response.HrHiringsResponse;
+import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
+import com.smilebat.learntribe.learntribeinquisitve.converters.AnalyticsConverter;
+import com.smilebat.learntribe.learntribeinquisitve.converters.JobConverter;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.OthersBusinessRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserAstReltnRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserDetailsRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserObReltnRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.OthersBusiness;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserObReltn;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
-import java.util.Collection;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -41,102 +37,126 @@ public class AnalyticsService {
 
   private final UserObReltnRepository userObReltnRepository;
 
-  private final UserDetailsRepository userDetailsRepository;
+  private final OthersBusinessRepository othersBusinessRepository;
+
+  private final JobConverter jobConverter;
+
+  private final AnalyticsConverter analyticsConverter;
+
+  private DateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
 
   /**
-   * Returns the analytics for a user.
+   * Evaluates the Candidate related activites.
    *
-   * @param keyCloakId the IAM ID.
-   * @return the {@link AnalyticsResponse}.
+   * @param keyCloakId the IAM id.
+   * @return the {@link CandidateActivitiesResponse}.
    */
   @Transactional
-  public AnalyticsResponse retrieveDashBoardStatus(String keyCloakId) {
+  public CandidateActivitiesResponse retrieveCandidateActivities(String keyCloakId) {
+    Verify.verifyNotNull(keyCloakId, "User IAM Id cannot be null");
+    final long completedAssessments =
+        userAstReltnRepository.countByUserIdAndFilter(keyCloakId, new String[] {"COMPLETED"});
+    final long interviewCalls =
+        userObReltnRepository.countByUserIdAndStatus(keyCloakId, new String[] {"IN_PROGRESS"});
+    return CandidateActivitiesResponse.builder()
+        .completed(completedAssessments)
+        .interviewCalls(interviewCalls)
+        .jobsApplied(0L)
+        .build();
+  }
+
+  /**
+   * Fetches all the Jobs that a candidate is being considered for.
+   *
+   * @param keyCloakId the IAM id.
+   * @return the List of {@link OthersBusinessResponse}
+   */
+  @Transactional
+  public List<OthersBusinessResponse> retrieveConsideredJobs(String keyCloakId) {
+    Verify.verifyNotNull(keyCloakId, "User id cannot be null");
+    final List<UserObReltn> userObReltns =
+        userObReltnRepository.findByUserIdAndStatus(keyCloakId, new String[] {"IN_PROGRESS"});
+    if (userObReltns.isEmpty()) {
+      log.info("No result found");
+    }
+
+    final List<Long> jobIds =
+        userObReltns.stream().map(UserObReltn::getJobId).collect(Collectors.toList());
+    final List<OthersBusiness> allJobs =
+        (List<OthersBusiness>) othersBusinessRepository.findAllById(jobIds);
+    return jobConverter.toResponse(allJobs);
+  }
+
+  /**
+   * Evaluates In Progress Hirings for a Hr User.
+   *
+   * @param keyCloakId the IAM id.
+   * @param paging the {@link Pageable}.
+   * @return the List of {@link HrHiringsResponse}.
+   */
+  @Transactional
+  public List<HrHiringsResponse> evaluateHiringsInProgress(String keyCloakId, Pageable paging) {
     Verify.verifyNotNull(keyCloakId, "User Id cannot be null");
 
-    final UserProfile profile = userDetailsRepository.findByKeyCloakId(keyCloakId);
-    AnalyticsResponse analyticsResponse = new AnalyticsResponse();
+    List<OthersBusiness> createdJobs = othersBusinessRepository.findByUserId(keyCloakId, paging);
 
-    if (UserRole.ROLE_CANDIDATE == profile.getRole()) {
-      analyticsResponse.setCandidateDashboardStatus(evaluateCandidateAnalytics(keyCloakId));
-      return analyticsResponse;
-    }
+    //  List<HrHiringsResponse> responses = new ArrayList<>(createdJobs.size());
+    //
+    //    for (OthersBusiness othersBusiness : createdJobs) {
+    //      HrHiringsResponse response = createHrHiringsResponse(othersBusiness, "IN_PROGRESS");
+    //      responses.add(response);
+    //    }
 
-    analyticsResponse.setHrDashboardStatus(evaluateHrAnalytics(keyCloakId));
-    return analyticsResponse;
+    return createdJobs
+        .stream()
+        .map(job -> createHrHiringsResponse(job, "IN_PROGRESS"))
+        .collect(Collectors.toList());
   }
 
   /**
-   * Evaluates HR related analytics.
+   * Evaluates the last month Hirings of a HR.
    *
    * @param keyCloakId the IAM id.
-   * @return the {@link HrDashboardStatus}.
+   * @param paging the {@link Pageable}
+   * @return the List of {@link HrHiringsResponse}
    */
-  private HrDashboardStatus evaluateHrAnalytics(String keyCloakId) {
-    List<UserObReltn> userObReltns = userObReltnRepository.findByUserId(keyCloakId);
+  @Transactional
+  public List<HrHiringsResponse> evaluateHiringsInLastMonth(String keyCloakId, Pageable paging) {
+    Verify.verifyNotNull(keyCloakId, "User Id cannot be null");
 
-    if (userObReltns.isEmpty()) {
-      log.info("No Results found in Database");
-    }
+    List<OthersBusiness> createdJobs =
+        othersBusinessRepository.findByUserIdAndCurrentDate(keyCloakId, paging);
+    //    List<HrHiringsResponse> responses = new ArrayList<>(createdJobs.size());
 
-    final long hired = countWithReltnType(userObReltns, HiringStatus.HIRED);
-    final long yetToBeHired = countWithReltnType(userObReltns, HiringStatus.NOT_HIRED);
-    final long inProgress = countWithReltnType(userObReltns, HiringStatus.IN_PROGRESS);
+    //    for (OthersBusiness othersBusiness : createdJobs) {
+    //      final Long totalHiredForJob =
+    //          userObReltnRepository.countByJobHiringStatus(
+    //              othersBusiness.getId(), new String[] {"HIRED"});
+    //
+    //      HrHiringsResponse response = analyticsConverter.toResponse(othersBusiness,
+    // totalHiredForJob);
+    //      responses.add(response);
+    //    }
 
-    HrDashboardStatus hrDashboardStatus = new HrDashboardStatus();
-    hrDashboardStatus.setClosed(hired);
-    hrDashboardStatus.setHiringInProgress(inProgress);
-    hrDashboardStatus.setYetToBeHired(yetToBeHired);
-
-    return hrDashboardStatus;
+    return createdJobs
+        .stream()
+        .map(job -> createHrHiringsResponse(job, "HIRED"))
+        .collect(Collectors.toList());
   }
 
   /**
-   * Evaluates the Candidate related analytics.
+   * Evaluates and creates a Hiring response object.
    *
-   * @param keyCloakId the IAM id.
-   * @return the {@link CandidateDashboardStatus}.
+   * @param othersBusiness the {@link OthersBusiness} JPA entity
+   * @param hiringStatus the {@link String} status
+   * @return the {@link HrHiringsResponse}
    */
-  private CandidateDashboardStatus evaluateCandidateAnalytics(String keyCloakId) {
-    List<UserAstReltn> userAstReltns = userAstReltnRepository.findByUserId(keyCloakId);
+  private HrHiringsResponse createHrHiringsResponse(
+      OthersBusiness othersBusiness, String hiringStatus) {
+    final Long jobCount =
+        userObReltnRepository.countByJobHiringStatus(
+            othersBusiness.getId(), new String[] {hiringStatus});
 
-    if (userAstReltns.isEmpty()) {
-      log.info("No Results found in Database");
-    }
-
-    final long completedAssessments = countWithStatus(userAstReltns, COMPLETED);
-    final long blockedAssessments = countWithStatus(userAstReltns, BLOCKED);
-    // final long failedAssessments = countWith(userAstReltns, FAILED);
-    final long pendingAssessments = countWithStatus(userAstReltns, PENDING);
-    final long passedAssessments = countWithStatus(userAstReltns, PASSED);
-
-    CandidateDashboardStatus candidateDashboardStatus = new CandidateDashboardStatus();
-    candidateDashboardStatus.setCompleted(completedAssessments);
-    candidateDashboardStatus.setBlocked(blockedAssessments);
-    candidateDashboardStatus.setTodo(pendingAssessments);
-    candidateDashboardStatus.setPassed(passedAssessments);
-    return candidateDashboardStatus;
-  }
-
-  /**
-   * Helper method for Analytics.
-   *
-   * @param userAstReltns the list of {@link UserAstReltn}.
-   * @param assessmentStatus {@link AssessmentStatus}.
-   * @return the count of status matched elements.
-   */
-  private long countWithStatus(
-      Collection<UserAstReltn> userAstReltns, AssessmentStatus assessmentStatus) {
-    return userAstReltns.stream().filter(reltn -> assessmentStatus == reltn.getStatus()).count();
-  }
-
-  /**
-   * Helper method for Analytics.
-   *
-   * @param userObReltns the list of {@link UserObReltn}
-   * @param hiringStatus the {@link HiringStatus}
-   * @return the count of status matched elements.
-   */
-  private long countWithReltnType(Collection<UserObReltn> userObReltns, HiringStatus hiringStatus) {
-    return userObReltns.stream().filter(reltn -> hiringStatus == reltn.getHiringStatus()).count();
+    return analyticsConverter.toResponse(othersBusiness, jobCount);
   }
 }

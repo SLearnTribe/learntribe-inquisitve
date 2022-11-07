@@ -12,9 +12,9 @@ import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,7 +45,8 @@ public class MenuController {
   @GetMapping(value = "/id/{id}")
   @ResponseBody
   @Transactional
-  public ResponseEntity<Map<?, ?>> retrieveMenu(@PathVariable(value = "id") String keyCloakId) {
+  public ResponseEntity<Map<?, ?>> retrieveMenu(
+      @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
 
     List<AssessmentResponse> responses = null;
 
@@ -68,9 +69,8 @@ public class MenuController {
     Map<Integer, String> map = new HashMap<>();
     map.put(1, "Dashboard");
     map.put(2, "Applicants");
-    map.put(3, "Post Job");
-    map.put(4, "Profile");
-    map.put(5, "Assessments");
+    map.put(3, "Assessments");
+    map.put(4, "Jobs");
     return map;
   }
 
@@ -78,7 +78,8 @@ public class MenuController {
     Map<Integer, String> map = new HashMap<>();
     map.put(1, "Dashboard");
     map.put(2, "Assessments");
-    map.put(3, "Profile");
+    map.put(3, "Jobs");
+    map.put(4, "Help");
     return map;
   }
 }

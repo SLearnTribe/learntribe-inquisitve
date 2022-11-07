@@ -1,6 +1,7 @@
 package com.smilebat.learntribe.learntribeinquisitve.services;
 
 import com.google.common.base.Verify;
+import com.smilebat.learntribe.inquisitve.AssessmentDifficulty;
 import com.smilebat.learntribe.inquisitve.AssessmentRequest;
 import com.smilebat.learntribe.inquisitve.AssessmentStatus;
 import com.smilebat.learntribe.inquisitve.HiringStatus;
@@ -11,26 +12,30 @@ import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeclients.openai.OpenAiService;
 import com.smilebat.learntribe.learntribeinquisitve.converters.AssessmentConverter;
-import com.smilebat.learntribe.learntribeinquisitve.converters.SkillConverter;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.AssessmentRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.ChallengeRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.SkillRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserAstReltnRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserDetailsRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserObReltnRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Skill;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserObReltn;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.transaction.Transactional;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -49,53 +54,106 @@ public class AssessmentService {
   private final AssessmentConverter assessmentConverter;
   private final UserAstReltnRepository userAstReltnRepository;
   private final UserObReltnRepository userObReltnRepository;
-
   private final ChallengeRepository challengeRepository;
 
   private final OpenAiService openAiService;
 
-  private final SkillConverter skillConverter;
-  private final SkillRepository skillRepository;
   private final UserDetailsRepository userDetailsRepository;
+
+  /** Assessment pagination concept builder. */
+  @Getter
+  @Setter
+  @Builder
+  public static class PageableAssessmentRequest {
+    private String keyCloakId;
+    private String[] filters;
+    private Pageable paging;
+  }
 
   /**
    * Retrieves user & skill related assessments.
    *
-   * @param keyCloakId the ID provided by IAM (keycloak)
+   * @param request the {@link PageableAssessmentRequest} the ID provided by IAM (keycloak)
    * @return the List of {@link AssessmentResponse}
    */
   @Transactional
   @Nullable
-  public List<AssessmentResponse> retrieveAssessments(String keyCloakId) {
+  public List<AssessmentResponse> retrieveUserAssessments(PageableAssessmentRequest request) {
+    String keyCloakId = request.getKeyCloakId();
     Verify.verifyNotNull(keyCloakId, "User Keycloak Id cannnot be null");
-
     log.info("Fetching Assessments for User {}", keyCloakId);
+    Pageable paging = request.getPaging();
+    String[] filters = request.getFilters();
 
-    List<UserAstReltn> userAstReltns = null;
-
-    userAstReltns = userAstReltnRepository.findByUserId(keyCloakId);
+    List<UserAstReltn> userAstReltns =
+        userAstReltnRepository.findByUserIdAndFilter(keyCloakId, filters);
 
     if (userAstReltns == null || userAstReltns.isEmpty()) {
       log.info("Assessments for User {} does not exist", keyCloakId);
-
-      // return default assessments from oepn ai based on his skills.
-
-      return List.of(createDefaultAssessment(keyCloakId));
+      final List<Assessment> systemGeneratedAssessments = createDefaultAssessments(keyCloakId);
+      return assessmentConverter.toResponse(systemGeneratedAssessments);
     }
 
-    final List<Long> assessmentIds =
-        userAstReltns.stream().map(UserAstReltn::getAssessmentId).collect(Collectors.toList());
-
-    List<Assessment> assessments = assessmentRepository.findAllById(assessmentIds);
-
-    if (assessments == null || assessments.isEmpty()) {
-      log.info("No Existing Assessments found for the current user");
-      // assessments = Assessment.generateMockAssessments();
-      // get default assessments from oepn ai based on his skills.
-
-      return List.of(createDefaultAssessment(keyCloakId));
-    }
+    final Long[] assessmentIds =
+        userAstReltns.stream().map(UserAstReltn::getAssessmentId).toArray(s -> new Long[s]);
+    List<Assessment> assessments = assessmentRepository.findAllByIds(assessmentIds, paging);
     return assessmentConverter.toResponse(assessments);
+  }
+
+  /**
+   * Generate a default assessment based on his skills.
+   *
+   * @param candidateId the candidate for whom the assessment is assigned for.
+   * @return List of {@link Assessment}.
+   */
+  @Transactional
+  private List<Assessment> createDefaultAssessments(String candidateId) {
+    log.info("Evaluating User {} Skills", candidateId);
+    UserProfile userProfile = userDetailsRepository.findByKeyCloakId(candidateId);
+    Set<String> userSkills = evaluateUserSkills(userProfile);
+
+    log.info("Initializing default assessments for User {}", candidateId);
+    // List<Assessment> defaultAssessments = new ArrayList<>(userSkills.size());
+
+    List<Assessment> defaultAssessments =
+        userSkills.stream().map(this::createSystemAssessment).collect(Collectors.toList());
+    //    for (String skill : userSkills) {
+    //    // feature toggle?
+    //    // validate if assessment already exists for the skill and
+    //    // assign it to the user as system generated.
+    //
+    //    Assessment assessment = createSystemAssessment(skill);
+    //    //defaultAssessments.add(assessment);
+    //      createSkillBasedAssessment(defaultAssessments, skill);
+    //    }
+
+    assessmentRepository.saveAll(defaultAssessments);
+
+    for (Assessment assessment : defaultAssessments) {
+      Long assessmentId = assessment.getId();
+      log.info("Creating fresh assessment {} for User {}", assessmentId, candidateId);
+      createFreshAssessment(assessment);
+      createUserAssessmentRelation("SYSTEM", candidateId, assessmentId);
+    }
+
+    return defaultAssessments;
+  }
+
+  private Set<String> evaluateUserSkills(UserProfile userProfile) {
+    String skills = userProfile.getSkills();
+    if (skills == null || skills.isEmpty()) {
+      return Collections.emptySet();
+    }
+    return Arrays.stream(skills.split(",")).collect(Collectors.toSet());
+  }
+
+  private Assessment createSystemAssessment(String skill) {
+    Assessment assessment = new Assessment();
+    assessment.setTitle(skill);
+    assessment.setDifficulty(AssessmentDifficulty.EASY.name());
+    assessment.setDescription("Recommended");
+    assessment.setCreatedBy("SYSTEM");
+    return assessment;
   }
 
   /**
@@ -123,24 +181,24 @@ public class AssessmentService {
    * Creates a assessment as per the requirements.
    *
    * @param userId the keycloak id of the recruiter.
-   * @param request the {@link OthersBusinessRequest}.
+   * @param request the {@link OthersBusinessRequest}
    * @return the {@link OthersBusinessResponse}.
    */
   @Transactional
-  public AssessmentResponse createAssessment(String userId, AssessmentRequest request) {
+  public boolean createAssessment(String userId, AssessmentRequest request) {
     Verify.verifyNotNull(userId, "User Id cannot be null");
     Verify.verifyNotNull(request, "Job Request cannot be null");
 
     final String title = request.getTitle();
     final String candidateId = request.getCreatedFor();
     final Long relatedJobId = request.getRelatedJobId();
-
     List<Assessment> hrAssessments = assessmentRepository.findByTitle(userId, title);
 
     if (hrAssessments != null && !hrAssessments.isEmpty()) {
       Assessment assessment = hrAssessments.get(0);
       assignExistingAssessments(candidateId, assessment);
-      return assessmentConverter.toResponse(assessment);
+      // return assessmentConverter.toResponse(assessment);
+      return true;
     }
 
     /*Create a fresh assignment*/
@@ -154,7 +212,8 @@ public class AssessmentService {
     createUserAssessmentRelation(userId, candidateId, assessmentId);
     createUserJobReltn(candidateId, relatedJobId);
 
-    return assessmentConverter.toResponse(assessment);
+    // return assessmentConverter.toResponse(assessment);
+    return true;
   }
 
   @Transactional
@@ -165,7 +224,6 @@ public class AssessmentService {
 
   private UserObReltn createUserObReltn(String candidateId, Long jobId) {
     UserObReltn userObReltn = new UserObReltn();
-
     userObReltn.setUserObReltn(UserObReltnType.CANDIDATE);
     userObReltn.setHiringStatus(HiringStatus.IN_PROGRESS);
     userObReltn.setUserId(candidateId);
@@ -176,11 +234,10 @@ public class AssessmentService {
   @Transactional
   private void createUserAssessmentRelation(String userId, String candidateId, Long assessmentId) {
     UserAstReltn userAstReltnForHr = createUserAstReltnForHr(userId, assessmentId);
-
     UserAstReltn userAstReltnForCandidate =
         createUserAstReltnForCandidate(candidateId, assessmentId);
-
-    userAstReltnRepository.saveAll(List.of(userAstReltnForHr, userAstReltnForCandidate));
+    List<UserAstReltn> userAstReltns = List.of(userAstReltnForHr, userAstReltnForCandidate);
+    userAstReltnRepository.saveAll(userAstReltns);
   }
 
   @Transactional
@@ -225,29 +282,6 @@ public class AssessmentService {
   }
 
   /**
-   * Generate a default assessment based on his skills.
-   *
-   * @param keyCloakId the keyCloak user Id
-   * @return assessmentResponse sent by the createAssessment method
-   */
-  private AssessmentResponse createDefaultAssessment(String keyCloakId) {
-    AssessmentRequest assessmentRequest = new AssessmentRequest();
-    assessmentRequest.setCreatedFor(keyCloakId);
-    List<Skill> skills =
-        skillRepository.findByUserId(userDetailsRepository.findByKeyCloakId(keyCloakId).getId());
-    assessmentRequest.setSkillRequest(skillConverter.toRequest(skills.get(0)));
-    assessmentRequest.setProgress(0);
-    assessmentRequest.setNumOfQuestions(15);
-    assessmentRequest.setType("MCQ");
-    assessmentRequest.setStatus("");
-    assessmentRequest.setDifficulty("Easy");
-    assessmentRequest.setDescription("Default assessment");
-    assessmentRequest.setTitle(skills.get(0).getSkillName());
-    assessmentRequest.setSubTitle("");
-    return createAssessment(keyCloakId, assessmentRequest);
-  }
-
-  /**
    * Parses the text completion for query extractions.
    *
    * @param str the completed open ai text.
@@ -261,7 +295,7 @@ public class AssessmentService {
     int arrLen = arr.length;
     while (index < arrLen) {
       Challenge challenge = new Challenge();
-      challenge.setQuestion(arr[index++]);
+      challenge.setQuestion(arr[index++].substring(3));
       challenge.setOptions(arr[index++].split("\n"));
       challenge.setAnswer(arr[index++]);
       challenge.setAssessmentInfo(assessment);

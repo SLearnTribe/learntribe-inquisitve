@@ -2,14 +2,15 @@ package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa;
 
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
 import java.util.List;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /** Returns Data Access by User Repo */
 @Repository
-public interface UserDetailsRepository extends JpaRepository<UserProfile, Long> {
+public interface UserDetailsRepository extends PagingAndSortingRepository<UserProfile, Long> {
 
   /**
    * Finds the profile based on IAM user id.
@@ -25,8 +26,29 @@ public interface UserDetailsRepository extends JpaRepository<UserProfile, Long> 
   /**
    * Finds all valid user profiles
    *
+   * @param pageable pageable object for pagination
+   * @param keyword for searching users
+   * @param skill for searching users based on skill
    * @return the List of {@link UserProfile}
    */
-  @Query(value = "SELECT * FROM USER_PROFILE WHERE KEY_CLOAK_ID is not null", nativeQuery = true)
-  List<UserProfile> findAll();
+  @Query(
+      value =
+          "SELECT * FROM USER_PROFILE WHERE ( KEY_CLOAK_ID is not null AND "
+              + "skills ~* :skill AND "
+              + "skills ~* :keyword OR "
+              + "country ~* :keyword OR "
+              + "about ~* :keyword)",
+      nativeQuery = true)
+  List<UserProfile> findAllUsers(
+      Pageable pageable, @Param("skill") String skill, @Param("keyword") String keyword);
+
+  /**
+   * Finds the profile based on skill.
+   *
+   * @param pageable object for pageination.
+   * @param skill skill needed in the candidate.
+   * @return the List of {@link UserProfile}
+   */
+  @Query(value = "FROM UserProfile A WHERE A.skills like %:skill%", nativeQuery = false)
+  List<UserProfile> findBySkills(@Param("skill") String skill, Pageable pageable);
 }

@@ -5,10 +5,8 @@ import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.UserRole;
 import com.smilebat.learntribe.inquisitve.WorkExperienceRequest;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
-import com.smilebat.learntribe.learntribeinquisitve.converters.SkillConverter;
 import com.smilebat.learntribe.learntribeinquisitve.converters.UserProfileConverter;
 import com.smilebat.learntribe.learntribeinquisitve.converters.WorkExperienceConverter;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.SkillRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserDetailsRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.WorkExperienceRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
@@ -21,6 +19,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,9 +38,7 @@ public class UserInfoService {
 
   private final UserDetailsRepository userDetailsRepository;
   private final WorkExperienceRepository workExperienceRepository;
-  private final SkillRepository skillRepository;
   private final UserProfileConverter profileConverter;
-  private final SkillConverter skillConverter;
   private final WorkExperienceConverter workExperienceConverter;
 
   /**
@@ -108,12 +106,40 @@ public class UserInfoService {
   }
 
   /**
+   * Retrieves all the user profile based on skill.
+   *
+   * @param skill skill necessary in the candidate.
+   * @param pageNo page number for pageination
+   * @param pageSize for pageination
+   * @return the {@link UserProfileResponse}
+   */
+  @Transactional
+  public List<UserProfileResponse> getUserInfoBySkill(String skill, int pageNo, int pageSize) {
+    Verify.verifyNotNull(skill, "Skill cannot be empty");
+    Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+    List<UserProfile> userProfile = userDetailsRepository.findBySkills(skill, pageable);
+    if (userProfile == null) {
+      return Collections.emptyList();
+    }
+
+    return profileConverter.toResponse(userProfile);
+  }
+
+  /**
    * Retrieves all the user profile details.
    *
+   * @param page page number for pageination.
+   * @param limit for pageination per page.
+   * @param skill for skill search in participant
+   * @param keyword to match with participant
    * @return the List of {@link UserProfileResponse}
    */
-  public List<UserProfileResponse> getAllUserInfo() {
-    List<UserProfile> userProfile = userDetailsRepository.findAll();
+  @Transactional
+  public List<UserProfileResponse> getAllUserInfo(
+      int page, int limit, String skill, String keyword) {
+    Pageable pageable = PageRequest.of(page - 1, limit);
+    List<UserProfile> userProfile =
+        userDetailsRepository.findAllUsers(pageable, skill.replace(',', '|'), keyword);
     if (userProfile == null || userProfile.isEmpty()) {
       return Collections.emptyList();
     }

@@ -9,7 +9,7 @@
 
 	<groupId>com.smilebat.learntribe</groupId>
 	<artifactId>learntribe-inquisitve</artifactId>
-	<version>1.0.7-SNAPSHOT</version>
+	<version>1.0.8-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>learntribe-inquisitve</name>
 	<description>Initial</description>
@@ -17,8 +17,8 @@
 		<java.version>11</java.version>
 		<jackson.version>2.5.2</jackson.version>
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-		<model.version>1.0.10-SNAPSHOT</model.version>
-		<commons.version>1.0.10-SNAPSHOT</commons.version>
+		<model.version>1.0.11-SNAPSHOT</model.version>
+		<commons.version>1.0.11-SNAPSHOT</commons.version>
 	</properties>
 
 	<scm>
@@ -36,6 +36,16 @@
 				<type>pom</type>
 			</dependency>
 			<dependency>
+				<groupId>io.springfox</groupId>
+				<artifactId>springfox-boot-starter</artifactId>
+				<version>3.0.0</version>
+			 </dependency>
+			<dependency>
+				<groupId>io.springfox</groupId>
+				<artifactId>springfox-swagger2</artifactId>
+				<version>3.0.0</version>
+			</dependency>
+			<dependency>
 				<groupId>com.smilebat.learntribe</groupId>
 				<artifactId>learntribe-model</artifactId>
 				<version>${model.version}</version>
@@ -46,6 +56,16 @@
 	</dependencyManagement>
 
 	<dependencies>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>2.7.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>

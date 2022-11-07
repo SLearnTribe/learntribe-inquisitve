@@ -1,16 +1,22 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
+import com.smilebat.learntribe.inquisitve.JobStatus;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.NamedNativeQuery;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 /**
  * Assessment Entity representation of DB.
@@ -23,10 +29,6 @@ import lombok.Setter;
 @Setter
 @Table(name = "OTHERS_BUSINESS")
 @Entity
-@NamedNativeQuery(
-    name = "Assessment.findByUserId",
-    query = "SELECT * FROM assessment WHERE user_details_id = ?",
-    resultClass = UserProfile.class)
 @SuppressFBWarnings(justification = "Generated code")
 public class OthersBusiness {
 
@@ -42,4 +44,11 @@ public class OthersBusiness {
   @Lob private String requiredSkills;
 
   private String createdBy;
+
+  @CreatedDate
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date createdDate;
+
+  @Enumerated(EnumType.STRING)
+  private JobStatus status;
 }

@@ -1,5 +1,6 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
+import com.smilebat.learntribe.inquisitve.JobStatus;
 import com.smilebat.learntribe.inquisitve.OthersBusinessRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.OthersBusiness;
@@ -62,12 +63,11 @@ public class JobConverter {
    */
   public OthersBusiness toEntity(OthersBusinessRequest request) {
     OthersBusiness jobEntity = new OthersBusiness();
-
-    // jobEntity.setCreatedBy(request.getCreatedBy());
     jobEntity.setDescription(request.getDescription());
     jobEntity.setRequiredSkills(request.getRequiredSkills());
     jobEntity.setRolesAndResponsibilities(request.getRolesAndResponsibilities());
     jobEntity.setTitle(request.getTitle());
+    jobEntity.setStatus(JobStatus.IN_PROGRESS);
     return jobEntity;
   }
 }
