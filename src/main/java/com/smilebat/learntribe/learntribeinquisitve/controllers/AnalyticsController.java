@@ -73,6 +73,7 @@ public class AnalyticsController {
    * @param keyCloakId the user keycloak id
    * @param page the page number of pagination
    * @param limit the limit for pagination
+   * @param category the hr activity logic name
    * @return the {@link List} of {@link HrHiringsResponse}
    */
   @GetMapping(value = "/hr/activities")
