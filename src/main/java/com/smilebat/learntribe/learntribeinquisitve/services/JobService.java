@@ -53,7 +53,7 @@ public class JobService {
     List<Long> jobIds =
         userObReltns.stream().map(UserObReltn::getJobId).collect(Collectors.toList());
 
-    List<OthersBusiness> jobs = jobRepository.findAllById(jobIds);
+    List<OthersBusiness> jobs = (List<OthersBusiness>) jobRepository.findAllById(jobIds);
 
     return jobConverter.toResponse(jobs);
   }

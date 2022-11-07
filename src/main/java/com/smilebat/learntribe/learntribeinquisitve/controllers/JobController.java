@@ -8,9 +8,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/jobs/user")
+@RequestMapping("/api/v1/jobs")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class JobController {
@@ -38,9 +38,9 @@ public class JobController {
    * @param keyCloakId the acual IAM user Id
    * @return the List of {@link AssessmentResponse}
    */
-  @GetMapping(value = "/id/{id}")
+  @GetMapping(value = "/user")
   public ResponseEntity<List<OthersBusinessResponse>> retrieveJob(
-      @PathVariable(value = "id") String keyCloakId) {
+      @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
 
     // return ResponseEntity.ok(service.retrieveAssessments(id));
     List<OthersBusinessResponse> responses = null;
@@ -56,9 +56,10 @@ public class JobController {
    * @param request the {@link OthersBusinessRequest}
    * @return the {@link OthersBusinessResponse}
    */
-  @PostMapping(value = "/id/{id}")
+  @PostMapping(value = "/user")
   public ResponseEntity<OthersBusinessResponse> createJob(
-      @PathVariable(value = "id") String keyCloakId, @RequestBody OthersBusinessRequest request) {
+      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @RequestBody OthersBusinessRequest request) {
 
     final OthersBusinessResponse response = jobService.createJob(keyCloakId, request);
 

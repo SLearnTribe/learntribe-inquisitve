@@ -21,10 +21,17 @@ import springfox.documentation.spring.web.plugins.Docket;
 @SuppressFBWarnings(justification = "Generated code")
 public class SwaggerConfig {
 
-    @Bean
-    public Docket productApi() {
-        return new Docket(DocumentationType.SWAGGER_2).select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any()).build();
-    }
+  /**
+   * Docket Bean for swagger customization
+   *
+   * @return the {@link Docket}
+   */
+  @Bean
+  public Docket productApi() {
+    return new Docket(DocumentationType.SWAGGER_2)
+        .select()
+        .apis(RequestHandlerSelectors.any())
+        .paths(PathSelectors.any())
+        .build();
+  }
 }

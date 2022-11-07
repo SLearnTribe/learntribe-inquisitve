@@ -40,6 +40,7 @@ public class Assessment {
   private Long id;
 
   private String name;
+  private String subTitle;
 
   @Enumerated(EnumType.STRING)
   private AssessmentType type;
@@ -50,7 +51,7 @@ public class Assessment {
   private String difficulty;
   private String description;
   private String title;
-  private String subTitle;
+
   private String createdBy;
 
   @OneToMany(mappedBy = ASSESSMENT_NAME)

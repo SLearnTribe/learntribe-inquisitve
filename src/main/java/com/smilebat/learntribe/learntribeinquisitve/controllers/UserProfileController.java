@@ -5,14 +5,13 @@ import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.UserInfoService;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,10 +29,10 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/profile/user")
+@RequestMapping("/api/v1/profile")
 // @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
-public class UserDetailsController {
+public class UserProfileController {
 
   private final UserInfoService userInfoService;
 
@@ -44,15 +43,16 @@ public class UserDetailsController {
    * @param id the user id.
    * @return the {@link UserProfileRequest} as response.
    */
-  @PostMapping(value = "/id/{id}")
+  @PostMapping(value = "/user")
   @ResponseBody
   public ResponseEntity<String> saveUserDetails(
-      @PathVariable String id, @Valid @RequestBody UserProfileRequest request) {
+      @AuthenticationPrincipal(expression = "subject") String id,
+      @Valid @RequestBody UserProfileRequest request) {
 
     request.setKeyCloakId(id);
     userInfoService.saveUserInfo(request);
 
-    return ResponseEntity.status(HttpStatus.OK).body("Created User");
+    return ResponseEntity.status(HttpStatus.CREATED).body("Created User");
   }
 
   /**
@@ -61,14 +61,11 @@ public class UserDetailsController {
    * @param id the user id
    * @return the Respresentation of User from IAM.
    */
-  @GetMapping(value = "/id/{id}")
+  @GetMapping(value = "/user")
   @ResponseBody
-  public ResponseEntity<?> getUserDetails(@PathVariable String id) {
+  public ResponseEntity<?> getUserDetails(
+      @AuthenticationPrincipal(expression = "subject") String id) {
     log.info("Fetching User Details");
-
-    if (id == null || id.isEmpty()) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User ID cannot be null/empty");
-    }
 
     final UserProfileResponse userInfo = userInfoService.getUserInfo(id);
     return ResponseEntity.ok(userInfo);
@@ -103,7 +100,7 @@ public class UserDetailsController {
    * @param keyword to search for users
    * @return the {@link ResponseEntity} of generic type.
    */
-  @GetMapping("/")
+  @GetMapping
   @ResponseBody
   public ResponseEntity<List<UserProfileResponse>> getAllUserDetails(
       @RequestParam int page,
@@ -125,10 +122,11 @@ public class UserDetailsController {
    * @param role the user role
    * @return success on role creation.
    */
-  @PutMapping(value = "/id/{id}")
+  @PutMapping(value = "/user")
   @ResponseBody
-  public ResponseEntity<Map<String, Boolean>> saveUserRole(
-      @PathVariable String id, @RequestParam(value = "role") String role) {
+  public ResponseEntity<?> saveUserRole(
+      @AuthenticationPrincipal(expression = "subject") String id,
+      @RequestParam(value = "role") String role) {
     UserProfileRequest request = new UserProfileRequest();
     request.setKeyCloakId(id);
     request.setRole(role);

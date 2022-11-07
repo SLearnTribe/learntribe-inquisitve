@@ -1,23 +1,26 @@
 package com.smilebat.learntribe.learntribeinquisitve.controllers;
 
-import com.smilebat.learntribe.inquisitve.response.AnalyticsResponse;
 import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.inquisitve.response.CandidateActivitiesResponse;
+import com.smilebat.learntribe.inquisitve.response.HrHiringsResponse;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.AnalyticsService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Assessment Controller
+ * Analytics Controller
  *
  * <p>Copyright &copy; 2022 Smile .Bat
  *
@@ -38,10 +41,10 @@ public class AnalyticsController {
    * @param keyCloakId the user keycloak id
    * @return the {@link List} of {@link AssessmentResponse}
    */
-  @GetMapping(value = "/candidate/id/{id}/activities")
+  @GetMapping(value = "/candidate/activities")
   @ResponseBody
   public ResponseEntity<CandidateActivitiesResponse> evaluateCandidateActivities(
-      @PathVariable(value = "id") String keyCloakId) {
+      @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
 
     CandidateActivitiesResponse response = analyticsService.retrieveCandidateActivities(keyCloakId);
 
@@ -54,10 +57,10 @@ public class AnalyticsController {
    * @param keyCloakId the user keycloak id
    * @return the {@link List} of {@link OthersBusinessResponse}
    */
-  @GetMapping(value = "/candidate/id/{id}")
+  @GetMapping(value = "/candidate/jobs")
   @ResponseBody
   public ResponseEntity<List<OthersBusinessResponse>> evaluateConsideredJobs(
-      @PathVariable(value = "id") String keyCloakId) {
+      @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
 
     List<OthersBusinessResponse> response = analyticsService.retrieveConsideredJobs(keyCloakId);
 
@@ -65,18 +68,31 @@ public class AnalyticsController {
   }
 
   /**
-   * Retrieves all the related assessments to User Id
+   * Retrieves all data related to hiring by User Id
    *
    * @param keyCloakId the user keycloak id
-   * @return the {@link List} of {@link AssessmentResponse}
+   * @param page the page number of pagination
+   * @param limit the limit for pagination
+   * @return the {@link List} of {@link HrHiringsResponse}
    */
-  @GetMapping(value = "/hr/id/{id}")
+  @GetMapping(value = "/hr/activities")
   @ResponseBody
-  public ResponseEntity<AnalyticsResponse> evaluateHrAnalytics(
-      @PathVariable(value = "id") String keyCloakId) {
+  public ResponseEntity<List<HrHiringsResponse>> evaluateHrHirings(
+      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @RequestParam(value = "page") int page,
+      @RequestParam(value = "limit") int limit,
+      @RequestParam(value = "category", required = false) String category) {
 
-    AnalyticsResponse response = analyticsService.retrieveDashBoardStatus(keyCloakId);
+    Pageable paging = PageRequest.of(page - 1, limit);
 
-    return ResponseEntity.ok(response);
+    List<HrHiringsResponse> responses;
+
+    if ("IN_PROGRESS".equals(category)) {
+      responses = analyticsService.evaluateHiringsInProgress(keyCloakId, paging);
+    } else {
+      responses = analyticsService.evaluateHiringsInLastMonth(keyCloakId, paging);
+    }
+
+    return ResponseEntity.ok(responses);
   }
 }

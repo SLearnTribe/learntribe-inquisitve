@@ -5,10 +5,8 @@ import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.UserRole;
 import com.smilebat.learntribe.inquisitve.WorkExperienceRequest;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
-import com.smilebat.learntribe.learntribeinquisitve.converters.SkillConverter;
 import com.smilebat.learntribe.learntribeinquisitve.converters.UserProfileConverter;
 import com.smilebat.learntribe.learntribeinquisitve.converters.WorkExperienceConverter;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.SkillRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserDetailsRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.WorkExperienceRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
@@ -40,9 +38,7 @@ public class UserInfoService {
 
   private final UserDetailsRepository userDetailsRepository;
   private final WorkExperienceRepository workExperienceRepository;
-  private final SkillRepository skillRepository;
   private final UserProfileConverter profileConverter;
-  private final SkillConverter skillConverter;
   private final WorkExperienceConverter workExperienceConverter;
 
   /**

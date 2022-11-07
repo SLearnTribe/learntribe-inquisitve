@@ -18,8 +18,37 @@ public interface UserAstReltnRepository extends JpaRepository<UserAstReltn, Long
    * @param keyCloakId the profile id
    * @return the List of {@link Assessment}
    */
-  @Query(value = "SELECT * FROM usr_ast_reltn ua WHERE ua.user_id = :userId", nativeQuery = true)
-  List<UserAstReltn> findByUserId(@Param("userId") String keyCloakId);
+  @Query(
+      value = "SELECT * FROM usr_ast_reltn ua WHERE ua.user_id = :keyCloakId",
+      nativeQuery = true)
+  List<UserAstReltn> findByUserId(@Param("keyCloakId") String keyCloakId);
+
+  /**
+   * Finds the Assessments mapped to user based on user profile id and status filters.
+   *
+   * @param keyCloakId the profile id
+   * @param filters the list of Assessment Status filters
+   * @return the List of {@link Assessment}
+   */
+  @Query(
+      value = "SELECT * FROM usr_ast_reltn ua WHERE ua.user_id = :userId and status in :filters",
+      nativeQuery = true)
+  List<UserAstReltn> findByUserIdAndFilter(
+      @Param("userId") String keyCloakId, @Param("filters") String[] filters);
+
+  /**
+   * Finds the total Assessments mapped to user based on user profile id and status filters.
+   *
+   * @param keyCloakId the profile id
+   * @param filters the list of Assessment Status filters
+   * @return the List of {@link Assessment}
+   */
+  @Query(
+      value =
+          "SELECT COUNT(*) FROM usr_ast_reltn ua WHERE ua.user_id = :userId and status in :filters",
+      nativeQuery = true)
+  Long countByUserIdAndFilter(
+      @Param("userId") String keyCloakId, @Param("filters") String[] filters);
 
   /**
    * Finds Assessments based on the inputs.

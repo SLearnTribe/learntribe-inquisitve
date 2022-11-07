@@ -41,8 +41,13 @@ public class UserProfileConverter {
     userProfile.setGitHub(request.getGitHub());
     userProfile.setAbout(request.getAbout());
     userProfile.setPhone(request.getPhone());
-    userProfile.setSkills(request.getSkills().toLowerCase());
-    userProfile.setSkills(request.getSkills());
+    String skills = request.getSkills();
+    if (skills != null && !skills.isEmpty()) {
+
+      userProfile.setSkills(skills.toLowerCase());
+    }
+
+    // List<EducationalExpRequest> educationExperiences = request.getEducationExperiences();
   }
 
   /**
@@ -80,14 +85,9 @@ public class UserProfileConverter {
     response.setEmail(profile.getEmail());
     response.setGitHub(profile.getGitHub());
     response.setLinkedIn(profile.getLinkedIn());
-    response.setUserProfileId(profile.getId());
     response.setName(profile.getName());
     response.setPhone(profile.getPhone());
-    response.setKeyCloakId(profile.getKeyCloakId());
     response.setSkills(profile.getSkills());
-    if (profile.getRole() != null) {
-      response.setRole(profile.getRole().name());
-    }
 
     final Set<WorkExperience> experienceSet = profile.getWorkExperiences();
     List<WorkExperienceResponse> workExperienceResponses = Collections.emptyList();
