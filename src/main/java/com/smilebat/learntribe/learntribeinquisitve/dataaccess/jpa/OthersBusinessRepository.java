@@ -37,4 +37,14 @@ public interface OthersBusinessRepository extends PagingAndSortingRepository<Oth
       nativeQuery = true)
   List<OthersBusiness> findByUserIdAndCurrentDate(
       @Param("userId") String keyCloakId, Pageable pageable);
+
+  /**
+   * Finds the Jobs mapped to user based on user profile id.
+   *
+   * @param pageable the {@link Pageable} required for pagination.
+   * @param jobId list of job id
+   * @return the List of {@link Assessment}
+   */
+  @Query(value = "SELECT * FROM OTHERS_BUSINESS where id in :jobId", nativeQuery = true)
+  List<OthersBusiness> findAllById(Pageable pageable, @Param("jobId") Long[] jobId);
 }

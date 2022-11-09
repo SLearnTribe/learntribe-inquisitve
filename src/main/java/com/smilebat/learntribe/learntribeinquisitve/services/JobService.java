@@ -11,10 +11,13 @@ import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Others
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserObReltn;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 /**
@@ -35,25 +38,37 @@ public class JobService {
 
   private final JobConverter jobConverter;
 
+  /** Job pagination concept builder. */
+  @Getter
+  @Setter
+  @Builder
+  public static class PageableJobRequest {
+    private String keyCloakId;
+    private Pageable paging;
+  }
+
   /**
    * Retrieves all jobs realted to the user id.
    *
-   * @param userId the {@link Long} keycloak id.
+   * @param request the {@link PageableJobRequest} Pageable Job request from job service.
    * @return the List of {@link com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse}.
    */
-  public List<OthersBusinessResponse> retrieveJobs(String userId) {
-    Verify.verifyNotNull(userId, "User Id cannot be null");
+  @Transactional
+  public List<OthersBusinessResponse> retrieveJobs(PageableJobRequest request) {
+    String keyCloakId = request.getKeyCloakId();
+    Verify.verifyNotNull(keyCloakId, "User Id cannot be null");
 
-    List<UserObReltn> userObReltns = userObReltnRepository.findByUserId(userId);
+    Pageable paging = request.getPaging();
+    List<UserObReltn> userObReltns = userObReltnRepository.findByUserId(keyCloakId);
 
     if (userObReltns == null || userObReltns.isEmpty()) {
       return Collections.emptyList();
     }
 
-    List<Long> jobIds =
-        userObReltns.stream().map(UserObReltn::getJobId).collect(Collectors.toList());
+    final Long[] jobIds =
+        userObReltns.stream().map(UserObReltn::getJobId).toArray(s -> new Long[s]);
 
-    List<OthersBusiness> jobs = (List<OthersBusiness>) jobRepository.findAllById(jobIds);
+    List<OthersBusiness> jobs = jobRepository.findAllById(paging, jobIds);
 
     return jobConverter.toResponse(jobs);
   }
