@@ -34,8 +34,8 @@ public interface UserDetailsRepository extends PagingAndSortingRepository<UserPr
   @Query(
       value =
           "SELECT * FROM USER_PROFILE WHERE ( KEY_CLOAK_ID is not null AND "
-              + "skills ~* :skill AND "
-              + "skills ~* :keyword OR "
+              + "skills ~* :skill) AND "
+              + "(skills ~* :keyword OR "
               + "country ~* :keyword OR "
               + "about ~* :keyword)",
       nativeQuery = true)

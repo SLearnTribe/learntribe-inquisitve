@@ -72,6 +72,21 @@ public class UserProfileController {
   }
 
   /**
+   * Retrieves the user from IAM based on user id.
+   *
+   * @param id the user id
+   * @return the Respresentation of User from IAM.
+   */
+  @GetMapping(value = "/user/id")
+  @ResponseBody
+  public ResponseEntity<?> getUserDetailsById(@RequestParam(value = "id") String id) {
+    log.info("Fetching User Details");
+
+    final UserProfileResponse userInfo = userInfoService.getUserInfo(id);
+    return ResponseEntity.ok(userInfo);
+  }
+
+  /**
    * Retrieves all User information based on the input skillName.
    *
    * @param skillName the {@link String}

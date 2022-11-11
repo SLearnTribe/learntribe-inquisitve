@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -99,10 +98,10 @@ public class AssessmentController {
    * @param assessmentId the assessment id
    * @return {@link ResponseEntity} of {@link AssessmentResponse}
    */
-  @GetMapping(value = "/id/{assessmentId}")
+  @GetMapping
   @ResponseBody
   public ResponseEntity<AssessmentResponse> retrieveAssessment(
-      @PathVariable(value = "assessmentId") Long assessmentId) {
+      @RequestParam(value = "id") Long assessmentId) {
 
     AssessmentResponse response = assessmentService.retrieveAssessment(assessmentId);
 
