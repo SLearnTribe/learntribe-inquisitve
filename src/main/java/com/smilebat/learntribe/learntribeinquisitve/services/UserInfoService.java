@@ -144,7 +144,11 @@ public class UserInfoService {
       return Collections.emptyList();
     }
 
-    Set<UserProfile> filtersUsers = userProfile.stream().collect(Collectors.toSet());
+    Set<UserProfile> filtersUsers =
+        userProfile
+            .stream()
+            .filter(user -> UserRole.ROLE_CANDIDATE == user.getRole())
+            .collect(Collectors.toSet());
 
     return profileConverter.toResponse(filtersUsers);
   }
