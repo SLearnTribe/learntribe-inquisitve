@@ -3,6 +3,9 @@ package com.smilebat.learntribe.learntribeinquisitve.controllers;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.UserInfoService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.util.Collections;
 import java.util.List;
 import javax.validation.Valid;
@@ -45,6 +48,15 @@ public class UserProfileController {
    */
   @PostMapping(value = "/user")
   @ResponseBody
+  @ApiOperation(value = "Save or Update User Details", notes = "Saves the user details")
+  @ApiResponses(
+      value = {
+        @ApiResponse(code = 201, message = "User Created"),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+      })
   public ResponseEntity<String> saveUserDetails(
       @AuthenticationPrincipal(expression = "subject") String id,
       @Valid @RequestBody UserProfileRequest request) {
@@ -52,7 +64,7 @@ public class UserProfileController {
     request.setKeyCloakId(id);
     userInfoService.saveUserInfo(request);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body("Created User");
+    return ResponseEntity.status(HttpStatus.CREATED).body("Updated User");
   }
 
   /**
@@ -63,6 +75,20 @@ public class UserProfileController {
    */
   @GetMapping(value = "/user")
   @ResponseBody
+  @ApiOperation(
+      value = "Fetches user based on auth token",
+      notes = "Retrieves current user details")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            code = 200,
+            message = "Successfully retrieved",
+            response = UserProfileResponse.class),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+      })
   public ResponseEntity<?> getUserDetails(
       @AuthenticationPrincipal(expression = "subject") String id) {
     log.info("Fetching User Details");
@@ -102,6 +128,21 @@ public class UserProfileController {
    */
   @GetMapping
   @ResponseBody
+  @ApiOperation(
+      value = "Fetches all applicants for HR",
+      notes = "Retrieves all users based on filters")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            code = 200,
+            message = "Successfully retrieved",
+            response = UserProfileResponse.class,
+            responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+      })
   public ResponseEntity<List<UserProfileResponse>> getAllUserDetails(
       @RequestParam int page,
       @RequestParam int limit,

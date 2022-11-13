@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -138,19 +137,13 @@ public class UserInfoService {
   public List<UserProfileResponse> getAllUserInfo(
       int page, int limit, String skill, String keyword) {
     Pageable pageable = PageRequest.of(page - 1, limit);
-    List<UserProfile> userProfile =
+    List<UserProfile> userProfiles =
         userDetailsRepository.findAllUsers(pageable, skill.replace(',', '|'), keyword);
-    if (userProfile == null || userProfile.isEmpty()) {
+    if (userProfiles == null || userProfiles.isEmpty()) {
       return Collections.emptyList();
     }
 
-    Set<UserProfile> filtersUsers =
-        userProfile
-            .stream()
-            .filter(user -> UserRole.ROLE_CANDIDATE == user.getRole())
-            .collect(Collectors.toSet());
-
-    return profileConverter.toResponse(filtersUsers);
+    return profileConverter.toResponse(userProfiles);
   }
 
   /**

@@ -33,17 +33,26 @@ public class SecurityConfig {
   protected SecurityFilterChain configure(HttpSecurity security) throws Exception {
 
     JwtIssuerAuthenticationManagerResolver authenticationManagerResolver =
-        new JwtIssuerAuthenticationManagerResolver(
-            keyCloakBaseUrl + "/realms/master",
-            keyCloakBaseUrl + "/realms/general",
-            keyCloakBaseUrl + "/realms/hr");
+        new JwtIssuerAuthenticationManagerResolver(keyCloakBaseUrl + "/realms/master");
 
     security
         .cors()
         .and()
         .csrf()
         .disable()
-        .authorizeRequests(authorize -> authorize.anyRequest().authenticated())
+        .authorizeRequests(
+            authorize ->
+                authorize
+                    .antMatchers(
+                        "/swagger-ui.html",
+                        "/v2/api-docs",
+                        "/webjars/**",
+                        "/swagger-resources/**",
+                        "/configuration/ui",
+                        "/configuration/security")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         // .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
         .oauth2ResourceServer(
             oauth2 -> oauth2.authenticationManagerResolver(authenticationManagerResolver));
