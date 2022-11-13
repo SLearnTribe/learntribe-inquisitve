@@ -100,13 +100,6 @@ public class AnalyticsService {
 
     List<OthersBusiness> createdJobs = othersBusinessRepository.findByUserId(keyCloakId, paging);
 
-    //  List<HrHiringsResponse> responses = new ArrayList<>(createdJobs.size());
-    //
-    //    for (OthersBusiness othersBusiness : createdJobs) {
-    //      HrHiringsResponse response = createHrHiringsResponse(othersBusiness, "IN_PROGRESS");
-    //      responses.add(response);
-    //    }
-
     return createdJobs
         .stream()
         .map(job -> createHrHiringsResponse(job, "IN_PROGRESS"))
@@ -126,17 +119,6 @@ public class AnalyticsService {
 
     List<OthersBusiness> createdJobs =
         othersBusinessRepository.findByUserIdAndCurrentDate(keyCloakId, paging);
-    //    List<HrHiringsResponse> responses = new ArrayList<>(createdJobs.size());
-
-    //    for (OthersBusiness othersBusiness : createdJobs) {
-    //      final Long totalHiredForJob =
-    //          userObReltnRepository.countByJobHiringStatus(
-    //              othersBusiness.getId(), new String[] {"HIRED"});
-    //
-    //      HrHiringsResponse response = analyticsConverter.toResponse(othersBusiness,
-    // totalHiredForJob);
-    //      responses.add(response);
-    //    }
 
     return createdJobs
         .stream()

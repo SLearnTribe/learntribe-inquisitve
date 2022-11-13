@@ -5,6 +5,9 @@ import com.smilebat.learntribe.inquisitve.response.CandidateActivitiesResponse;
 import com.smilebat.learntribe.inquisitve.response.HrHiringsResponse;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.AnalyticsService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +46,21 @@ public class AnalyticsController {
    */
   @GetMapping(value = "/candidate/activities")
   @ResponseBody
+  @ApiOperation(
+      value = "Retrieves candidates status activities",
+      notes = "Fetches all candidate activities")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            code = 201,
+            message = "Successfully retrieved",
+            response = CandidateActivitiesResponse.class),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 422, message = "Invalid Data"),
+      })
   public ResponseEntity<CandidateActivitiesResponse> evaluateCandidateActivities(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
 
@@ -59,6 +77,22 @@ public class AnalyticsController {
    */
   @GetMapping(value = "/candidate/jobs")
   @ResponseBody
+  @ApiOperation(
+      value = "Retrieves Considered jobs for a candidate",
+      notes = "Fetches all the considered job for a candidate")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            code = 201,
+            message = "Successfully retrieved",
+            response = OthersBusinessResponse.class,
+            responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 422, message = "Invalid Data"),
+      })
   public ResponseEntity<List<OthersBusinessResponse>> evaluateConsideredJobs(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
 
@@ -78,6 +112,22 @@ public class AnalyticsController {
    */
   @GetMapping(value = "/hr/activities")
   @ResponseBody
+  @ApiOperation(
+      value = "Retrieves HR dashboard details",
+      notes = "Fetches HR hirings based on category data")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            code = 201,
+            message = "Successfully retrieved",
+            response = HrHiringsResponse.class,
+            responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 422, message = "Invalid Data"),
+      })
   public ResponseEntity<List<HrHiringsResponse>> evaluateHrHirings(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
       @RequestParam(value = "page") int page,

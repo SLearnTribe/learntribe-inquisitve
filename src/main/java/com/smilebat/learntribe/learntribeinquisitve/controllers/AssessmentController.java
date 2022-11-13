@@ -5,6 +5,9 @@ import static com.smilebat.learntribe.learntribeinquisitve.services.AssessmentSe
 import com.smilebat.learntribe.inquisitve.AssessmentRequest;
 import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.AssessmentService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,21 +43,37 @@ public class AssessmentController {
   private final AssessmentService assessmentService;
 
   /**
-   * Retrieves all the related assessments to User Id
+   * Retrieves all the related and recommended assessments to User Id
    *
    * @param keyCloakId the user keycloak id
    * @param pageNo the page number of pagination
    * @param pageSize the limit for pagination
-   * @param filter the status filters from UI
+   * @param filters the status filters from UI
    * @return the {@link List} of {@link AssessmentResponse}
    */
   @GetMapping(value = "/user")
   @ResponseBody
-  public ResponseEntity<?> retrieveAssessments(
+  @ApiOperation(
+      value = "Assessment Retrieval",
+      notes = "Fetches assessments based on system recommendation or assigned")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            code = 200,
+            message = "Successfully retrieved",
+            response = AssessmentResponse.class,
+            responseContainer = "List"),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 422, message = "Invalid Data"),
+      })
+  public ResponseEntity<?> retrieveRecommendedAssessments(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
       @RequestParam(value = "page") int pageNo,
       @RequestParam(value = "limit") int pageSize,
-      @RequestParam(value = "filter") String[] filter) {
+      @RequestParam(value = "filters") String[] filters) {
 
     if (pageNo <= 0) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Page Number");
@@ -65,7 +84,7 @@ public class AssessmentController {
     PageableAssessmentRequest pageRequest =
         PageableAssessmentRequest.builder()
             .paging(paging)
-            .filters(filter)
+            .filters(filters)
             .keyCloakId(keyCloakId)
             .build();
 
@@ -84,13 +103,26 @@ public class AssessmentController {
    * @return the {@link AssessmentResponse}.
    */
   @PostMapping(value = "/user")
+  @ResponseBody
+  @ApiOperation(
+      value = "Assessment Creation",
+      notes = "Creates assessments based on HR Requirements")
+  @ApiResponses(
+      value = {
+        @ApiResponse(code = 201, message = "Successfully created"),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 422, message = "Invalid Data"),
+      })
   public ResponseEntity<Boolean> createAssessment(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
       @RequestBody AssessmentRequest request) {
 
     final Boolean response = assessmentService.createAssessment(keyCloakId, request);
 
-    return ResponseEntity.ok(response);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
   /**
@@ -101,6 +133,21 @@ public class AssessmentController {
    */
   @GetMapping(value = "/id/{assessmentId}")
   @ResponseBody
+  @ApiOperation(
+      value = "Retrieves assessment details based on assessment id",
+      notes = "Fetches assessments based on the ID ")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            code = 201,
+            message = "Successfully retrieved",
+            response = AssessmentResponse.class),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 422, message = "Invalid Data"),
+      })
   public ResponseEntity<AssessmentResponse> retrieveAssessment(
       @PathVariable(value = "assessmentId") Long assessmentId) {
 

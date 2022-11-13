@@ -60,6 +60,11 @@ public class AssessmentService {
 
   private final UserDetailsRepository userDetailsRepository;
 
+  private static final String[] ASSESSMENT_STATUS_FILTERS =
+      Arrays.stream(AssessmentStatus.values())
+          .map(AssessmentStatus::name)
+          .toArray(s -> new String[s]);
+
   /** Assessment pagination concept builder. */
   @Getter
   @Setter
@@ -84,6 +89,8 @@ public class AssessmentService {
     log.info("Fetching Assessments for User {}", keyCloakId);
     Pageable paging = request.getPaging();
     String[] filters = request.getFilters();
+
+    filters = filters.length > 0 ? filters : ASSESSMENT_STATUS_FILTERS;
 
     List<UserAstReltn> userAstReltns =
         userAstReltnRepository.findByUserIdAndFilter(keyCloakId, filters);
@@ -113,19 +120,9 @@ public class AssessmentService {
     Set<String> userSkills = evaluateUserSkills(userProfile);
 
     log.info("Initializing default assessments for User {}", candidateId);
-    // List<Assessment> defaultAssessments = new ArrayList<>(userSkills.size());
 
     List<Assessment> defaultAssessments =
         userSkills.stream().map(this::createSystemAssessment).collect(Collectors.toList());
-    //    for (String skill : userSkills) {
-    //    // feature toggle?
-    //    // validate if assessment already exists for the skill and
-    //    // assign it to the user as system generated.
-    //
-    //    Assessment assessment = createSystemAssessment(skill);
-    //    //defaultAssessments.add(assessment);
-    //      createSkillBasedAssessment(defaultAssessments, skill);
-    //    }
 
     assessmentRepository.saveAll(defaultAssessments);
 
