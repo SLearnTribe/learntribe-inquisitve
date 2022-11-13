@@ -1,7 +1,6 @@
 package com.smilebat.learntribe.learntribeinquisitve.controllers;
 
 import com.smilebat.learntribe.inquisitve.OthersBusinessRequest;
-import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.JobService;
 import io.swagger.annotations.ApiOperation;
@@ -10,6 +9,8 @@ import io.swagger.annotations.ApiResponses;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  * <p>Copyright &copy; 2022 Smile .Bat
  *
  * @author Pai,Sai Nandan
+ * @author Likith
  */
 @Slf4j
 @RestController
@@ -40,7 +43,9 @@ public class JobController {
    * Fetchs all the Jobs related to the User id.
    *
    * @param keyCloakId the acual IAM user Id
-   * @return the List of {@link AssessmentResponse}
+   * @param page page number for pageination.
+   * @param limit for pageination.
+   * @return the List of {@link OthersBusinessResponse}
    */
   @GetMapping(value = "/user")
   @ResponseBody
@@ -60,9 +65,14 @@ public class JobController {
         @ApiResponse(code = 404, message = "Url Not found"),
       })
   public ResponseEntity<List<OthersBusinessResponse>> retrieveJob(
-      @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
+      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @RequestParam(value = "page") int page,
+      @RequestParam(value = "limit") int limit) {
 
-    List<OthersBusinessResponse> responses = jobService.retrieveJobs(keyCloakId);
+    Pageable paging = PageRequest.of(page - 1, limit);
+    JobService.PageableJobRequest pageRequest =
+        JobService.PageableJobRequest.builder().paging(paging).keyCloakId(keyCloakId).build();
+    List<OthersBusinessResponse> responses = jobService.retrieveJobs(pageRequest);
 
     return ResponseEntity.ok(responses);
   }
