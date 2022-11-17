@@ -48,7 +48,7 @@ public class AssessmentController {
    * @param keyCloakId the user keycloak id
    * @param pageNo the page number of pagination
    * @param pageSize the limit for pagination
-   * @param filters the status filters from UI
+   * @param filters the status filters from UI i.e. [COMPLETED, PENDING, BLOCKED, FAILED]
    * @return the {@link List} of {@link AssessmentResponse}
    */
   @GetMapping(value = "/user")
@@ -73,7 +73,7 @@ public class AssessmentController {
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
       @RequestParam(value = "page") int pageNo,
       @RequestParam(value = "limit") int pageSize,
-      @RequestParam(value = "filters") String[] filters) {
+      @RequestParam(value = "filters", required = false) String[] filters) {
 
     if (pageNo <= 0) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Page Number");
@@ -89,9 +89,9 @@ public class AssessmentController {
             .build();
 
     List<AssessmentResponse> responses = assessmentService.retrieveUserAssessments(pageRequest);
-    if (responses.isEmpty()) {
-      return ResponseEntity.status(422).body("Unable to Create Assessments");
-    }
+    //    if (responses.isEmpty()) {
+    //      return ResponseEntity.status(422).body("Unable to Create Assessments");
+    //    }
     return ResponseEntity.ok(responses);
   }
 

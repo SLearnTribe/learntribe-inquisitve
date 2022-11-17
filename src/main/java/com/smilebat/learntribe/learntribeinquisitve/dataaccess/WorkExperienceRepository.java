@@ -1,4 +1,4 @@
-package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa;
+package com.smilebat.learntribe.learntribeinquisitve.dataaccess;
 
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.WorkExperience;
 import org.springframework.data.jpa.repository.JpaRepository;

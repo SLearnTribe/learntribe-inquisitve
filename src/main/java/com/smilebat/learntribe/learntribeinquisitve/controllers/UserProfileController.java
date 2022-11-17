@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -107,6 +106,7 @@ public class UserProfileController {
    */
   @GetMapping("/skill")
   @ResponseBody
+  @Deprecated
   public ResponseEntity<List<UserProfileResponse>> getUserDetailsFromSkill(
       @RequestParam String skillName, @RequestParam int page, @RequestParam int limit) {
     if (skillName == null) {
@@ -146,32 +146,13 @@ public class UserProfileController {
   public ResponseEntity<List<UserProfileResponse>> getAllUserDetails(
       @RequestParam int page,
       @RequestParam int limit,
-      @RequestParam(defaultValue = "") String skill,
-      @RequestParam(defaultValue = "") String keyword) {
+      @RequestParam(defaultValue = "", required = false) String skill,
+      @RequestParam(defaultValue = "", required = false) String keyword)
+      throws InterruptedException {
     log.info("Fetching User Details");
 
-    final List<UserProfileResponse> users =
-        userInfoService.getAllUserInfo(page, limit, skill, keyword);
+    final List<UserProfileResponse> users = userInfoService.getAllUserInfo(page, limit, keyword);
 
     return ResponseEntity.ok(users);
-  }
-
-  /**
-   * Creates a new user role for the user.
-   *
-   * @param id the IAM id
-   * @param role the user role
-   * @return success on role creation.
-   */
-  @PutMapping(value = "/user")
-  @ResponseBody
-  public ResponseEntity<?> saveUserRole(
-      @AuthenticationPrincipal(expression = "subject") String id,
-      @RequestParam(value = "role") String role) {
-    UserProfileRequest request = new UserProfileRequest();
-    request.setKeyCloakId(id);
-    request.setRole(role);
-    userInfoService.updateUserRole(request);
-    return ResponseEntity.ok().build();
   }
 }

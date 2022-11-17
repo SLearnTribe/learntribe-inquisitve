@@ -1,14 +1,11 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.smilebat.learntribe.inquisitve.UserRole;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,6 +14,18 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.snowball.SnowballPorterFilterFactory;
+import org.apache.lucene.analysis.standard.StandardTokenizerFactory;
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.AnalyzerDef;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Parameter;
+import org.hibernate.search.annotations.Store;
+import org.hibernate.search.annotations.TermVector;
+import org.hibernate.search.annotations.TokenFilterDef;
+import org.hibernate.search.annotations.TokenizerDef;
 
 /**
  * User Profile representation of DB.
@@ -27,9 +36,19 @@ import lombok.Setter;
  */
 @Table(name = "USER_PROFILE")
 @Entity
+@Indexed
 @SuppressFBWarnings(justification = "Generated code")
 @Getter
 @Setter
+@AnalyzerDef(
+    name = "textanalyzer",
+    tokenizer = @TokenizerDef(factory = StandardTokenizerFactory.class),
+    filters = {
+      @TokenFilterDef(factory = LowerCaseFilterFactory.class),
+      @TokenFilterDef(
+          factory = SnowballPorterFilterFactory.class,
+          params = {@Parameter(name = "language", value = "English")})
+    })
 public class UserProfile {
 
   public static final String USER_DETAILS_NAME = "userDetails";
@@ -40,19 +59,27 @@ public class UserProfile {
   private Long id;
 
   private String keyCloakId;
+
   private String name;
   private String email;
-  private String country; /*IMportant*/
+
+  @Field(termVector = TermVector.YES)
+  private String country;
+
   private String linkedIn;
   private String gitHub;
 
-  private String skills; /*IMportant*/
+  @Field(
+      termVector = TermVector.YES,
+      store = Store.NO,
+      analyzer = @Analyzer(definition = "textanalyzer"))
+  private String skills;
 
-  @Lob private String about; /*IMportant*/
+  @Field(termVector = TermVector.YES)
+  @Lob
+  private String about;
+
   private Long phone;
-
-  @Enumerated(EnumType.STRING)
-  private UserRole role;
 
   @OneToMany(mappedBy = USER_DETAILS_NAME)
   @JsonIgnoreProperties(

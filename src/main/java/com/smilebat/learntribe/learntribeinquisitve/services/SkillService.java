@@ -2,7 +2,7 @@ package com.smilebat.learntribe.learntribeinquisitve.services;
 
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.learntribeinquisitve.converters.UserProfileConverter;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.SkillRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.SkillRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Skill;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
 import java.util.Collection;
