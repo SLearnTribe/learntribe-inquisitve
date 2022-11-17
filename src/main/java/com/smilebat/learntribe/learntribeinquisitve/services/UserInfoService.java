@@ -2,13 +2,13 @@ package com.smilebat.learntribe.learntribeinquisitve.services;
 
 import com.google.common.base.Verify;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
-import com.smilebat.learntribe.inquisitve.UserRole;
 import com.smilebat.learntribe.inquisitve.WorkExperienceRequest;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.learntribeinquisitve.converters.UserProfileConverter;
 import com.smilebat.learntribe.learntribeinquisitve.converters.WorkExperienceConverter;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserDetailsRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.WorkExperienceRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserDetailsRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserProfileSearchRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.WorkExperienceRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.WorkExperience;
 import java.util.Collection;
@@ -16,8 +16,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,44 +38,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserInfoService {
 
   private final UserDetailsRepository userDetailsRepository;
+
+  private final UserProfileSearchRepository userProfileSearchRepository;
   private final WorkExperienceRepository workExperienceRepository;
   private final UserProfileConverter profileConverter;
   private final WorkExperienceConverter workExperienceConverter;
-
-  /**
-   * Updates the user role on sign in
-   *
-   * @param profileRequest the {@link UserProfileRequest}
-   * @return the boolean true/false.
-   */
-  @Transactional
-  public boolean updateUserRole(UserProfileRequest profileRequest) {
-    Verify.verifyNotNull(profileRequest, "User Profile Request Cannot be Null");
-
-    String keyCloakId = profileRequest.getKeyCloakId();
-    UserRole role = evaluateUserRole(profileRequest);
-
-    UserProfile userProfile = userDetailsRepository.findByKeyCloakId(keyCloakId);
-
-    if (userProfile == null) {
-      userProfile = new UserProfile();
-    }
-
-    userProfile.setKeyCloakId(keyCloakId);
-    userProfile.setRole(role);
-
-    userDetailsRepository.save(userProfile);
-    return true;
-  }
-
-  private UserRole evaluateUserRole(UserProfileRequest profileRequest) {
-    switch (profileRequest.getRole()) {
-      case "HR":
-        return UserRole.ROLE_HR;
-      default:
-        return UserRole.ROLE_CANDIDATE;
-    }
-  }
 
   /**
    * Saves all user information.
@@ -129,21 +98,40 @@ public class UserInfoService {
    *
    * @param page page number for pageination.
    * @param limit for pageination per page.
-   * @param skill for skill search in participant
    * @param keyword to match with participant
    * @return the List of {@link UserProfileResponse}
    */
   @Transactional
-  public List<UserProfileResponse> getAllUserInfo(
-      int page, int limit, String skill, String keyword) {
+  public List<UserProfileResponse> getAllUserInfo(int page, int limit, String keyword) {
     Pageable pageable = PageRequest.of(page - 1, limit);
-    List<UserProfile> userProfiles =
-        userDetailsRepository.findAllUsers(pageable, skill.replace(',', '|'), keyword);
+    List<UserProfile> userProfiles = null;
+
+    try {
+      retrieveUserProfiles(keyword, pageable);
+    } catch (InterruptedException ex) {
+      log.info("Failed searching database for keyword {}", keyword);
+    }
     if (userProfiles == null || userProfiles.isEmpty()) {
       return Collections.emptyList();
     }
-
     return profileConverter.toResponse(userProfiles);
+  }
+
+  /**
+   * Retrieves Users Profiles based on keyword in a pageable manner
+   *
+   * @param keyword the search key
+   * @param pageable the {@link Pageable}
+   * @return the List of {@link UserProfile}.
+   * @throws InterruptedException on db failure.
+   */
+  private List<UserProfile> retrieveUserProfiles(String keyword, Pageable pageable)
+      throws InterruptedException {
+    if (keyword == null || keyword.isEmpty()) {
+      final Page<UserProfile> userProfiles = userDetailsRepository.findAll(pageable);
+      return userProfiles.stream().collect(Collectors.toList());
+    }
+    return userProfileSearchRepository.search(keyword, pageable);
   }
 
   /**

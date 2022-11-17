@@ -6,13 +6,11 @@ import com.smilebat.learntribe.inquisitve.response.HrHiringsResponse;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.converters.AnalyticsConverter;
 import com.smilebat.learntribe.learntribeinquisitve.converters.JobConverter;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.OthersBusinessRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserAstReltnRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserObReltnRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.OthersBusinessRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserAstReltnRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserObReltnRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.OthersBusiness;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserObReltn;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
@@ -42,8 +40,6 @@ public class AnalyticsService {
   private final JobConverter jobConverter;
 
   private final AnalyticsConverter analyticsConverter;
-
-  private DateFormat dateFormat = new SimpleDateFormat("dd/mm/yyyy");
 
   /**
    * Evaluates the Candidate related activites.

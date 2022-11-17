@@ -12,11 +12,11 @@ import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeclients.openai.OpenAiService;
 import com.smilebat.learntribe.learntribeinquisitve.converters.AssessmentConverter;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.AssessmentRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.ChallengeRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserAstReltnRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserDetailsRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.UserObReltnRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.AssessmentRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.ChallengeRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserAstReltnRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserDetailsRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserObReltnRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
@@ -88,9 +88,7 @@ public class AssessmentService {
     Verify.verifyNotNull(keyCloakId, "User Keycloak Id cannnot be null");
     log.info("Fetching Assessments for User {}", keyCloakId);
     Pageable paging = request.getPaging();
-    String[] filters = request.getFilters();
-
-    filters = filters.length > 0 ? filters : ASSESSMENT_STATUS_FILTERS;
+    String[] filters = evaluateAssessmentStatusFilters(request);
 
     List<UserAstReltn> userAstReltns =
         userAstReltnRepository.findByUserIdAndFilter(keyCloakId, filters);
@@ -108,6 +106,17 @@ public class AssessmentService {
   }
 
   /**
+   * Evaluates Assessment Status filters.
+   *
+   * @param request the {@link PageableAssessmentRequest}
+   * @return the array of {@link String} filters
+   */
+  private String[] evaluateAssessmentStatusFilters(PageableAssessmentRequest request) {
+    String[] filters = request.getFilters();
+    return filters != null && filters.length > 0 ? filters : ASSESSMENT_STATUS_FILTERS;
+  }
+
+  /**
    * Generate a default assessment based on his skills.
    *
    * @param candidateId the candidate for whom the assessment is assigned for.
@@ -117,7 +126,14 @@ public class AssessmentService {
   private List<Assessment> createDefaultAssessments(String candidateId) {
     log.info("Evaluating User {} Skills", candidateId);
     UserProfile userProfile = userDetailsRepository.findByKeyCloakId(candidateId);
+    if (userProfile == null) {
+      return Collections.emptyList();
+    }
     Set<String> userSkills = evaluateUserSkills(userProfile);
+
+    if (userSkills.isEmpty()) {
+      return Collections.emptyList();
+    }
 
     log.info("Initializing default assessments for User {}", candidateId);
 

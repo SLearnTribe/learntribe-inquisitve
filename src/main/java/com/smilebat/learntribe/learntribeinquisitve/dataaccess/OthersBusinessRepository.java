@@ -1,4 +1,4 @@
-package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa;
+package com.smilebat.learntribe.learntribeinquisitve.dataaccess;
 
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.OthersBusiness;
