@@ -36,16 +36,6 @@
 				<type>pom</type>
 			</dependency>
 			<dependency>
-				<groupId>io.springfox</groupId>
-				<artifactId>springfox-boot-starter</artifactId>
-				<version>3.0.0</version>
-			 </dependency>
-			<dependency>
-				<groupId>io.springfox</groupId>
-				<artifactId>springfox-swagger2</artifactId>
-				<version>3.0.0</version>
-			</dependency>
-			<dependency>
 				<groupId>com.smilebat.learntribe</groupId>
 				<artifactId>learntribe-model</artifactId>
 				<version>${model.version}</version>
@@ -69,7 +59,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-search-orm</artifactId>
-			<version>5.11.11.final</version>
+			<version>5.11.11.Final</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
