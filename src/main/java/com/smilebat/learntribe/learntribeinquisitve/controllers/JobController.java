@@ -16,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -101,6 +102,38 @@ public class JobController {
         @ApiResponse(code = 404, message = "Url Not found"),
       })
   public ResponseEntity<OthersBusinessResponse> createJob(
+      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @RequestBody OthersBusinessRequest request) {
+
+    final OthersBusinessResponse response = jobService.createJob(keyCloakId, request);
+
+    return ResponseEntity.ok(response);
+  }
+
+  /**
+   * Creates a new Job Post.
+   *
+   * @param keyCloakId the user IAM id
+   * @param request the {@link OthersBusinessRequest}
+   * @return the {@link OthersBusinessResponse}
+   */
+  @PutMapping(value = "/user")
+  @ResponseBody
+  @ApiOperation(
+      value = "Update exisiting job for HR",
+      notes = "Updates job based on HR requirements")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            code = 200,
+            message = "Successfully retrieved",
+            response = OthersBusinessResponse.class),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+      })
+  public ResponseEntity<OthersBusinessResponse> updateJob(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
       @RequestBody OthersBusinessRequest request) {
 

@@ -122,7 +122,6 @@ public class UserProfileController {
    *
    * @param page page number for pageination.
    * @param limit for pageination.
-   * @param skill to search for users with given skills
    * @param keyword to search for users
    * @return the {@link ResponseEntity} of generic type.
    */
@@ -146,7 +145,6 @@ public class UserProfileController {
   public ResponseEntity<List<UserProfileResponse>> getAllUserDetails(
       @RequestParam int page,
       @RequestParam int limit,
-      @RequestParam(defaultValue = "", required = false) String skill,
       @RequestParam(defaultValue = "", required = false) String keyword)
       throws InterruptedException {
     log.info("Fetching User Details");

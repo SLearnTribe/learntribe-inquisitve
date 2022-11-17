@@ -68,6 +68,7 @@ public class JobConverter {
     jobEntity.setRolesAndResponsibilities(request.getRolesAndResponsibilities());
     jobEntity.setTitle(request.getTitle());
     jobEntity.setStatus(JobStatus.IN_PROGRESS);
+    jobEntity.setExperienceRequired(request.getExperienceRequired());
     return jobEntity;
   }
 }

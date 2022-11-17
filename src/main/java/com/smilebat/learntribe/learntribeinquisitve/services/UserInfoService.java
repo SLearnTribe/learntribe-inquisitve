@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.swing.text.html.Option;
 
 /**
  * Service class related user business logic.
@@ -107,11 +110,13 @@ public class UserInfoService {
     List<UserProfile> userProfiles = null;
 
     try {
-      retrieveUserProfiles(keyword, pageable);
+      userProfiles = retrieveUserProfiles(keyword, pageable);
     } catch (InterruptedException ex) {
       log.info("Failed searching database for keyword {}", keyword);
     }
+    
     if (userProfiles == null || userProfiles.isEmpty()) {
+      log.info("No User Profiles found");
       return Collections.emptyList();
     }
     return profileConverter.toResponse(userProfiles);
@@ -128,7 +133,7 @@ public class UserInfoService {
   private List<UserProfile> retrieveUserProfiles(String keyword, Pageable pageable)
       throws InterruptedException {
     if (keyword == null || keyword.isEmpty()) {
-      final Page<UserProfile> userProfiles = userDetailsRepository.findAll(pageable);
+      Page<UserProfile> userProfiles = userDetailsRepository.findAll(pageable);
       return userProfiles.stream().collect(Collectors.toList());
     }
     return userProfileSearchRepository.search(keyword, pageable);

@@ -107,7 +107,7 @@ public class AnalyticsController {
    * @param keyCloakId the user keycloak id
    * @param page the page number of pagination
    * @param limit the limit for pagination
-   * @param category the hr activity logic name
+   * @param category the hr activity logic name (IN_PROGRESS)
    * @return the {@link List} of {@link HrHiringsResponse}
    */
   @GetMapping(value = "/hr/activities")
@@ -136,14 +136,10 @@ public class AnalyticsController {
 
     Pageable paging = PageRequest.of(page - 1, limit);
 
-    List<HrHiringsResponse> responses;
-
     if ("IN_PROGRESS".equals(category)) {
-      responses = analyticsService.evaluateHiringsInProgress(keyCloakId, paging);
-    } else {
-      responses = analyticsService.evaluateHiringsInLastMonth(keyCloakId, paging);
+      return ResponseEntity.ok(analyticsService.evaluateHiringsInProgress(keyCloakId, paging));
     }
 
-    return ResponseEntity.ok(responses);
+    return ResponseEntity.ok(analyticsService.evaluateHiringsInLastMonth(keyCloakId, paging));
   }
 }
