@@ -15,8 +15,8 @@ import com.smilebat.learntribe.learntribeinquisitve.converters.AssessmentConvert
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.AssessmentRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.ChallengeRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserAstReltnRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserDetailsRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserObReltnRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserProfileRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
@@ -58,7 +58,7 @@ public class AssessmentService {
 
   private final OpenAiService openAiService;
 
-  private final UserDetailsRepository userDetailsRepository;
+  private final UserProfileRepository userProfileRepository;
 
   private static final String[] ASSESSMENT_STATUS_FILTERS =
       Arrays.stream(AssessmentStatus.values())
@@ -125,7 +125,7 @@ public class AssessmentService {
   @Transactional
   private List<Assessment> createDefaultAssessments(String candidateId) {
     log.info("Evaluating User {} Skills", candidateId);
-    UserProfile userProfile = userDetailsRepository.findByKeyCloakId(candidateId);
+    UserProfile userProfile = userProfileRepository.findByKeyCloakId(candidateId);
     if (userProfile == null) {
       return Collections.emptyList();
     }

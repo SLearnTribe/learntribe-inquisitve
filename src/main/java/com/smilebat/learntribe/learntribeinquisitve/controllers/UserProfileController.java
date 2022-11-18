@@ -2,7 +2,7 @@ package com.smilebat.learntribe.learntribeinquisitve.controllers;
 
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
-import com.smilebat.learntribe.learntribeinquisitve.services.UserInfoService;
+import com.smilebat.learntribe.learntribeinquisitve.services.UserProfileService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserProfileController {
 
-  private final UserInfoService userInfoService;
+  private final UserProfileService userProfileService;
 
   /**
    * Retrieves all user details.
@@ -61,7 +61,7 @@ public class UserProfileController {
       @Valid @RequestBody UserProfileRequest request) {
 
     request.setKeyCloakId(id);
-    userInfoService.saveUserInfo(request);
+    userProfileService.saveUserInfo(request);
 
     return ResponseEntity.status(HttpStatus.CREATED).body("Updated User");
   }
@@ -92,7 +92,7 @@ public class UserProfileController {
       @AuthenticationPrincipal(expression = "subject") String id) {
     log.info("Fetching User Details");
 
-    final UserProfileResponse userInfo = userInfoService.getUserInfo(id);
+    final UserProfileResponse userInfo = userProfileService.getUserInfo(id);
     return ResponseEntity.ok(userInfo);
   }
 
@@ -113,7 +113,7 @@ public class UserProfileController {
       return ResponseEntity.ok(Collections.emptyList());
     }
     List<UserProfileResponse> userProfileResponses =
-        userInfoService.getUserInfoBySkill(skillName.toLowerCase(), page, limit);
+        userProfileService.getUserInfoBySkill(skillName.toLowerCase(), page, limit);
     return ResponseEntity.ok(userProfileResponses);
   }
 
@@ -145,11 +145,10 @@ public class UserProfileController {
   public ResponseEntity<List<UserProfileResponse>> getAllUserDetails(
       @RequestParam int page,
       @RequestParam int limit,
-      @RequestParam(defaultValue = "", required = false) String keyword)
-      throws InterruptedException {
+      @RequestParam(defaultValue = "", required = false) String keyword) {
     log.info("Fetching User Details");
 
-    final List<UserProfileResponse> users = userInfoService.getAllUserInfo(page, limit, keyword);
+    final List<UserProfileResponse> users = userProfileService.getAllUserInfo(page, limit, keyword);
 
     return ResponseEntity.ok(users);
   }

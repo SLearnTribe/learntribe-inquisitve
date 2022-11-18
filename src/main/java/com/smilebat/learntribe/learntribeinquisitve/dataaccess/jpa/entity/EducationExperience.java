@@ -1,6 +1,7 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sun.istack.NotNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -10,40 +11,45 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Skill Entity Representation of DB
+ * Educational Experience representation of DB.
  *
  * <p>Copyright &copy; 2022 Smile .Bat
  *
- * @author Sanjay
+ * @author Pai,Sai Nandan
  */
 @Getter
 @Setter
-@Table(name = "SKILL")
+@Table(name = "EDUCATION_EXPERIENCE")
 @Entity
 @SuppressFBWarnings(justification = "Generated code")
-public class Skill {
+public class EducationExperience {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", nullable = false)
   private Long id;
 
-  private String skillName;
+  private String collegeName;
+
+  private String degree;
+
+  private String dateOfCompletion;
+
+  private String fieldOfStudy;
 
   @ManyToOne(optional = false)
   @NotNull
   @JsonIgnoreProperties(
-      value = {"skills", "workExperiences"},
+      value = {"educationExperiences", "workExperiences"},
       allowSetters = true)
-  private UserProfile userDetails;
+  private UserProfile userProfile;
 
   @Override
   public int hashCode() {
-    return Objects.hash(skillName, userDetails);
+    return Objects.hash(collegeName, dateOfCompletion, degree, userProfile);
   }
 
   @Override
@@ -51,8 +57,10 @@ public class Skill {
     if (this == obj) return true;
     if (obj == null) return false;
     if (getClass() != obj.getClass()) return false;
-    Skill other = (Skill) obj;
-    return Objects.equals(this.skillName, other.skillName)
-        && Objects.equals(this.userDetails, other.userDetails);
+    EducationExperience other = (EducationExperience) obj;
+    return Objects.equals(collegeName, other.collegeName)
+        && Objects.equals(dateOfCompletion, other.dateOfCompletion)
+        && Objects.equals(degree, other.degree)
+        && Objects.equals(userProfile, other.userProfile);
   }
 }

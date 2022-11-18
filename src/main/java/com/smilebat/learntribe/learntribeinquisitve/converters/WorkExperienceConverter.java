@@ -36,7 +36,7 @@ public final class WorkExperienceConverter {
     workExperience.setEndDate(request.getEndDate());
     workExperience.setYears(request.getYears());
     workExperience.setLocation(request.getLocation());
-    workExperience.setUserDetails(profile);
+    workExperience.setUserProfile(profile);
     return workExperience;
   }
 

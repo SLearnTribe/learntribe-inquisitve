@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 /** Returns Data Access by User Repo */
 @Repository
-public interface UserDetailsRepository extends PagingAndSortingRepository<UserProfile, Long> {
+public interface UserProfileRepository extends PagingAndSortingRepository<UserProfile, Long> {
 
   /**
    * Finds the profile based on IAM user id.

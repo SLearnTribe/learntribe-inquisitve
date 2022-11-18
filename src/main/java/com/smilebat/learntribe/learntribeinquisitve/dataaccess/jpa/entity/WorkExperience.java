@@ -42,13 +42,13 @@ public class WorkExperience {
   @ManyToOne(optional = false)
   @NotNull
   @JsonIgnoreProperties(
-      value = {"skills", "workExperiences"},
+      value = {"educationExperiences", "workExperiences"},
       allowSetters = true)
-  private UserProfile userDetails;
+  private UserProfile userProfile;
 
   @Override
   public int hashCode() {
-    return Objects.hash(startDate, endDate, designation, userDetails);
+    return Objects.hash(startDate, endDate, designation, userProfile);
   }
 
   @Override
@@ -60,6 +60,6 @@ public class WorkExperience {
     return Objects.equals(designation, other.designation)
         && Objects.equals(startDate, other.startDate)
         && Objects.equals(endDate, other.endDate)
-        && Objects.equals(userDetails, other.userDetails);
+        && Objects.equals(userProfile, other.userProfile);
   }
 }
