@@ -1,8 +1,10 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
+import com.smilebat.learntribe.inquisitve.response.EducationalExpResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.WorkExperienceResponse;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.EducationExperience;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.WorkExperience;
 import java.util.Collection;
@@ -24,6 +26,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserProfileConverter {
   private final WorkExperienceConverter workExperienceConverter;
+
+  private final EducationExperienceConverter edExperienceConverter;
 
   /**
    * Updates the entity
@@ -88,14 +92,22 @@ public class UserProfileConverter {
     response.setPhone(profile.getPhone());
     response.setSkills(profile.getSkills());
 
-    final Set<WorkExperience> experienceSet = profile.getWorkExperiences();
+    Set<WorkExperience> experienceSet = profile.getWorkExperiences();
     List<WorkExperienceResponse> workExperienceResponses = Collections.emptyList();
     if (experienceSet != null && !experienceSet.isEmpty()) {
       workExperienceResponses =
           workExperienceConverter.toResponse(experienceSet.stream().collect(Collectors.toList()));
     }
 
+    Set<EducationExperience> edExperienceSet = profile.getEducationExperiences();
+    List<EducationalExpResponse> educationalExpResponses = Collections.emptyList();
+    if (edExperienceSet != null && !edExperienceSet.isEmpty()) {
+      educationalExpResponses =
+          edExperienceConverter.toResponse(edExperienceSet.stream().collect(Collectors.toList()));
+    }
+
     response.setWorkExperiences(workExperienceResponses);
+    response.setEducationalExperiences(educationalExpResponses);
     return response;
   }
 
