@@ -1,16 +1,19 @@
 package com.smilebat.learntribe.learntribeinquisitve.controllers;
 
 import com.smilebat.learntribe.inquisitve.OthersBusinessRequest;
+import com.smilebat.learntribe.inquisitve.OthersBusinessUpdateRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.JobService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -103,11 +106,12 @@ public class JobController {
       })
   public ResponseEntity<OthersBusinessResponse> createJob(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
-      @RequestBody OthersBusinessRequest request) {
+      @Valid @RequestBody OthersBusinessRequest request) {
 
-    final OthersBusinessResponse response = jobService.createJob(keyCloakId, request);
+    request.setCreatedBy(keyCloakId);
+    jobService.createJob(request);
 
-    return ResponseEntity.ok(response);
+    return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
   /**
@@ -135,9 +139,10 @@ public class JobController {
       })
   public ResponseEntity<OthersBusinessResponse> updateJob(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
-      @RequestBody OthersBusinessRequest request) {
+      @Valid @RequestBody OthersBusinessUpdateRequest request) {
 
-    final OthersBusinessResponse response = jobService.createJob(keyCloakId, request);
+    request.setCreatedBy(keyCloakId);
+    final OthersBusinessResponse response = jobService.updateJob(request);
 
     return ResponseEntity.ok(response);
   }

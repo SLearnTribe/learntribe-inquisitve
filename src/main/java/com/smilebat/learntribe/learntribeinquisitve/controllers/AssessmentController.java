@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,6 +43,8 @@ public class AssessmentController {
 
   private final AssessmentService assessmentService;
 
+  private static final String SUBJECT = "subject";
+
   /**
    * Retrieves all the related and recommended assessments to User Id
    *
@@ -63,14 +66,14 @@ public class AssessmentController {
             message = "Successfully retrieved",
             response = AssessmentResponse.class,
             responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 400, message = "Bad-Request"),
+        @ApiResponse(code = 401, message = "Un-authorized"),
         @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Url Not found"),
-        @ApiResponse(code = 422, message = "Invalid Data"),
+        @ApiResponse(code = 404, message = "Url Not-found"),
+        @ApiResponse(code = 422, message = "Invalid-Data"),
       })
   public ResponseEntity<?> retrieveRecommendedAssessments(
-      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @AuthenticationPrincipal(expression = SUBJECT) String keyCloakId,
       @RequestParam(value = "page") int pageNo,
       @RequestParam(value = "limit") int pageSize,
       @RequestParam(value = "filters", required = false) String[] filters) {
@@ -112,17 +115,50 @@ public class AssessmentController {
         @ApiResponse(code = 201, message = "Successfully created"),
         @ApiResponse(code = 400, message = "Bad Request"),
         @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 403, message = "Fbidden"),
         @ApiResponse(code = 404, message = "Url Not found"),
         @ApiResponse(code = 422, message = "Invalid Data"),
       })
   public ResponseEntity<Boolean> createAssessment(
-      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @AuthenticationPrincipal(expression = SUBJECT) String keyCloakId,
       @RequestBody AssessmentRequest request) {
 
-    final Boolean response = assessmentService.createAssessment(keyCloakId, request);
+    request.setAssignedBy(keyCloakId);
+    final Boolean response = assessmentService.createAssessment(request);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  /**
+   * Assigns a existing assessment.
+   *
+   * @param keyCloakId the IAM user id.
+   * @param assigneeEmail the assignee email id.
+   * @param assessmentId the assessmend id.
+   * @return the {@link AssessmentResponse}.
+   */
+  @PutMapping(value = "/id/{assessmentId}")
+  @ResponseBody
+  @ApiOperation(
+      value = "Assign Existing Assessment",
+      notes = "Assigns already created assessments to a list of candidates")
+  @ApiResponses(
+      value = {
+        @ApiResponse(code = 200, message = "Success"),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 422, message = "Invalid Data"),
+      })
+  public ResponseEntity<Boolean> assignAssessment(
+      @AuthenticationPrincipal(expression = SUBJECT) String keyCloakId,
+      @RequestParam String assigneeEmail,
+      @PathVariable(value = "assessmentId") Long assessmentId) {
+
+    assessmentService.assignAssessment(keyCloakId, assigneeEmail, assessmentId);
+
+    return ResponseEntity.status(HttpStatus.OK).build();
   }
 
   /**
@@ -139,7 +175,7 @@ public class AssessmentController {
   @ApiResponses(
       value = {
         @ApiResponse(
-            code = 201,
+            code = 200,
             message = "Successfully retrieved",
             response = AssessmentResponse.class),
         @ApiResponse(code = 400, message = "Bad Request"),
@@ -154,5 +190,31 @@ public class AssessmentController {
     AssessmentResponse response = assessmentService.retrieveAssessment(assessmentId);
 
     return ResponseEntity.ok(response);
+  }
+
+  /**
+   * Retrieves the assessment based on assessment id
+   *
+   * @param keyCloakId the IAM user id.
+   * @return {@link ResponseEntity} of {@link AssessmentResponse}
+   */
+  @GetMapping(value = "/preceding")
+  @ResponseBody
+  @ApiOperation(
+      value = "Retrieves previously generated assessments",
+      notes = "Fetches foregoing assessments for hr")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            code = 200,
+            message = "Successfully retrieved",
+            response = AssessmentResponse.class)
+      })
+  public ResponseEntity<List<AssessmentResponse>> retrieveHrAssessments(
+      @AuthenticationPrincipal(expression = SUBJECT) String keyCloakId) {
+
+    List<AssessmentResponse> responses = assessmentService.getGeneratedAssessments(keyCloakId);
+
+    return ResponseEntity.ok(responses);
   }
 }

@@ -31,10 +31,11 @@ public interface UserAstReltnRepository extends JpaRepository<UserAstReltn, Long
    * @return the List of {@link Assessment}
    */
   @Query(
-      value = "SELECT * FROM usr_ast_reltn ua WHERE ua.user_id = :userId and status in :filters",
+      value =
+          "SELECT * FROM usr_ast_reltn ua WHERE ua.user_id = :keyCloakId and status in :filters",
       nativeQuery = true)
   List<UserAstReltn> findByUserIdAndFilter(
-      @Param("userId") String keyCloakId, @Param("filters") String[] filters);
+      @Param("keyCloakId") String keyCloakId, @Param("filters") String[] filters);
 
   /**
    * Finds the total Assessments mapped to user based on user profile id and status filters.
@@ -51,7 +52,7 @@ public interface UserAstReltnRepository extends JpaRepository<UserAstReltn, Long
       @Param("userId") String keyCloakId, @Param("filters") String[] filters);
 
   /**
-   * Finds Assessments based on the inputs.
+   * Finds Assessments based on the assessmnet id and user ids.
    *
    * @param keyCloakId the IAM id
    * @param assessmentId the assessment id
@@ -59,8 +60,22 @@ public interface UserAstReltnRepository extends JpaRepository<UserAstReltn, Long
    */
   @Query(
       value =
-          "SELECT * FROM usr_ast_reltn ua WHERE ua.user_id = :userId and ua.assessment_id = :assessmentId",
+          "SELECT * FROM usr_ast_reltn ua WHERE ua.user_id in :userId and ua.assessment_id = :assessmentId",
       nativeQuery = true)
-  List<UserAstReltn> findByUserAstReltn(
-      @Param("userId") String keyCloakId, @Param("assessmentId") Long assessmentId);
+  List<UserAstReltn> findAllByUserAstReltn(
+      @Param("userId") String[] keyCloakId, @Param("assessmentId") Long assessmentId);
+
+  /**
+   * Finds Assessments based on the related assessment titles and user id.
+   *
+   * @param keyCloakId the IAM id
+   * @param skills the skill names
+   * @return the List of {@link UserAstReltn}
+   */
+  @Query(
+      value =
+          "SELECT * FROM usr_ast_reltn ua WHERE ua.user_id = :userId and ua.assessment_title in :skills",
+      nativeQuery = true)
+  List<UserAstReltn> findAllByAssessmentTitle(
+      @Param("userId") String keyCloakId, @Param("skills") String[] skills);
 }

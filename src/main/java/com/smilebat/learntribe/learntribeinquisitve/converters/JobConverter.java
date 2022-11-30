@@ -1,5 +1,6 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
+import com.smilebat.learntribe.inquisitve.EmploymentType;
 import com.smilebat.learntribe.inquisitve.JobStatus;
 import com.smilebat.learntribe.inquisitve.OthersBusinessRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
@@ -30,18 +31,15 @@ public class JobConverter {
     response.setId(jobEntity.getId());
     response.setTitle(jobEntity.getTitle());
     response.setDescription(jobEntity.getDescription());
-    response.setCreatedBy(jobEntity.getCreatedBy());
+    response.setRequiredSkills(jobEntity.getRequiredSkills());
+    response.setRolesAndResponsibilities(jobEntity.getRolesAndResponsibilities());
 
-    final String requiredSkills = jobEntity.getRequiredSkills();
-    if (requiredSkills != null && !requiredSkills.isEmpty()) {
-      response.setRequiredSkills(requiredSkills);
+    final EmploymentType employmentType = jobEntity.getEmploymentType();
+    if (employmentType != null) {
+      response.setEmploymentType(jobEntity.getEmploymentType().name());
     }
-
-    final String rolesAndResponsibilities = jobEntity.getRolesAndResponsibilities();
-    if (rolesAndResponsibilities != null && !rolesAndResponsibilities.isEmpty()) {
-      response.setRolesAndResponsibilities(rolesAndResponsibilities);
-    }
-
+    response.setBusinessName(jobEntity.getBusinessName());
+    response.setExperienceRequired(jobEntity.getExperienceRequired());
     return response;
   }
 
@@ -69,6 +67,9 @@ public class JobConverter {
     jobEntity.setTitle(request.getTitle());
     jobEntity.setStatus(JobStatus.IN_PROGRESS);
     jobEntity.setExperienceRequired(request.getExperienceRequired());
+    jobEntity.setBusinessName(request.getBusinessName());
+    jobEntity.setEmploymentType(request.getEmploymentType());
+    jobEntity.setCreatedBy(request.getCreatedBy());
     return jobEntity;
   }
 }

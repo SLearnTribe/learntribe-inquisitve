@@ -35,6 +35,7 @@ public class UserAstReltn {
 
   private String userId;
   private Long assessmentId;
+  private String assessmentTitle;
 
   @Enumerated(EnumType.STRING)
   private AssessmentStatus status;

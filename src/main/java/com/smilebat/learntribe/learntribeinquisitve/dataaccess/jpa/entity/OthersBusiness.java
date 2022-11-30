@@ -1,5 +1,6 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
+import com.smilebat.learntribe.inquisitve.EmploymentType;
 import com.smilebat.learntribe.inquisitve.JobStatus;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Date;
@@ -42,9 +43,11 @@ public class OthersBusiness {
 
   @Lob private String rolesAndResponsibilities;
   @Lob private String requiredSkills;
-  private String experienceRequired;
+  private Long experienceRequired;
 
   private String createdBy;
+
+  private String businessName;
 
   @CreatedDate
   @Temporal(TemporalType.TIMESTAMP)
@@ -52,4 +55,7 @@ public class OthersBusiness {
 
   @Enumerated(EnumType.STRING)
   private JobStatus status;
+
+  @Enumerated(EnumType.STRING)
+  private EmploymentType employmentType;
 }

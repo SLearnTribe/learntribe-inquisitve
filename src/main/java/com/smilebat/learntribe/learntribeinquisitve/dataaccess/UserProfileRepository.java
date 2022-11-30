@@ -24,6 +24,24 @@ public interface UserProfileRepository extends PagingAndSortingRepository<UserPr
   UserProfile findByKeyCloakId(@Param("keyCloakId") String keycloakId);
 
   /**
+   * Finds the profile based on user email ids.
+   *
+   * @param email the IAM user emails.
+   * @return the {@link UserProfile}
+   */
+  @Query(value = "SELECT * FROM USER_PROFILE a WHERE a.email like :email", nativeQuery = true)
+  UserProfile findByEmail(@Param("email") String email);
+
+  /**
+   * Finds the profile based on user email ids.
+   *
+   * @param emails the IAM user emails.
+   * @return the {@link UserProfile}
+   */
+  @Query(value = "SELECT * FROM USER_PROFILE a WHERE a.email in :emails", nativeQuery = true)
+  List<UserProfile> findAllByEmail(@Param("emails") String[] emails);
+
+  /**
    * Finds all valid user profiles
    *
    * @param pageable pageable object for pagination

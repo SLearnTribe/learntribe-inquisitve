@@ -39,7 +39,7 @@ public class UserProfileController {
   private final UserProfileService userProfileService;
 
   /**
-   * Retrieves all user details.
+   * Saves all user details.
    *
    * @param request the {@link UserProfileRequest}
    * @param id the user id.
@@ -50,7 +50,7 @@ public class UserProfileController {
   @ApiOperation(value = "Save or Update User Details", notes = "Saves the user details")
   @ApiResponses(
       value = {
-        @ApiResponse(code = 201, message = "User Created"),
+        @ApiResponse(code = 200, message = ""),
         @ApiResponse(code = 400, message = "Bad Request"),
         @ApiResponse(code = 401, message = "Unauthorized"),
         @ApiResponse(code = 403, message = "Forbidden"),
@@ -61,9 +61,9 @@ public class UserProfileController {
       @Valid @RequestBody UserProfileRequest request) {
 
     request.setKeyCloakId(id);
-    userProfileService.saveUserInfo(request);
+    userProfileService.saveUserProfile(request);
 
-    return ResponseEntity.status(HttpStatus.CREATED).body("Updated User");
+    return ResponseEntity.status(HttpStatus.OK).build();
   }
 
   /**

@@ -46,8 +46,7 @@ public class UserProfileConverter {
     userProfile.setPhone(request.getPhone());
     String skills = request.getSkills();
     if (skills != null && !skills.isEmpty()) {
-
-      userProfile.setSkills(skills.toLowerCase());
+      userProfile.setSkills(skills.toUpperCase());
     }
 
     // List<EducationalExpRequest> educationExperiences = request.getEducationExperiences();

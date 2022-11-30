@@ -6,6 +6,7 @@ import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +33,8 @@ public final class AssessmentConverter {
    */
   public Assessment toEntity(AssessmentRequest request) {
     Assessment assessment = new Assessment();
-    assessment.setTitle(request.getTitle());
     assessment.setDifficulty(request.getDifficulty());
-    assessment.setDescription(request.getDescription());
+    assessment.setCreatedBy(request.getAssignedBy());
     return assessment;
   }
 
@@ -51,8 +51,7 @@ public final class AssessmentConverter {
     response.setProgress(assessment.getProgress());
     response.setNumOfQuestions(assessment.getQuestions());
     response.setDescription(assessment.getDescription());
-    response.setDifficulty(assessment.getDifficulty());
-    response.setSubTitle(assessment.getSubTitle());
+    response.setDifficulty(assessment.getDifficulty().name());
     response.setStatus(assessment.getStatus());
     List<Challenge> challenges = new ArrayList<>(assessment.getChallenges());
     response.setChallengeResponses(challengeConverter.toResponse(challenges));
@@ -73,7 +72,7 @@ public final class AssessmentConverter {
    * @param assessmentList the List of {@link Assessment}
    * @return the List of {@link AssessmentResponse}
    */
-  public List<AssessmentResponse> toResponse(List<Assessment> assessmentList) {
+  public List<AssessmentResponse> toResponse(Collection<Assessment> assessmentList) {
     return assessmentList.stream().map(this::toResponse).collect(Collectors.toList());
   }
 }

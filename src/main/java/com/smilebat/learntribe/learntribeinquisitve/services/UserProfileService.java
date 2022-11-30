@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -54,19 +55,6 @@ public class UserProfileService {
   private final WorkExperienceConverter workExperienceConverter;
 
   private final EducationExperienceConverter edExperienceConverter;
-
-  /**
-   * Saves all user information.
-   *
-   * @param profileRequest the {@link UserProfileRequest}.
-   * @return the {@link UserProfileRequest}.
-   */
-  @Transactional
-  public Long saveUserInfo(UserProfileRequest profileRequest) {
-    Verify.verifyNotNull(profileRequest, "User Profile Request Cannot be Null");
-    UserProfile userProfile = saveUserProfile(profileRequest);
-    return userProfile.getId();
-  }
 
   /**
    * Retrieves all the user profile details based on id.
@@ -148,24 +136,21 @@ public class UserProfileService {
   }
 
   /**
-   * Saves all the user profile details.
+   * Saves/Updates all the user profile details.
    *
    * @param profileRequest the {@link UserProfileRequest}
-   * @return the {@link UserProfile}
    */
-  private UserProfile saveUserProfile(UserProfileRequest profileRequest) {
+  @Transactional
+  public void saveUserProfile(UserProfileRequest profileRequest) {
     String keycloakId = profileRequest.getKeyCloakId();
-    UserProfile userProfile = userProfileRepository.findByKeyCloakId(keycloakId);
-
-    if (userProfile == null) {
-      userProfile = profileConverter.toEntity(profileRequest);
-    } else {
-      profileConverter.updateEntity(profileRequest, userProfile);
-    }
+    Verify.verifyNotNull(keycloakId, "User Id cannot be null");
+    Verify.verifyNotNull(profileRequest, "User Profile Request cannot be null");
+    UserProfile existingUserProfile = userProfileRepository.findByKeyCloakId(keycloakId);
+    UserProfile userProfile = Optional.ofNullable(existingUserProfile).orElseGet(UserProfile::new);
+    profileConverter.updateEntity(profileRequest, userProfile);
     userProfileRepository.save(userProfile);
-    List<WorkExperienceRequest> workExperienceRequests = profileRequest.getWorkExperiences();
-    saveWorkExperiences(userProfile, workExperienceRequests);
-    return userProfile;
+    saveWorkExperiences(userProfile, profileRequest.getWorkExperiences());
+    saveEducationExperiences(userProfile, profileRequest.getEducationExperiences());
   }
 
   /**
