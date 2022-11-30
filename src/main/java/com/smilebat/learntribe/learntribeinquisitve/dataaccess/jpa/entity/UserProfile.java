@@ -51,7 +51,7 @@ import org.hibernate.search.annotations.TokenizerDef;
     })
 public class UserProfile {
 
-  public static final String USER_DETAILS_NAME = "userDetails";
+  public static final String USER_DETAILS_NAME = "userProfile";
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -86,4 +86,10 @@ public class UserProfile {
       value = {USER_DETAILS_NAME},
       allowSetters = true)
   private Set<WorkExperience> workExperiences = new HashSet<>();
+
+  @OneToMany(mappedBy = USER_DETAILS_NAME)
+  @JsonIgnoreProperties(
+      value = {USER_DETAILS_NAME},
+      allowSetters = true)
+  private Set<EducationExperience> educationExperiences = new HashSet<>();
 }

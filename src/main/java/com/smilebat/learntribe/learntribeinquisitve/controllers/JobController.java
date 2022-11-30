@@ -1,21 +1,25 @@
 package com.smilebat.learntribe.learntribeinquisitve.controllers;
 
 import com.smilebat.learntribe.inquisitve.OthersBusinessRequest;
+import com.smilebat.learntribe.inquisitve.OthersBusinessUpdateRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.JobService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -102,9 +106,43 @@ public class JobController {
       })
   public ResponseEntity<OthersBusinessResponse> createJob(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
-      @RequestBody OthersBusinessRequest request) {
+      @Valid @RequestBody OthersBusinessRequest request) {
 
-    final OthersBusinessResponse response = jobService.createJob(keyCloakId, request);
+    request.setCreatedBy(keyCloakId);
+    jobService.createJob(request);
+
+    return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
+
+  /**
+   * Creates a new Job Post.
+   *
+   * @param keyCloakId the user IAM id
+   * @param request the {@link OthersBusinessRequest}
+   * @return the {@link OthersBusinessResponse}
+   */
+  @PutMapping(value = "/user")
+  @ResponseBody
+  @ApiOperation(
+      value = "Update exisiting job for HR",
+      notes = "Updates job based on HR requirements")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            code = 200,
+            message = "Successfully retrieved",
+            response = OthersBusinessResponse.class),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+      })
+  public ResponseEntity<OthersBusinessResponse> updateJob(
+      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @Valid @RequestBody OthersBusinessUpdateRequest request) {
+
+    request.setCreatedBy(keyCloakId);
+    final OthersBusinessResponse response = jobService.updateJob(request);
 
     return ResponseEntity.ok(response);
   }
