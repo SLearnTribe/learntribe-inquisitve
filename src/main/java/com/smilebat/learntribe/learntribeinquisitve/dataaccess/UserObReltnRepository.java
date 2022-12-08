@@ -22,6 +22,20 @@ public interface UserObReltnRepository extends JpaRepository<UserObReltn, Long> 
   List<UserObReltn> findByUserId(@Param("userId") String keyCloakId);
 
   /**
+   * Finds the user related job id.
+   *
+   * @param keyCloakId the profile id
+   * @param jobId the job id
+   * @return the List of {@link Assessment}
+   */
+  @Query(
+      value =
+          "SELECT * FROM usr_ob_reltn uob WHERE uob.user_id = :userIAMId and uob.jobId = :relateJobId",
+      nativeQuery = true)
+  UserObReltn findByRelatedJobId(
+      @Param("userIAMId") String keyCloakId, @Param("relateJobId") Long jobId);
+
+  /**
    * Finds the Jobs mapped to user based on user profile id and Hiring status.
    *
    * @param keyCloakId the profile id
@@ -30,10 +44,10 @@ public interface UserObReltnRepository extends JpaRepository<UserObReltn, Long> 
    */
   @Query(
       value =
-          "SELECT * FROM usr_ob_reltn uob WHERE uob.user_id = :userId and uob.hiring_status in :filters",
+          "SELECT * FROM usr_ob_reltn uob WHERE uob.user_id = :userIAMId and uob.hiring_status in :filters",
       nativeQuery = true)
   List<UserObReltn> findByUserIdAndStatus(
-      @Param("userId") String keyCloakId, @Param("filters") String[] filters);
+      @Param("userIAMId") String keyCloakId, @Param("filters") String[] filters);
 
   /**
    * Finds the Jobs mapped to user based on user profile id and Hiring status.

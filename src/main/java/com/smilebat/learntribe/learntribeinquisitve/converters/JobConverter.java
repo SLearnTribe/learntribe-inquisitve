@@ -40,6 +40,7 @@ public class JobConverter {
     }
     response.setBusinessName(jobEntity.getBusinessName());
     response.setExperienceRequired(jobEntity.getExperienceRequired());
+    response.setQualificationRequired(jobEntity.getQualificationRequired());
     return response;
   }
 
@@ -70,6 +71,7 @@ public class JobConverter {
     jobEntity.setBusinessName(request.getBusinessName());
     jobEntity.setEmploymentType(request.getEmploymentType());
     jobEntity.setCreatedBy(request.getCreatedBy());
+    jobEntity.setQualificationRequired(request.getQualificationRequired());
     return jobEntity;
   }
 }

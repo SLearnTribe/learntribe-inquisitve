@@ -1,11 +1,14 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.smilebat.learntribe.inquisitve.Gender;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -62,6 +65,9 @@ public class UserProfile {
 
   private String name;
   private String email;
+
+  @Enumerated(EnumType.STRING)
+  private Gender gender;
 
   @Field(termVector = TermVector.YES)
   private String country;

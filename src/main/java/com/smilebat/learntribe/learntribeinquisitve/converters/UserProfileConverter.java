@@ -49,7 +49,10 @@ public class UserProfileConverter {
       userProfile.setSkills(skills.toUpperCase());
     }
 
-    // List<EducationalExpRequest> educationExperiences = request.getEducationExperiences();
+    if (request.getGender() != null) {
+
+      userProfile.setGender(request.getGender());
+    }
   }
 
   /**
@@ -90,6 +93,7 @@ public class UserProfileConverter {
     response.setName(profile.getName());
     response.setPhone(profile.getPhone());
     response.setSkills(profile.getSkills());
+    response.setGender(profile.getGender().name());
 
     Set<WorkExperience> experienceSet = profile.getWorkExperiences();
     List<WorkExperienceResponse> workExperienceResponses = Collections.emptyList();
