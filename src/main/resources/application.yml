@@ -37,7 +37,7 @@ eureka:
 feign:
   client:
     url:
-      keycloak: http://host.docker.internal:8085
+      keycloak: http://host.docker.internal:8085/auth
     config:
       default:
         loggerLevel: full

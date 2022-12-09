@@ -1,5 +1,6 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
+import com.smilebat.learntribe.inquisitve.AssessmentDifficulty;
 import com.smilebat.learntribe.inquisitve.AssessmentRequest;
 import com.smilebat.learntribe.inquisitve.AssessmentType;
 import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
@@ -51,16 +52,18 @@ public final class AssessmentConverter {
     response.setProgress(assessment.getProgress());
     response.setNumOfQuestions(assessment.getQuestions());
     response.setDescription(assessment.getDescription());
-    response.setDifficulty(assessment.getDifficulty().name());
     response.setStatus(assessment.getStatus());
     List<Challenge> challenges = new ArrayList<>(assessment.getChallenges());
     response.setChallengeResponses(challengeConverter.toResponse(challenges));
 
-    // response.setDescription();
+    AssessmentDifficulty difficulty = assessment.getDifficulty();
+    if (difficulty != null) {
+      response.setDifficulty(difficulty.name());
+    }
 
     AssessmentType assessmentType = assessment.getType();
     if (assessmentType != null) {
-      response.setType(assessment.getType().toString());
+      response.setType(assessmentType.toString());
     }
 
     return response;

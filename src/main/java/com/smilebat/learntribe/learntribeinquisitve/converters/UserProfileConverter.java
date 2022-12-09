@@ -1,5 +1,6 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
+import com.smilebat.learntribe.inquisitve.Gender;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.response.EducationalExpResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
@@ -93,7 +94,10 @@ public class UserProfileConverter {
     response.setName(profile.getName());
     response.setPhone(profile.getPhone());
     response.setSkills(profile.getSkills());
-    response.setGender(profile.getGender().name());
+    Gender gender = profile.getGender();
+    if (gender != null) {
+      response.setGender(gender.name());
+    }
 
     Set<WorkExperience> experienceSet = profile.getWorkExperiences();
     List<WorkExperienceResponse> workExperienceResponses = Collections.emptyList();

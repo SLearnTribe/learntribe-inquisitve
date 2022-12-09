@@ -296,6 +296,7 @@ public class AssessmentService {
         allUsersByEmail.stream().map(UserProfile::getKeyCloakId).collect(Collectors.toList());
 
     String[] skills = title.split(",");
+    Long relatedJobId = request.getRelatedJobId();
 
     for (String skill : skills) {
       AssessmentDifficulty difficulty = request.getDifficulty();
@@ -303,11 +304,12 @@ public class AssessmentService {
           assessmentRepository.findByUserTitleDifficulty(
               hrId, skill.toUpperCase().trim(), difficulty.name());
 
-      if (existingHrAssessment == null) {
+      if (null == existingHrAssessment) {
         createFreshAssessment(request, candidateIds, skill);
       } else {
         assignExistingAssessment(candidateIds, existingHrAssessment);
       }
+      createUserJobReltn(candidateIds, relatedJobId);
     }
 
     return true;
@@ -317,7 +319,8 @@ public class AssessmentService {
       AssessmentRequest request, List<String> candidateIds, String skill) {
     final AssessmentDifficulty difficulty = request.getDifficulty();
     final String hrId = request.getAssignedBy();
-    final Long relatedJobId = request.getRelatedJobId();
+
+    log.info("Creating fresh Assessment : Initiated By {}", hrId);
 
     Assessment newAssessment = new Assessment();
     newAssessment.setCreatedBy(hrId);
@@ -329,7 +332,6 @@ public class AssessmentService {
     createFreshChallenges(newAssessment);
     Long assessmentId = newAssessment.getId();
     createUserAssessmentRelation(hrId, candidateIds, assessmentId);
-    createUserJobReltn(candidateIds, relatedJobId);
   }
 
   @Transactional
@@ -337,6 +339,8 @@ public class AssessmentService {
     final List<UserObReltn> userObReltns =
         candidateIds
             .stream()
+            .filter(
+                candidateId -> userObReltnRepository.findByRelatedJobId(candidateId, jobId) != null)
             .map(candidateId -> createUserObReltn(candidateId, jobId))
             .collect(Collectors.toList());
     userObReltnRepository.saveAll(userObReltns);
@@ -390,6 +394,8 @@ public class AssessmentService {
    */
   private void assignExistingAssessment(Collection<String> candidateIds, Assessment hrAssessment) {
     Long hrAssessmentId = hrAssessment.getId();
+    log.info("Assigning existing assessments");
+
     List<UserAstReltn> userAstReltns =
         userAstReltnRepository.findAllByUserAstReltn(
             candidateIds.stream().toArray(s -> new String[s]), hrAssessmentId);
