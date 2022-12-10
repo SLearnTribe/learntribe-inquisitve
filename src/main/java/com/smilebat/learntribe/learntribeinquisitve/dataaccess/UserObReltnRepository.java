@@ -30,7 +30,7 @@ public interface UserObReltnRepository extends JpaRepository<UserObReltn, Long> 
    */
   @Query(
       value =
-          "SELECT * FROM usr_ob_reltn uob WHERE uob.user_id = :userIAMId and uob.jobId = :relateJobId",
+          "SELECT * FROM usr_ob_reltn uob WHERE uob.user_id = :userIAMId and uob.job_id = :relateJobId",
       nativeQuery = true)
   UserObReltn findByRelatedJobId(
       @Param("userIAMId") String keyCloakId, @Param("relateJobId") Long jobId);
