@@ -13,6 +13,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.TermVector;
 
 /**
  * Defines the relationship between User and Assessment Entity in DB.
@@ -25,6 +28,7 @@ import lombok.Setter;
 @Setter
 @Table(name = "USR_AST_RELTN")
 @Entity
+@Indexed
 @SuppressFBWarnings(justification = "Generated code")
 public class UserAstReltn {
 
@@ -33,10 +37,15 @@ public class UserAstReltn {
   @Column(name = "id", nullable = false)
   private Long id;
 
+  @Field(termVector = TermVector.YES)
   private String userId;
+
   private Long assessmentId;
+
+  @Field(termVector = TermVector.YES)
   private String assessmentTitle;
 
+  @Field(termVector = TermVector.YES)
   @Enumerated(EnumType.STRING)
   private AssessmentStatus status;
 

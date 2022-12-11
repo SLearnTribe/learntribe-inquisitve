@@ -15,6 +15,7 @@ import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeclients.openai.OpenAiService;
 import com.smilebat.learntribe.learntribeinquisitve.converters.AssessmentConverter;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.AssessmentRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.AssessmentSearchRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.ChallengeRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserAstReltnRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserObReltnRepository;
@@ -64,6 +65,8 @@ public class AssessmentService {
   private final OpenAiService openAiService;
 
   private final UserProfileRepository userProfileRepository;
+
+  private final AssessmentSearchRepository assessmentSearchRepository;
 
   private static final String[] ASSESSMENT_STATUS_FILTERS =
       Arrays.stream(AssessmentStatus.values())
@@ -137,36 +140,59 @@ public class AssessmentService {
    * Retrieves user & skill related assessments.
    *
    * @param request the {@link PageableAssessmentRequest} the ID provided by IAM (keycloak)
+   * @param keyword the search term.
    * @return the List of {@link AssessmentResponse}
    */
   @Transactional
   @Nullable
-  public List<AssessmentResponse> retrieveUserAssessments(PageableAssessmentRequest request) {
+  public List<AssessmentResponse> retrieveUserAssessments(
+      PageableAssessmentRequest request, String keyword) {
     String keyCloakId = request.getKeyCloakId();
     Verify.verifyNotNull(keyCloakId, "User Keycloak Id cannnot be null");
     log.info("Fetching Assessments for User {}", keyCloakId);
     Pageable paging = request.getPaging();
     String[] filters = evaluateAssessmentStatusFilters(request);
 
+    if (keyword != null && !keyword.isEmpty()) {
+      try {
+        List<UserAstReltn> userAstReltnsResponses =
+            assessmentSearchRepository.search(keyword, filters, keyCloakId, paging);
+        return mapUserAssessmentResponses(userAstReltnsResponses);
+      } catch (InterruptedException ex) {
+        log.info("No Assessments related to search keyword {}", keyword);
+      }
+    }
+
     List<UserAstReltn> userAstReltns =
-        userAstReltnRepository.findByUserIdAndFilter(keyCloakId, filters);
+        userAstReltnRepository.findByUserIdAndFilter(keyCloakId, filters, paging);
 
     boolean hasNoUserAssessments = userAstReltns == null || userAstReltns.isEmpty();
     boolean hasNoFilters = request.getFilters() == null || request.getFilters().length == 0;
 
     if (hasNoUserAssessments && hasNoFilters) {
       log.info("Assessments for User {} does not exist", keyCloakId);
-      // return Collections.emptyList();
       final List<Assessment> systemGeneratedAssessments = createDefaultAssessments(keyCloakId);
       return assessmentConverter.toResponse(systemGeneratedAssessments);
     }
 
+    return mapUserAssessmentResponses(userAstReltns);
+  }
+
+  private List<AssessmentResponse> mapUserAssessmentResponses(List<UserAstReltn> userAstReltns) {
+    List<Assessment> assessments = fetchExisitingAssessments(userAstReltns);
+    List<AssessmentResponse> responses = assessmentConverter.toResponse(assessments);
+    mapUserAssessmentStatus(userAstReltns, responses);
+    return responses;
+  }
+
+  private List<Assessment> fetchExisitingAssessments(List<UserAstReltn> userAstReltns) {
     final Long[] assessmentIds =
         userAstReltns.stream().map(UserAstReltn::getAssessmentId).toArray(s -> new Long[s]);
-    List<Assessment> assessments = assessmentRepository.findAllByIds(assessmentIds, paging);
+    return assessmentRepository.findAllByIds(assessmentIds);
+  }
 
-    List<AssessmentResponse> responses = assessmentConverter.toResponse(assessments);
-
+  private void mapUserAssessmentStatus(
+      Collection<UserAstReltn> userAstReltns, Collection<AssessmentResponse> responses) {
     for (UserAstReltn userAstReltn : userAstReltns) {
       if (userAstReltn.getStatus() != null) {
         responses
@@ -175,8 +201,6 @@ public class AssessmentService {
             .forEach(response -> response.setStatus(userAstReltn.getStatus().name()));
       }
     }
-
-    return responses;
   }
 
   /**
@@ -340,7 +364,7 @@ public class AssessmentService {
         candidateIds
             .stream()
             .filter(
-                candidateId -> userObReltnRepository.findByRelatedJobId(candidateId, jobId) != null)
+                candidateId -> userObReltnRepository.findByRelatedJobId(candidateId, jobId) == null)
             .map(candidateId -> createUserObReltn(candidateId, jobId))
             .collect(Collectors.toList());
     userObReltnRepository.saveAll(userObReltns);
@@ -441,7 +465,7 @@ public class AssessmentService {
             + "-128 to 127\nb. 0 to 255\nc. -32768 to 32767\nd. Unicode\n\nAnswer: Unknown";
     Set<Challenge> challenges = parseCompletedText(completedText, assessment);
     assessment.setChallenges(challenges);
-
+    assessment.setQuestions(challenges.size());
     challengeRepository.saveAll(challenges);
   }
 

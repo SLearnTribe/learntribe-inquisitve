@@ -27,11 +27,13 @@ import lombok.Setter;
 @Entity
 @SuppressFBWarnings(justification = "Generated code")
 public class EducationExperience {
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", nullable = false)
   private Long id;
 
+  private String location;
   private String collegeName;
 
   private String degree;
@@ -45,7 +47,7 @@ public class EducationExperience {
   @JsonIgnoreProperties(
       value = {"educationExperiences", "workExperiences"},
       allowSetters = true)
-  private UserProfile userProfile;
+  protected UserProfile userProfile;
 
   @Override
   public int hashCode() {

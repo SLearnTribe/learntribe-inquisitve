@@ -1,6 +1,7 @@
 package com.smilebat.learntribe.learntribeinquisitve.controllers;
 
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
+import com.smilebat.learntribe.inquisitve.response.CoreUserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.UserProfileService;
 import io.swagger.annotations.ApiOperation;
@@ -107,12 +108,12 @@ public class UserProfileController {
   @GetMapping("/skill")
   @ResponseBody
   @Deprecated
-  public ResponseEntity<List<UserProfileResponse>> getUserDetailsFromSkill(
+  public ResponseEntity<List<? extends UserProfileResponse>> getUserDetailsFromSkill(
       @RequestParam String skillName, @RequestParam int page, @RequestParam int limit) {
     if (skillName == null) {
       return ResponseEntity.ok(Collections.emptyList());
     }
-    List<UserProfileResponse> userProfileResponses =
+    List<? extends UserProfileResponse> userProfileResponses =
         userProfileService.getUserInfoBySkill(skillName.toLowerCase(), page, limit);
     return ResponseEntity.ok(userProfileResponses);
   }
@@ -142,13 +143,14 @@ public class UserProfileController {
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Url Not found"),
       })
-  public ResponseEntity<List<UserProfileResponse>> getAllUserDetails(
+  public ResponseEntity<List<CoreUserProfileResponse>> getAllUserDetails(
       @RequestParam int page,
       @RequestParam int limit,
       @RequestParam(defaultValue = "", required = false) String keyword) {
     log.info("Fetching User Details");
 
-    final List<UserProfileResponse> users = userProfileService.getAllUserInfo(page, limit, keyword);
+    final List<CoreUserProfileResponse> users =
+        userProfileService.getAllUserInfo(page, limit, keyword);
 
     return ResponseEntity.ok(users);
   }

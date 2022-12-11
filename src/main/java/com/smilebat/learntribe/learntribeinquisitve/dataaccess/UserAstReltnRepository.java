@@ -3,14 +3,15 @@ package com.smilebat.learntribe.learntribeinquisitve.dataaccess;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
 import java.util.List;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /** Returns Data Access by Assessment Repo */
 @Repository
-public interface UserAstReltnRepository extends JpaRepository<UserAstReltn, Long> {
+public interface UserAstReltnRepository extends PagingAndSortingRepository<UserAstReltn, Long> {
 
   /**
    * Finds the Assessments mapped to user based on user profile id.
@@ -22,6 +23,24 @@ public interface UserAstReltnRepository extends JpaRepository<UserAstReltn, Long
       value = "SELECT * FROM usr_ast_reltn ua WHERE ua.user_id = :keyCloakId",
       nativeQuery = true)
   List<UserAstReltn> findByUserId(@Param("keyCloakId") String keyCloakId);
+
+  /**
+   * Finds the Assessments mapped to user based on user profile id and status filters. Performs
+   * Paginated Query.
+   *
+   * @param keyCloakId the profile id
+   * @param filters the list of Assessment Status filters
+   * @param pageable the {@link Pageable}
+   * @return the List of {@link Assessment}
+   */
+  @Query(
+      value =
+          "SELECT * FROM usr_ast_reltn ua WHERE ua.user_id = :keyCloakId and status in :filters",
+      nativeQuery = true)
+  List<UserAstReltn> findByUserIdAndFilter(
+      @Param("keyCloakId") String keyCloakId,
+      @Param("filters") String[] filters,
+      Pageable pageable);
 
   /**
    * Finds the Assessments mapped to user based on user profile id and status filters.

@@ -2,6 +2,7 @@ package com.smilebat.learntribe.learntribeinquisitve.converters;
 
 import com.smilebat.learntribe.inquisitve.Gender;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
+import com.smilebat.learntribe.inquisitve.response.CoreUserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.EducationalExpResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.WorkExperienceResponse;
@@ -49,9 +50,7 @@ public class UserProfileConverter {
     if (skills != null && !skills.isEmpty()) {
       userProfile.setSkills(skills.toUpperCase());
     }
-
     if (request.getGender() != null) {
-
       userProfile.setGender(request.getGender());
     }
   }
@@ -84,8 +83,8 @@ public class UserProfileConverter {
    * @param profile the {@link UserProfile}
    * @return the {@link UserProfileResponse}
    */
-  public UserProfileResponse toResponse(UserProfile profile) {
-    UserProfileResponse response = new UserProfileResponse();
+  public CoreUserProfileResponse toResponse(UserProfile profile) {
+    CoreUserProfileResponse response = new CoreUserProfileResponse();
     response.setAbout(profile.getAbout());
     response.setCountry(profile.getCountry());
     response.setEmail(profile.getEmail());
@@ -114,7 +113,7 @@ public class UserProfileConverter {
     }
 
     response.setWorkExperiences(workExperienceResponses);
-    response.setEducationalExperiences(educationalExpResponses);
+    response.setEducationExperiences(educationalExpResponses);
     return response;
   }
 
@@ -124,7 +123,7 @@ public class UserProfileConverter {
    * @param profiles the List of {@link UserProfile}
    * @return the List of {@link UserProfileResponse}
    */
-  public List<UserProfileResponse> toResponse(Collection<UserProfile> profiles) {
+  public List<? extends UserProfileResponse> toResponse(Collection<UserProfile> profiles) {
     return profiles.stream().map(this::toResponse).collect(Collectors.toList());
   }
 }

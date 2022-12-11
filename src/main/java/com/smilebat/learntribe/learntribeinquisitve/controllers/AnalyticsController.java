@@ -52,7 +52,7 @@ public class AnalyticsController {
   @ApiResponses(
       value = {
         @ApiResponse(
-            code = 201,
+            code = 200,
             message = "Successfully retrieved",
             response = CandidateActivitiesResponse.class),
         @ApiResponse(code = 400, message = "Bad Request"),
@@ -83,7 +83,7 @@ public class AnalyticsController {
   @ApiResponses(
       value = {
         @ApiResponse(
-            code = 201,
+            code = 200,
             message = "Successfully retrieved",
             response = OthersBusinessResponse.class,
             responseContainer = "List"),
@@ -118,7 +118,7 @@ public class AnalyticsController {
   @ApiResponses(
       value = {
         @ApiResponse(
-            code = 201,
+            code = 200,
             message = "Successfully retrieved",
             response = HrHiringsResponse.class,
             responseContainer = "List"),

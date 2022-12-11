@@ -51,6 +51,7 @@ public class Assessment {
   private AssessmentDifficulty difficulty;
 
   private String description;
+
   private String title;
 
   private String createdBy;

@@ -2,7 +2,6 @@ package com.smilebat.learntribe.learntribeinquisitve.dataaccess;
 
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import java.util.List;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
@@ -42,9 +41,8 @@ public interface AssessmentRepository extends PagingAndSortingRepository<Assessm
    * Queries assessments based on title and user id.
    *
    * @param assessmentIds array of Assessment IDs
-   * @param pageable pageable object for pagination
    * @return the List of {@link Assessment}.
    */
   @Query(value = "SELECT * FROM assessment where id in :ids", nativeQuery = true)
-  List<Assessment> findAllByIds(@Param("ids") Long[] assessmentIds, Pageable pageable);
+  List<Assessment> findAllByIds(@Param("ids") Long[] assessmentIds);
 }

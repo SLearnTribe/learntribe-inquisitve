@@ -1,26 +1,31 @@
 package com.smilebat.learntribe.learntribeinquisitve.services;
 
 import com.google.common.base.Verify;
+import com.smilebat.learntribe.inquisitve.AssessmentStatus;
 import com.smilebat.learntribe.inquisitve.EducationalExpRequest;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.WorkExperienceRequest;
+import com.smilebat.learntribe.inquisitve.response.AssessmentStatusResponse;
+import com.smilebat.learntribe.inquisitve.response.CoreUserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.learntribeinquisitve.converters.EducationExperienceConverter;
 import com.smilebat.learntribe.learntribeinquisitve.converters.UserProfileConverter;
 import com.smilebat.learntribe.learntribeinquisitve.converters.WorkExperienceConverter;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.EducationExperienceRepository;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserAstReltnRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserProfileRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserProfileSearchRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.WorkExperienceRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.EducationExperience;
+import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.WorkExperience;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +61,8 @@ public class UserProfileService {
 
   private final EducationExperienceConverter edExperienceConverter;
 
+  private final UserAstReltnRepository userAstReltnRepository;
+
   /**
    * Retrieves all the user profile details based on id.
    *
@@ -81,7 +88,8 @@ public class UserProfileService {
    * @return the {@link UserProfileResponse}
    */
   @Transactional
-  public List<UserProfileResponse> getUserInfoBySkill(String skill, int pageNo, int pageSize) {
+  public List<? extends UserProfileResponse> getUserInfoBySkill(
+      String skill, int pageNo, int pageSize) {
     Verify.verifyNotNull(skill, "Skill cannot be empty");
     Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
     List<UserProfile> userProfile = userProfileRepository.findBySkills(skill, pageable);
@@ -101,7 +109,7 @@ public class UserProfileService {
    * @return the List of {@link UserProfileResponse}
    */
   @Transactional
-  public List<UserProfileResponse> getAllUserInfo(int page, int limit, String keyword) {
+  public List<CoreUserProfileResponse> getAllUserInfo(int page, int limit, String keyword) {
     Pageable pageable = PageRequest.of(page - 1, limit);
     List<UserProfile> userProfiles = null;
 
@@ -115,7 +123,26 @@ public class UserProfileService {
       log.info("No User Profiles found");
       return Collections.emptyList();
     }
-    return profileConverter.toResponse(userProfiles);
+
+    return userProfiles.stream().map(this::getCoreUserProfileDetails).collect(Collectors.toList());
+  }
+
+  private CoreUserProfileResponse getCoreUserProfileDetails(UserProfile profile) {
+    CoreUserProfileResponse userProfileResponse = profileConverter.toResponse(profile);
+    List<UserAstReltn> reltns =
+        userAstReltnRepository.findByUserIdAndFilter(
+            profile.getKeyCloakId(), new String[] {AssessmentStatus.COMPLETED.name()});
+    List<AssessmentStatusResponse> assessmentStatusResponses =
+        reltns.stream().map(this::getAssessmentStatuses).collect(Collectors.toList());
+    userProfileResponse.setCompletedAssessments(assessmentStatusResponses);
+    return userProfileResponse;
+  }
+
+  private AssessmentStatusResponse getAssessmentStatuses(UserAstReltn userAstReltn) {
+    AssessmentStatusResponse statusResponse = new AssessmentStatusResponse();
+    statusResponse.setStatus(userAstReltn.getStatus());
+    statusResponse.setSkill(userAstReltn.getAssessmentTitle());
+    return statusResponse;
   }
 
   /**
@@ -166,12 +193,32 @@ public class UserProfileService {
       return Collections.emptyList();
     }
     Set<WorkExperience> existingExperiences = profile.getWorkExperiences();
-    Set<WorkExperience> workExperiences = workExperienceConverter.toEntities(request, profile);
-    Set<WorkExperience> updatedWorkExperiences = new HashSet<>();
-    updatedWorkExperiences.addAll(workExperiences);
-    updatedWorkExperiences.addAll(existingExperiences);
-    workExperienceRepository.saveAll(updatedWorkExperiences);
-    return updatedWorkExperiences;
+    Set<WorkExperience> updatedExperiences = workExperienceConverter.toEntities(request, profile);
+    Set<Long> deletedExperienceIds =
+        evaluateDeletedWExperienceIds(existingExperiences, updatedExperiences);
+    if (!deletedExperienceIds.isEmpty()) {
+      workExperienceRepository.deleteAllById(deletedExperienceIds);
+    }
+    workExperienceRepository.saveAll(updatedExperiences);
+    return updatedExperiences;
+  }
+
+  private Set<Long> evaluateDeletedWExperienceIds(
+      Collection<WorkExperience> existingExperiences, Collection<WorkExperience> workExperiences) {
+    return existingExperiences
+        .stream()
+        .map(WorkExperience::getId)
+        .filter(isWExperienceDeleted(workExperiences))
+        .collect(Collectors.toSet());
+  }
+
+  private Predicate<Long> isWExperienceDeleted(Collection<WorkExperience> workExperiences) {
+    return id ->
+        workExperiences
+            .stream()
+            .map(WorkExperience::getId)
+            .filter(eid -> eid != null)
+            .anyMatch(requestId -> !requestId.equals(id));
   }
 
   /**
@@ -188,12 +235,33 @@ public class UserProfileService {
       return Collections.emptyList();
     }
     Set<EducationExperience> existingExperiences = profile.getEducationExperiences();
-    Set<EducationExperience> educationExperiences =
+    Set<EducationExperience> updatedExperiences =
         edExperienceConverter.toEntities(request, profile);
-    Set<EducationExperience> updatedEducationExperiences = new HashSet<>();
-    updatedEducationExperiences.addAll(educationExperiences);
-    updatedEducationExperiences.addAll(existingExperiences);
-    edExperienceRepository.saveAll(updatedEducationExperiences);
-    return updatedEducationExperiences;
+    Set<Long> deletedExperienceIds =
+        evaluateDeletedEdExperienceIds(existingExperiences, updatedExperiences);
+    if (!deletedExperienceIds.isEmpty()) {
+      edExperienceRepository.deleteAllById(deletedExperienceIds);
+    }
+    edExperienceRepository.saveAll(updatedExperiences);
+    return updatedExperiences;
+  }
+
+  private Set<Long> evaluateDeletedEdExperienceIds(
+      Collection<EducationExperience> existingExperiences,
+      Collection<EducationExperience> workExperiences) {
+    return existingExperiences
+        .stream()
+        .map(EducationExperience::getId)
+        .filter(isEdExperienceDeleted(workExperiences))
+        .collect(Collectors.toSet());
+  }
+
+  private Predicate<Long> isEdExperienceDeleted(Collection<EducationExperience> workExperiences) {
+    return id ->
+        workExperiences
+            .stream()
+            .map(EducationExperience::getId)
+            .filter(eid -> eid != null)
+            .anyMatch(requestId -> !requestId.equals(id));
   }
 }
