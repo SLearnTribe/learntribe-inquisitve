@@ -6,6 +6,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
@@ -18,6 +19,7 @@ import javax.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * Assessment Entity representation of DB.
@@ -30,6 +32,7 @@ import org.springframework.data.annotation.CreatedDate;
 @Setter
 @Table(name = "OTHERS_BUSINESS")
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @SuppressFBWarnings(justification = "Generated code")
 public class OthersBusiness {
 

@@ -99,6 +99,7 @@ public class AnalyticsService {
     return createdJobs
         .stream()
         .map(job -> createHrHiringsResponse(job, "IN_PROGRESS"))
+        .filter(job -> job.getJobCount() > 0)
         .collect(Collectors.toList());
   }
 
@@ -119,6 +120,7 @@ public class AnalyticsService {
     return createdJobs
         .stream()
         .map(job -> createHrHiringsResponse(job, "HIRED"))
+        .filter(job -> job.getJobCount() > 0)
         .collect(Collectors.toList());
   }
 
@@ -135,6 +137,10 @@ public class AnalyticsService {
         userObReltnRepository.countByJobHiringStatus(
             othersBusiness.getId(), new String[] {hiringStatus});
 
-    return analyticsConverter.toResponse(othersBusiness, jobCount);
+    if (jobCount > 0) {
+      return analyticsConverter.toResponse(othersBusiness, jobCount);
+    }
+
+    return new HrHiringsResponse();
   }
 }

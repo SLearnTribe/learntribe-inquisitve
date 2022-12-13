@@ -72,7 +72,7 @@ public interface UserObReltnRepository extends JpaRepository<UserObReltn, Long> 
    */
   @Query(
       value =
-          "SELECT COUNT(*) FROM usr_ob_reltn uob WHERE uob.id = :jobId and uob.hiring_status in :filters",
+          "SELECT COUNT(*) FROM usr_ob_reltn uob WHERE uob.job_id = :jobId and uob.hiring_status in :filters",
       nativeQuery = true)
   Long countByJobHiringStatus(@Param("jobId") Long jobId, @Param("filters") String[] filters);
 }
