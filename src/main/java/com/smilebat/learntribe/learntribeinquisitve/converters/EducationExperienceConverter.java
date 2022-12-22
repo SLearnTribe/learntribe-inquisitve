@@ -69,7 +69,9 @@ public class EducationExperienceConverter {
     response.setCollegeName(edExperience.getCollegeName());
     response.setFieldOfStudy(edExperience.getFieldOfStudy());
     Instant dateOfCompletion = edExperience.getDateOfCompletion();
-    response.setDateOfCompletion(commons.formatInstant.apply(dateOfCompletion));
+    if (dateOfCompletion != null) {
+      response.setDateOfCompletion(commons.formatInstant.apply(dateOfCompletion));
+    }
     return response;
   }
 

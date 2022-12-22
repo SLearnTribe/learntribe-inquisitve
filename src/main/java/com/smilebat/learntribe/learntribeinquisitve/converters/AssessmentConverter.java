@@ -68,7 +68,9 @@ public final class AssessmentConverter {
       response.setType(assessmentType.toString());
     }
 
-    response.setRelatedJobId(assessment.getRelatedJobId());
+    if (assessment.getRelatedJobId() != null) {
+      response.setRelatedJobId(assessment.getRelatedJobId());
+    }
     return response;
   }
 
