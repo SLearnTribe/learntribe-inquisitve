@@ -2,15 +2,17 @@ package com.smilebat.learntribe.learntribeinquisitve.services;
 
 import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableList;
-import com.smilebat.learntribe.inquisitve.AssessmentDifficulty;
-import com.smilebat.learntribe.inquisitve.AssessmentRequest;
-import com.smilebat.learntribe.inquisitve.AssessmentStatus;
-import com.smilebat.learntribe.inquisitve.AssessmentType;
-import com.smilebat.learntribe.inquisitve.HiringStatus;
-import com.smilebat.learntribe.inquisitve.OthersBusinessRequest;
-import com.smilebat.learntribe.inquisitve.UserAstReltnType;
-import com.smilebat.learntribe.inquisitve.UserObReltnType;
-import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
+import com.smilebat.learntribe.assessment.AssessmentRequest;
+import com.smilebat.learntribe.assessment.SubmitAssessmentRequest;
+import com.smilebat.learntribe.assessment.SubmitChallengeRequest;
+import com.smilebat.learntribe.assessment.response.AssessmentResponse;
+import com.smilebat.learntribe.enums.AssessmentDifficulty;
+import com.smilebat.learntribe.enums.AssessmentStatus;
+import com.smilebat.learntribe.enums.AssessmentType;
+import com.smilebat.learntribe.enums.HiringStatus;
+import com.smilebat.learntribe.enums.UserAstReltnType;
+import com.smilebat.learntribe.enums.UserObReltnType;
+import com.smilebat.learntribe.inquisitve.JobRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeclients.openai.OpenAiService;
 import com.smilebat.learntribe.learntribeinquisitve.converters.AssessmentConverter;
@@ -261,7 +263,7 @@ public class AssessmentService {
   private Assessment createSystemAssessment(String skill) {
     Assessment assessment = new Assessment();
     assessment.setTitle(skill.toUpperCase().trim());
-    assessment.setDifficulty(AssessmentDifficulty.EASY);
+    assessment.setDifficulty(AssessmentDifficulty.BEGINNER);
     assessment.setDescription("Recommended");
     assessment.setCreatedBy("SYSTEM");
     return assessment;
@@ -289,9 +291,67 @@ public class AssessmentService {
   }
 
   /**
+   * Submits the user assessment.
+   *
+   * @param request the {@link SubmitAssessmentRequest}.
+   */
+  @Transactional
+  public void submitAssessment(SubmitAssessmentRequest request) {
+    Verify.verifyNotNull(request, "Request cannot be null");
+    final Long assessmentId = request.getId();
+    Verify.verifyNotNull(assessmentId, "Assessment Id cannot be null");
+    List<SubmitChallengeRequest> challengeResponses = request.getChallengeResponses();
+    Verify.verifyNotNull(challengeResponses, "Challenges cannot be null");
+    final String keyCloakId = request.getKeyCloakId();
+    final Optional<Assessment> byAssessmentId = assessmentRepository.findById(assessmentId);
+
+    Assessment assessment = byAssessmentId.get();
+
+    List<Long> challengeIds =
+        challengeResponses.stream().map(SubmitChallengeRequest::getId).collect(Collectors.toList());
+
+    final List<Challenge> challenges = challengeRepository.findAllById(challengeIds);
+
+    Set<Long> correctAnswers = new HashSet<>(challenges.size(), 0.90f);
+
+    for (Challenge challenge : challenges) {
+      final String answer = challenge.getAnswer();
+      final Long id = challenge.getId();
+      boolean isCorrectAnswer =
+          challengeResponses
+              .stream()
+              .filter(req -> id.equals(req.getId()))
+              .anyMatch(req -> answer.equals(req.getAnswer()));
+      if (isCorrectAnswer) {
+        correctAnswers.add(id);
+      }
+    }
+
+    float totalQuestions = assessment.getChallenges().size();
+    float totalCorrectAnswers = correctAnswers.size();
+
+    float passPercentage = (totalCorrectAnswers * 100) / totalQuestions;
+
+    List<UserAstReltn> userAstReltns = userAstReltnRepository.findByUserId(keyCloakId);
+
+    UserAstReltn byUserAstReltn =
+        userAstReltns
+            .stream()
+            .filter(reltn -> assessmentId.equals(reltn.getAssessmentId()))
+            .findFirst()
+            .get();
+
+    byUserAstReltn.setStatus(AssessmentStatus.FAILED);
+
+    if (passPercentage > 65.00f) {
+      byUserAstReltn.setStatus(AssessmentStatus.COMPLETED);
+    }
+  }
+
+  /**
    * Creates a assessment as per the requirements.
    *
-   * @param request the {@link OthersBusinessRequest}
+   * @param request the {@link JobRequest}
    * @return the {@link OthersBusinessResponse}.
    */
   @Transactional
@@ -348,6 +408,7 @@ public class AssessmentService {
 
     Assessment newAssessment = new Assessment();
     newAssessment.setCreatedBy(hrId);
+    newAssessment.setRelatedJobId(request.getRelatedJobId());
     newAssessment.setTitle(skill.toUpperCase().trim());
     newAssessment.setDifficulty(difficulty);
     newAssessment.setType(AssessmentType.OBJECTIVE);

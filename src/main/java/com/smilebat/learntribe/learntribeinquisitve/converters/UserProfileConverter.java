@@ -1,6 +1,6 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
-import com.smilebat.learntribe.inquisitve.Gender;
+import com.smilebat.learntribe.enums.Gender;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.response.CoreUserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.EducationalExpResponse;
@@ -93,6 +93,7 @@ public class UserProfileConverter {
     response.setName(profile.getName());
     response.setPhone(profile.getPhone());
     response.setSkills(profile.getSkills());
+    response.setCurrentRole(profile.getCurrentDesignation());
     Gender gender = profile.getGender();
     if (gender != null) {
       response.setGender(gender.name());

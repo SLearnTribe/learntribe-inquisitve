@@ -1,7 +1,8 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
-import com.smilebat.learntribe.inquisitve.response.ChallengeResponse;
+import com.smilebat.learntribe.assessment.response.ChallengeResponse;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public final class ChallengeConverter {
    * @param challenges the {@link Challenge}
    * @return the {@link ChallengeResponse}
    */
-  public List<ChallengeResponse> toResponse(List<Challenge> challenges) {
+  public List<ChallengeResponse> toResponse(Collection<Challenge> challenges) {
     return challenges.stream().map(this::toResponse).collect(Collectors.toList());
   }
 }

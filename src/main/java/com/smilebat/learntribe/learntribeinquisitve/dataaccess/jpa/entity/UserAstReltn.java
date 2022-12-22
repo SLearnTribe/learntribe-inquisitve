@@ -1,7 +1,7 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
-import com.smilebat.learntribe.inquisitve.AssessmentStatus;
-import com.smilebat.learntribe.inquisitve.UserAstReltnType;
+import com.smilebat.learntribe.enums.AssessmentStatus;
+import com.smilebat.learntribe.enums.UserAstReltnType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.persistence.Column;
 import javax.persistence.Entity;

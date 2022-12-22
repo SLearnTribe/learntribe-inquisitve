@@ -1,10 +1,12 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
-import com.smilebat.learntribe.inquisitve.EmploymentType;
-import com.smilebat.learntribe.inquisitve.JobStatus;
-import com.smilebat.learntribe.inquisitve.OthersBusinessRequest;
+import com.smilebat.learntribe.enums.EmploymentType;
+import com.smilebat.learntribe.enums.JobStatus;
+import com.smilebat.learntribe.inquisitve.JobRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.OthersBusiness;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,7 +35,13 @@ public class JobConverter {
     response.setDescription(jobEntity.getDescription());
     response.setRequiredSkills(jobEntity.getRequiredSkills());
     response.setRolesAndResponsibilities(jobEntity.getRolesAndResponsibilities());
-
+    Instant createdDate = jobEntity.getCreatedDate();
+    if (createdDate != null) {
+      Instant currentDate = Instant.now();
+      response.setDaysBetween(ChronoUnit.DAYS.between(createdDate, currentDate));
+      response.setHoursBetween(ChronoUnit.HOURS.between(createdDate, currentDate));
+      response.setMinutesBetween(ChronoUnit.MINUTES.between(createdDate, currentDate));
+    }
     final EmploymentType employmentType = jobEntity.getEmploymentType();
     if (employmentType != null) {
       response.setEmploymentType(jobEntity.getEmploymentType().name());
@@ -41,6 +49,7 @@ public class JobConverter {
     response.setBusinessName(jobEntity.getBusinessName());
     response.setExperienceRequired(jobEntity.getExperienceRequired());
     response.setQualificationRequired(jobEntity.getQualificationRequired());
+    response.setLocation(jobEntity.getLocation());
     return response;
   }
 
@@ -55,12 +64,12 @@ public class JobConverter {
   }
 
   /**
-   * Converts the {@link OthersBusinessRequest} to {@link OthersBusiness}
+   * Converts the {@link JobRequest} to {@link OthersBusiness}
    *
-   * @param request the {@link OthersBusinessRequest}
+   * @param request the {@link JobRequest}
    * @return the {@link OthersBusiness}
    */
-  public OthersBusiness toEntity(OthersBusinessRequest request) {
+  public OthersBusiness toEntity(JobRequest request) {
     OthersBusiness jobEntity = new OthersBusiness();
     jobEntity.setDescription(request.getDescription());
     jobEntity.setRequiredSkills(request.getRequiredSkills());
@@ -72,6 +81,7 @@ public class JobConverter {
     jobEntity.setEmploymentType(request.getEmploymentType());
     jobEntity.setCreatedBy(request.getCreatedBy());
     jobEntity.setQualificationRequired(request.getQualificationRequired());
+    jobEntity.setLocation(request.getLocation());
     return jobEntity;
   }
 }

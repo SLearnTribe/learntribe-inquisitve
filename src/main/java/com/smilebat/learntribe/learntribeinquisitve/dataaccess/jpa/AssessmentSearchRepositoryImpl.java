@@ -1,6 +1,6 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa;
 
-import com.smilebat.learntribe.inquisitve.AssessmentStatus;
+import com.smilebat.learntribe.enums.AssessmentStatus;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.AssessmentSearchRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
 import java.util.List;

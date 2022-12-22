@@ -3,7 +3,8 @@ package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sun.istack.NotNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.Objects;
+import java.time.Instant;
+import java.util.Comparator;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,7 +27,7 @@ import lombok.Setter;
 @Table(name = "WORK_EXPERIENCE")
 @Entity
 @SuppressFBWarnings(justification = "Generated code")
-public class WorkExperience {
+public class WorkExperience implements Experience, Comparable<WorkExperience> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -38,8 +39,8 @@ public class WorkExperience {
   private String orgName;
   private String designation;
   private Integer years;
-  protected String startDate;
-  protected String endDate;
+  protected Instant startDate;
+  protected Instant endDate;
 
   @ManyToOne(optional = false)
   @NotNull
@@ -49,19 +50,17 @@ public class WorkExperience {
   protected UserProfile userProfile;
 
   @Override
-  public int hashCode() {
-    return Objects.hash(startDate, endDate, designation, userProfile);
+  public int compareTo(WorkExperience o) {
+    if (o != null && endDate != null) {
+
+      return o.endDate.compareTo(endDate);
+    }
+    return 0;
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    WorkExperience other = (WorkExperience) obj;
-    return Objects.equals(designation, other.designation)
-        && Objects.equals(startDate, other.startDate)
-        && Objects.equals(endDate, other.endDate)
-        && Objects.equals(userProfile, other.userProfile);
+  /** Wrapper class for comparator sorting based on date. */
+  public static class Comparators {
+    public static final Comparator<WorkExperience> END_DATE =
+        Comparator.comparing(WorkExperience::getEndDate);
   }
 }

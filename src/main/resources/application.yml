@@ -5,7 +5,7 @@ spring:
   application:
     name: learntribe-inquisitive
   datasource:
-    url: jdbc:postgresql://www.smilebat.xyz:5432/inquisitve
+    url: jdbc:postgresql://${domain}:5432/inquisitve
     password: password
     username: keycloak
   jpa:
@@ -32,12 +32,12 @@ eureka:
     instance-id: ${spring.application.name}:${random.uuid}
   client:
     serviceUrl:
-      defaultZone: http://www.smilebat.xyz:8761/eureka
+      defaultZone: http://${domain}:8761/eureka
 
 feign:
   client:
     url:
-      keycloak: http://www.smilebat.xyz/auth
+      keycloak: http://${domain}:8085/auth
     config:
       default:
         loggerLevel: full
@@ -47,5 +47,10 @@ logging:
       smilebat:
         learntribe:
           learntribeclients: DEBUG
+
+
+#domain: www.smilebat.xyz
+
+domain: host.docker.internal
 
 

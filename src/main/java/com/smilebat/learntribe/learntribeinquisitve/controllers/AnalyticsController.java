@@ -1,8 +1,8 @@
 package com.smilebat.learntribe.learntribeinquisitve.controllers;
 
-import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
-import com.smilebat.learntribe.inquisitve.response.CandidateActivitiesResponse;
-import com.smilebat.learntribe.inquisitve.response.HrHiringsResponse;
+import com.smilebat.learntribe.analytics.response.CandidateActivitiesResponse;
+import com.smilebat.learntribe.analytics.response.HrHiringsResponse;
+import com.smilebat.learntribe.assessment.response.AssessmentResponse;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.AnalyticsService;
 import io.swagger.annotations.ApiOperation;

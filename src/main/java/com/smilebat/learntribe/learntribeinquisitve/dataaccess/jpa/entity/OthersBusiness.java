@@ -1,9 +1,9 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
-import com.smilebat.learntribe.inquisitve.EmploymentType;
-import com.smilebat.learntribe.inquisitve.JobStatus;
+import com.smilebat.learntribe.enums.EmploymentType;
+import com.smilebat.learntribe.enums.JobStatus;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.Date;
+import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -14,8 +14,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
@@ -55,9 +53,9 @@ public class OthersBusiness {
 
   private String businessName;
 
-  @CreatedDate
-  @Temporal(TemporalType.TIMESTAMP)
-  private Date createdDate;
+  private String location;
+
+  @CreatedDate private Instant createdDate;
 
   @Enumerated(EnumType.STRING)
   private JobStatus status;

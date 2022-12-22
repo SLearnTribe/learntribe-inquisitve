@@ -1,8 +1,8 @@
 package com.smilebat.learntribe.learntribeinquisitve.services;
 
 import com.google.common.base.Verify;
-import com.smilebat.learntribe.inquisitve.response.CandidateActivitiesResponse;
-import com.smilebat.learntribe.inquisitve.response.HrHiringsResponse;
+import com.smilebat.learntribe.analytics.response.CandidateActivitiesResponse;
+import com.smilebat.learntribe.analytics.response.HrHiringsResponse;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.converters.AnalyticsConverter;
 import com.smilebat.learntribe.learntribeinquisitve.converters.JobConverter;

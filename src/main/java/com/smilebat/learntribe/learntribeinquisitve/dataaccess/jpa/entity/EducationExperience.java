@@ -3,7 +3,8 @@ package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sun.istack.NotNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.Objects;
+import java.time.Instant;
+import java.util.Comparator;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,7 +27,7 @@ import lombok.Setter;
 @Table(name = "EDUCATION_EXPERIENCE")
 @Entity
 @SuppressFBWarnings(justification = "Generated code")
-public class EducationExperience {
+public class EducationExperience implements Experience, Comparable<EducationExperience> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -38,7 +39,7 @@ public class EducationExperience {
 
   private String degree;
 
-  private String dateOfCompletion;
+  private Instant dateOfCompletion;
 
   private String fieldOfStudy;
 
@@ -50,19 +51,16 @@ public class EducationExperience {
   protected UserProfile userProfile;
 
   @Override
-  public int hashCode() {
-    return Objects.hash(collegeName, dateOfCompletion, degree, userProfile);
+  public int compareTo(EducationExperience o) {
+    if (o != null && dateOfCompletion != null) {
+      return o.dateOfCompletion.compareTo(dateOfCompletion);
+    }
+    return 0;
   }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
-    EducationExperience other = (EducationExperience) obj;
-    return Objects.equals(collegeName, other.collegeName)
-        && Objects.equals(dateOfCompletion, other.dateOfCompletion)
-        && Objects.equals(degree, other.degree)
-        && Objects.equals(userProfile, other.userProfile);
+  /** Wrapper class for comparator sorting based on date. */
+  public static class Comparators {
+    public static final Comparator<EducationExperience> END_DATE =
+        Comparator.comparing(EducationExperience::getDateOfCompletion);
   }
 }

@@ -1,14 +1,14 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
-import com.smilebat.learntribe.inquisitve.AssessmentDifficulty;
-import com.smilebat.learntribe.inquisitve.AssessmentRequest;
-import com.smilebat.learntribe.inquisitve.AssessmentType;
-import com.smilebat.learntribe.inquisitve.response.AssessmentResponse;
+import com.smilebat.learntribe.assessment.AssessmentRequest;
+import com.smilebat.learntribe.assessment.response.AssessmentResponse;
+import com.smilebat.learntribe.enums.AssessmentDifficulty;
+import com.smilebat.learntribe.enums.AssessmentType;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -53,8 +53,10 @@ public final class AssessmentConverter {
     response.setNumOfQuestions(assessment.getQuestions());
     response.setDescription(assessment.getDescription());
     response.setStatus(assessment.getStatus());
-    List<Challenge> challenges = new ArrayList<>(assessment.getChallenges());
-    response.setChallengeResponses(challengeConverter.toResponse(challenges));
+    Set<Challenge> challenges = assessment.getChallenges();
+    if (challenges != null) {
+      response.setChallengeResponses(challengeConverter.toResponse(challenges));
+    }
 
     AssessmentDifficulty difficulty = assessment.getDifficulty();
     if (difficulty != null) {
@@ -66,6 +68,7 @@ public final class AssessmentConverter {
       response.setType(assessmentType.toString());
     }
 
+    response.setRelatedJobId(assessment.getRelatedJobId());
     return response;
   }
 

@@ -1,31 +1,21 @@
 package com.smilebat.learntribe.learntribeinquisitve.services;
 
 import com.google.common.base.Verify;
-import com.smilebat.learntribe.inquisitve.AssessmentStatus;
-import com.smilebat.learntribe.inquisitve.EducationalExpRequest;
+import com.smilebat.learntribe.assessment.response.AssessmentStatusResponse;
+import com.smilebat.learntribe.enums.AssessmentStatus;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
-import com.smilebat.learntribe.inquisitve.WorkExperienceRequest;
-import com.smilebat.learntribe.inquisitve.response.AssessmentStatusResponse;
 import com.smilebat.learntribe.inquisitve.response.CoreUserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
-import com.smilebat.learntribe.learntribeinquisitve.converters.EducationExperienceConverter;
 import com.smilebat.learntribe.learntribeinquisitve.converters.UserProfileConverter;
-import com.smilebat.learntribe.learntribeinquisitve.converters.WorkExperienceConverter;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.EducationExperienceRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserAstReltnRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserProfileRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserProfileSearchRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.WorkExperienceRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.EducationExperience;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.WorkExperience;
-import java.util.Collection;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.ExperienceService;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,18 +40,13 @@ public class UserProfileService {
   /* Declation for Repositories */
   private final UserProfileRepository userProfileRepository;
   private final UserProfileSearchRepository userProfileSearchRepository;
-  private final WorkExperienceRepository workExperienceRepository;
-
-  private final EducationExperienceRepository edExperienceRepository;
 
   /* Declation for Converters*/
   private final UserProfileConverter profileConverter;
 
-  private final WorkExperienceConverter workExperienceConverter;
-
-  private final EducationExperienceConverter edExperienceConverter;
-
   private final UserAstReltnRepository userAstReltnRepository;
+
+  private final ExperienceService experienceService;
 
   /**
    * Retrieves all the user profile details based on id.
@@ -69,14 +54,13 @@ public class UserProfileService {
    * @param userId the {@link String} user id
    * @return the {@link UserProfileResponse}
    */
-  @Transactional
+  @Transactional(readOnly = true)
   public UserProfileResponse getUserInfo(String userId) {
     Verify.verifyNotNull(userId, "User Id cannot be null");
-    UserProfile userProfile = userProfileRepository.findByKeyCloakId(userId);
-    if (userProfile == null) {
-      return new UserProfileResponse();
-    }
-    return profileConverter.toResponse(userProfile);
+    UserProfile profile = userProfileRepository.findByKeyCloakId(userId);
+    return Optional.ofNullable(profile)
+        .map(profileConverter::toResponse)
+        .orElseGet(CoreUserProfileResponse::new);
   }
 
   /**
@@ -87,7 +71,7 @@ public class UserProfileService {
    * @param pageSize for pageination
    * @return the {@link UserProfileResponse}
    */
-  @Transactional
+  @Transactional(readOnly = true)
   public List<? extends UserProfileResponse> getUserInfoBySkill(
       String skill, int pageNo, int pageSize) {
     Verify.verifyNotNull(skill, "Skill cannot be empty");
@@ -108,7 +92,7 @@ public class UserProfileService {
    * @param keyword to match with participant
    * @return the List of {@link UserProfileResponse}
    */
-  @Transactional
+  @Transactional(readOnly = true)
   public List<CoreUserProfileResponse> getAllUserInfo(int page, int limit, String keyword) {
     Pageable pageable = PageRequest.of(page - 1, limit);
     List<UserProfile> userProfiles = null;
@@ -175,93 +159,7 @@ public class UserProfileService {
     UserProfile existingUserProfile = userProfileRepository.findByKeyCloakId(keycloakId);
     UserProfile userProfile = Optional.ofNullable(existingUserProfile).orElseGet(UserProfile::new);
     profileConverter.updateEntity(profileRequest, userProfile);
+    experienceService.saveAllExperiences(profileRequest, userProfile);
     userProfileRepository.save(userProfile);
-    saveWorkExperiences(userProfile, profileRequest.getWorkExperiences());
-    saveEducationExperiences(userProfile, profileRequest.getEducationExperiences());
-  }
-
-  /**
-   * Saves all user work experiences.
-   *
-   * @param profile the {@link UserProfile}
-   * @param request the List of {@link WorkExperienceRequest}
-   * @return the List of {@link WorkExperience}
-   */
-  private Collection<WorkExperience> saveWorkExperiences(
-      UserProfile profile, List<WorkExperienceRequest> request) {
-    if (request == null || request.isEmpty()) {
-      return Collections.emptyList();
-    }
-    Set<WorkExperience> existingExperiences = profile.getWorkExperiences();
-    Set<WorkExperience> updatedExperiences = workExperienceConverter.toEntities(request, profile);
-    Set<Long> deletedExperienceIds =
-        evaluateDeletedWExperienceIds(existingExperiences, updatedExperiences);
-    if (!deletedExperienceIds.isEmpty()) {
-      workExperienceRepository.deleteAllById(deletedExperienceIds);
-    }
-    workExperienceRepository.saveAll(updatedExperiences);
-    return updatedExperiences;
-  }
-
-  private Set<Long> evaluateDeletedWExperienceIds(
-      Collection<WorkExperience> existingExperiences, Collection<WorkExperience> workExperiences) {
-    return existingExperiences
-        .stream()
-        .map(WorkExperience::getId)
-        .filter(isWExperienceDeleted(workExperiences))
-        .collect(Collectors.toSet());
-  }
-
-  private Predicate<Long> isWExperienceDeleted(Collection<WorkExperience> workExperiences) {
-    return id ->
-        workExperiences
-            .stream()
-            .map(WorkExperience::getId)
-            .filter(eid -> eid != null)
-            .anyMatch(requestId -> !requestId.equals(id));
-  }
-
-  /**
-   * Saves all user educational experiences.
-   *
-   * @param profile the {@link UserProfile}
-   * @param request the List of {@link com.smilebat.learntribe.inquisitve.EducationalExpRequest}
-   * @return the List of {@link
-   *     com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.EducationExperience}
-   */
-  private Collection<EducationExperience> saveEducationExperiences(
-      UserProfile profile, List<EducationalExpRequest> request) {
-    if (request == null || request.isEmpty()) {
-      return Collections.emptyList();
-    }
-    Set<EducationExperience> existingExperiences = profile.getEducationExperiences();
-    Set<EducationExperience> updatedExperiences =
-        edExperienceConverter.toEntities(request, profile);
-    Set<Long> deletedExperienceIds =
-        evaluateDeletedEdExperienceIds(existingExperiences, updatedExperiences);
-    if (!deletedExperienceIds.isEmpty()) {
-      edExperienceRepository.deleteAllById(deletedExperienceIds);
-    }
-    edExperienceRepository.saveAll(updatedExperiences);
-    return updatedExperiences;
-  }
-
-  private Set<Long> evaluateDeletedEdExperienceIds(
-      Collection<EducationExperience> existingExperiences,
-      Collection<EducationExperience> workExperiences) {
-    return existingExperiences
-        .stream()
-        .map(EducationExperience::getId)
-        .filter(isEdExperienceDeleted(workExperiences))
-        .collect(Collectors.toSet());
-  }
-
-  private Predicate<Long> isEdExperienceDeleted(Collection<EducationExperience> workExperiences) {
-    return id ->
-        workExperiences
-            .stream()
-            .map(EducationExperience::getId)
-            .filter(eid -> eid != null)
-            .anyMatch(requestId -> !requestId.equals(id));
   }
 }

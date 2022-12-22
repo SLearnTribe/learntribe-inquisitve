@@ -1,8 +1,8 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.smilebat.learntribe.inquisitve.AssessmentDifficulty;
-import com.smilebat.learntribe.inquisitve.AssessmentType;
+import com.smilebat.learntribe.enums.AssessmentDifficulty;
+import com.smilebat.learntribe.enums.AssessmentType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Set;
 import javax.persistence.Column;
@@ -55,6 +55,8 @@ public class Assessment {
   private String title;
 
   private String createdBy;
+
+  private Long relatedJobId;
 
   @OneToMany(mappedBy = ASSESSMENT_NAME, fetch = FetchType.LAZY)
   @JsonIgnoreProperties(

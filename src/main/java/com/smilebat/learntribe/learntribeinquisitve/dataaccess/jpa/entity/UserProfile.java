@@ -1,10 +1,11 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.smilebat.learntribe.inquisitve.Gender;
+import com.smilebat.learntribe.enums.Gender;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -65,6 +66,7 @@ public class UserProfile {
 
   private String name;
   private String email;
+  private String currentDesignation;
 
   @Enumerated(EnumType.STRING)
   private Gender gender;
@@ -87,15 +89,40 @@ public class UserProfile {
 
   private Long phone;
 
-  @OneToMany(mappedBy = USER_DETAILS_NAME)
+  @OneToMany(mappedBy = USER_DETAILS_NAME, cascade = CascadeType.ALL)
   @JsonIgnoreProperties(
       value = {USER_DETAILS_NAME},
       allowSetters = true)
-  private Set<WorkExperience> workExperiences = new HashSet<>();
+  private Set<WorkExperience> workExperiences = new TreeSet<>(WorkExperience.Comparators.END_DATE);
 
-  @OneToMany(mappedBy = USER_DETAILS_NAME)
+  @OneToMany(mappedBy = USER_DETAILS_NAME, cascade = CascadeType.ALL)
   @JsonIgnoreProperties(
       value = {USER_DETAILS_NAME},
       allowSetters = true)
-  private Set<EducationExperience> educationExperiences = new HashSet<>();
+  private Set<EducationExperience> educationExperiences =
+      new TreeSet<>(EducationExperience.Comparators.END_DATE);
+
+  /**
+   * Assigns the work experiences for save.
+   *
+   * @param experiences the Set of {@link WorkExperience}.
+   */
+  public void setWorkExperiences(Set<WorkExperience> experiences) {
+    if (experiences != null) {
+      experiences.forEach(experience -> experience.setUserProfile(this));
+      workExperiences = experiences;
+    }
+  }
+
+  /**
+   * Assigns the education experiences for save.
+   *
+   * @param experiences the Set of {@link EducationExperience}.
+   */
+  public void setEducationExperiences(Set<EducationExperience> experiences) {
+    if (experiences != null) {
+      experiences.forEach(experience -> experience.setUserProfile(this));
+      educationExperiences = experiences;
+    }
+  }
 }

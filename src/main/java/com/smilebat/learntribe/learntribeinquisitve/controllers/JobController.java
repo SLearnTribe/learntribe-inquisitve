@@ -1,7 +1,7 @@
 package com.smilebat.learntribe.learntribeinquisitve.controllers;
 
-import com.smilebat.learntribe.inquisitve.OthersBusinessRequest;
-import com.smilebat.learntribe.inquisitve.OthersBusinessUpdateRequest;
+import com.smilebat.learntribe.inquisitve.JobRequest;
+import com.smilebat.learntribe.inquisitve.JobUpdateRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.JobService;
 import io.swagger.annotations.ApiOperation;
@@ -77,7 +77,6 @@ public class JobController {
     JobService.PageableJobRequest pageRequest =
         JobService.PageableJobRequest.builder().paging(paging).keyCloakId(keyCloakId).build();
     List<OthersBusinessResponse> responses = jobService.retrieveJobs(pageRequest);
-
     return ResponseEntity.ok(responses);
   }
 
@@ -85,7 +84,7 @@ public class JobController {
    * Creates a new Job Post.
    *
    * @param keyCloakId the user IAM id
-   * @param request the {@link OthersBusinessRequest}
+   * @param request the {@link JobRequest}
    * @return the {@link OthersBusinessResponse}
    */
   @PostMapping(value = "/user")
@@ -106,7 +105,7 @@ public class JobController {
       })
   public ResponseEntity<OthersBusinessResponse> createJob(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
-      @Valid @RequestBody OthersBusinessRequest request) {
+      @Valid @RequestBody JobRequest request) {
 
     request.setCreatedBy(keyCloakId);
     jobService.createJob(request);
@@ -118,7 +117,7 @@ public class JobController {
    * Creates a new Job Post.
    *
    * @param keyCloakId the user IAM id
-   * @param request the {@link OthersBusinessRequest}
+   * @param request the {@link JobRequest}
    * @return the {@link OthersBusinessResponse}
    */
   @PutMapping(value = "/user")
@@ -139,7 +138,7 @@ public class JobController {
       })
   public ResponseEntity<OthersBusinessResponse> updateJob(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
-      @Valid @RequestBody OthersBusinessUpdateRequest request) {
+      @Valid @RequestBody JobUpdateRequest request) {
 
     request.setCreatedBy(keyCloakId);
     final OthersBusinessResponse response = jobService.updateJob(request);

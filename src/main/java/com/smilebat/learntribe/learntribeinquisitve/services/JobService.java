@@ -1,14 +1,13 @@
 package com.smilebat.learntribe.learntribeinquisitve.services;
 
 import com.google.common.base.Verify;
-import com.smilebat.learntribe.inquisitve.AssessmentStatus;
-import com.smilebat.learntribe.inquisitve.OthersBusinessRequest;
-import com.smilebat.learntribe.inquisitve.OthersBusinessUpdateRequest;
-import com.smilebat.learntribe.inquisitve.UserObReltnType;
-import com.smilebat.learntribe.inquisitve.response.AssessmentStatusResponse;
+import com.smilebat.learntribe.assessment.response.AssessmentStatusResponse;
+import com.smilebat.learntribe.enums.AssessmentStatus;
+import com.smilebat.learntribe.enums.UserObReltnType;
+import com.smilebat.learntribe.inquisitve.JobRequest;
+import com.smilebat.learntribe.inquisitve.JobUpdateRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.converters.JobConverter;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.AssessmentRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.OthersBusinessRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserAstReltnRepository;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserObReltnRepository;
@@ -50,8 +49,6 @@ public class JobService {
 
   private final UserAstReltnRepository userAstReltnRepository;
 
-  private final AssessmentRepository assessmentRepository;
-
   /** Job pagination concept builder. */
   @Getter
   @Setter
@@ -64,11 +61,11 @@ public class JobService {
   /**
    * Updates a given job based on job id
    *
-   * @param request the {@link OthersBusinessUpdateRequest}
+   * @param request the {@link JobUpdateRequest}
    * @return the updated {@link OthersBusinessResponse}
    */
   @Transactional
-  public OthersBusinessResponse updateJob(OthersBusinessUpdateRequest request) {
+  public OthersBusinessResponse updateJob(JobUpdateRequest request) {
     Verify.verifyNotNull(request, "Job Request cannot be null");
 
     Long jobId = request.getId();
@@ -109,11 +106,17 @@ public class JobService {
   private void updateUserAssessmentStatus(String keyCloakId, OthersBusinessResponse jobResponse) {
     String requiredSkills = jobResponse.getRequiredSkills();
     if (requiredSkills != null && !requiredSkills.isEmpty()) {
-      String[] sanitizedSkills = requiredSkills.toUpperCase().trim().split(",");
+      String[] sanitizedSkills = requiredSkills.toUpperCase().split(",");
+      String[] skillQuery = new String[sanitizedSkills.length];
+      for (int i = 0; i < sanitizedSkills.length; i++) {
+        String skill = sanitizedSkills[i];
+        skillQuery[i] = skill.trim();
+      }
+
       List<UserAstReltn> userAstReltns =
-          userAstReltnRepository.findAllByAssessmentTitle(keyCloakId, sanitizedSkills);
+          userAstReltnRepository.findAllByAssessmentTitle(keyCloakId, skillQuery);
       List<AssessmentStatusResponse> statusResponses = new ArrayList<>(sanitizedSkills.length);
-      for (String requiredSkill : sanitizedSkills) {
+      for (String requiredSkill : skillQuery) {
         AssessmentStatusResponse assessmentStatusResponse =
             userAstReltns
                 .stream()
@@ -144,10 +147,10 @@ public class JobService {
   /**
    * Creates a job as per the user requirements.
    *
-   * @param request the {@link OthersBusinessRequest}.
+   * @param request the {@link JobRequest}.
    */
   @Transactional
-  public void createJob(OthersBusinessRequest request) {
+  public void createJob(JobRequest request) {
     String userId = request.getCreatedBy();
     Verify.verifyNotNull(userId, "User Id cannot be null");
     Verify.verifyNotNull(request, "Job Request cannot be null");

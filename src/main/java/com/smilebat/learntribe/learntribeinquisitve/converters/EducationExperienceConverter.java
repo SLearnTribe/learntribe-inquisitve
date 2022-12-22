@@ -4,12 +4,14 @@ import com.smilebat.learntribe.inquisitve.EducationalExpRequest;
 import com.smilebat.learntribe.inquisitve.WorkExperienceRequest;
 import com.smilebat.learntribe.inquisitve.response.EducationalExpResponse;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.EducationExperience;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.WorkExperience;
+import com.smilebat.learntribe.learntribeinquisitve.util.Commons;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,39 +22,38 @@ import org.springframework.stereotype.Component;
  * @author Pai,Sai Nandan
  */
 @Component
+@RequiredArgsConstructor
 public class EducationExperienceConverter {
+
+  private final Commons commons;
 
   /**
    * Converts {@link EducationalExpRequest} to {@link EducationExperience}.
    *
    * @param request the {@link WorkExperienceRequest}
-   * @param profile the mapped {@link UserProfile}
    * @return the {@link WorkExperience}
    */
-  public EducationExperience toEntity(EducationalExpRequest request, UserProfile profile) {
+  public EducationExperience toEntity(EducationalExpRequest request) {
     EducationExperience edExperience = new EducationExperience();
     edExperience.setId(request.getId());
     edExperience.setDegree(request.getDegree());
     edExperience.setCollegeName(request.getCollegeName());
     edExperience.setFieldOfStudy(request.getFieldOfStudy());
-    edExperience.setDateOfCompletion(request.getDateOfCompletion());
-    edExperience.setUserProfile(profile);
+    String endDate = request.getDateOfCompletion();
+    if (endDate != null) {
+      edExperience.setDateOfCompletion(commons.toInstant(endDate));
+    }
     return edExperience;
   }
 
   /**
    * Converts List of {@link EducationalExpRequest} to List of {@link EducationExperience}.
    *
-   * @param requestList the list of {@link WorkExperienceRequest}
-   * @param profile the mapped {@link UserProfile}
+   * @param list the list of {@link WorkExperienceRequest}
    * @return the {@link WorkExperience}
    */
-  public Set<EducationExperience> toEntities(
-      Collection<EducationalExpRequest> requestList, UserProfile profile) {
-    return requestList
-        .stream()
-        .map(request -> this.toEntity(request, profile))
-        .collect(Collectors.toSet());
+  public Set<EducationExperience> toEntities(Collection<EducationalExpRequest> list) {
+    return list.stream().map(this::toEntity).collect(Collectors.toSet());
   }
 
   /**
@@ -67,7 +68,8 @@ public class EducationExperienceConverter {
     response.setDegree(edExperience.getDegree());
     response.setCollegeName(edExperience.getCollegeName());
     response.setFieldOfStudy(edExperience.getFieldOfStudy());
-    response.setDateOfCompletion(edExperience.getDateOfCompletion());
+    Instant dateOfCompletion = edExperience.getDateOfCompletion();
+    response.setDateOfCompletion(commons.formatInstant.apply(dateOfCompletion));
     return response;
   }
 

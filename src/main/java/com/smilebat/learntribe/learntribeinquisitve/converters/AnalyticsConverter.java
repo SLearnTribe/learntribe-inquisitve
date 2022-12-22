@@ -1,12 +1,11 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
-import com.smilebat.learntribe.inquisitve.EmploymentType;
-import com.smilebat.learntribe.inquisitve.JobStatus;
-import com.smilebat.learntribe.inquisitve.response.HrHiringsResponse;
+import com.smilebat.learntribe.analytics.response.HrHiringsResponse;
+import com.smilebat.learntribe.enums.EmploymentType;
+import com.smilebat.learntribe.enums.JobStatus;
 import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.OthersBusiness;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.smilebat.learntribe.learntribeinquisitve.util.Commons;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +19,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class AnalyticsConverter {
-
-  DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+  private final Commons commons;
 
   /**
    * Converts {@link OthersBusiness} to {@link HrHiringsResponse}.
@@ -34,15 +32,13 @@ public class AnalyticsConverter {
     HrHiringsResponse response = new HrHiringsResponse();
     response.setJobTitle(othersBusiness.getTitle());
     response.setSkills(othersBusiness.getRequiredSkills());
-    Date createdDate = othersBusiness.getCreatedDate();
+    Instant createdDate = othersBusiness.getCreatedDate();
     if (createdDate != null) {
-
-      response.setJobPostedOn(dateFormat.format(othersBusiness.getCreatedDate()));
+      response.setJobPostedOn(commons.formatInstant.apply(createdDate));
     }
 
     JobStatus status = othersBusiness.getStatus();
     if (status != null) {
-
       response.setJobStatus(status.name());
     }
     response.setJobCount(jobCount);

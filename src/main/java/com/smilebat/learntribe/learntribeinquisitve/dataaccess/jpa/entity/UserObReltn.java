@@ -1,7 +1,7 @@
 package com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity;
 
-import com.smilebat.learntribe.inquisitve.HiringStatus;
-import com.smilebat.learntribe.inquisitve.UserObReltnType;
+import com.smilebat.learntribe.enums.HiringStatus;
+import com.smilebat.learntribe.enums.UserObReltnType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.persistence.Column;
 import javax.persistence.Entity;
