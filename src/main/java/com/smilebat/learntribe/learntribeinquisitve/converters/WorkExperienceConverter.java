@@ -1,8 +1,8 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
+import com.smilebat.learntribe.dataaccess.jpa.entity.WorkExperience;
 import com.smilebat.learntribe.inquisitve.WorkExperienceRequest;
 import com.smilebat.learntribe.inquisitve.response.WorkExperienceResponse;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.WorkExperience;
 import com.smilebat.learntribe.learntribeinquisitve.util.Commons;
 import java.time.Instant;
 import java.util.Collection;

@@ -1,10 +1,9 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
+import com.smilebat.learntribe.dataaccess.jpa.entity.EducationExperience;
 import com.smilebat.learntribe.inquisitve.EducationalExpRequest;
 import com.smilebat.learntribe.inquisitve.WorkExperienceRequest;
 import com.smilebat.learntribe.inquisitve.response.EducationalExpResponse;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.EducationExperience;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.WorkExperience;
 import com.smilebat.learntribe.learntribeinquisitve.util.Commons;
 import java.time.Instant;
 import java.util.Collection;
@@ -31,7 +30,7 @@ public class EducationExperienceConverter {
    * Converts {@link EducationalExpRequest} to {@link EducationExperience}.
    *
    * @param request the {@link WorkExperienceRequest}
-   * @return the {@link WorkExperience}
+   * @return the {@link EducationExperience}
    */
   public EducationExperience toEntity(EducationalExpRequest request) {
     EducationExperience edExperience = new EducationExperience();
@@ -50,7 +49,7 @@ public class EducationExperienceConverter {
    * Converts List of {@link EducationalExpRequest} to List of {@link EducationExperience}.
    *
    * @param list the list of {@link WorkExperienceRequest}
-   * @return the {@link WorkExperience}
+   * @return the set of {@link EducationExperience}
    */
   public Set<EducationExperience> toEntities(Collection<EducationalExpRequest> list) {
     return list.stream().map(this::toEntity).collect(Collectors.toSet());

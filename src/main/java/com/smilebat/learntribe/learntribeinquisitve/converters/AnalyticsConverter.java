@@ -1,9 +1,9 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
 import com.smilebat.learntribe.analytics.response.HrHiringsResponse;
+import com.smilebat.learntribe.dataaccess.jpa.entity.OthersBusiness;
 import com.smilebat.learntribe.enums.EmploymentType;
 import com.smilebat.learntribe.enums.JobStatus;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.OthersBusiness;
 import com.smilebat.learntribe.learntribeinquisitve.util.Commons;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;

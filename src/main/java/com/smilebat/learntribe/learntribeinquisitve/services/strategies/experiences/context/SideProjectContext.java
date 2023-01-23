@@ -1,10 +1,10 @@
 package com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.context;
 
-import com.smilebat.learntribe.dataaccess.EducationExperienceRepository;
-import com.smilebat.learntribe.dataaccess.jpa.entity.EducationExperience;
+import com.smilebat.learntribe.dataaccess.SideProjectRepository;
+import com.smilebat.learntribe.dataaccess.jpa.entity.SideProject;
 import com.smilebat.learntribe.dataaccess.jpa.entity.UserProfile;
-import com.smilebat.learntribe.inquisitve.EducationalExpRequest;
-import com.smilebat.learntribe.learntribeinquisitve.converters.EducationExperienceConverter;
+import com.smilebat.learntribe.inquisitve.SideProjectRequest;
+import com.smilebat.learntribe.learntribeinquisitve.converters.SideProjectsConverter;
 import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.ExperienceContext;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,28 +23,28 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-public final class EducationExperienceContext
-    extends ExperienceContext<EducationExperience, EducationExperienceRepository> {
+public final class SideProjectContext
+    extends ExperienceContext<SideProject, SideProjectRepository> {
 
-  private final EducationExperienceConverter converter;
-  private final EducationExperienceRepository repository;
+  private final SideProjectsConverter converter;
+  private final SideProjectRepository repository;
 
-  @Getter @Setter private Collection<EducationalExpRequest> request;
+  @Getter @Setter private Collection<SideProjectRequest> request;
 
   @Setter @Getter private UserProfile profile;
 
   @Override
-  public EducationExperienceRepository getRepository() {
+  public SideProjectRepository getRepository() {
     return this.repository;
   }
 
   @Override
-  public Set<EducationExperience> getRequestExperiences() {
+  public Set<SideProject> getRequestExperiences() {
     return request == null ? Collections.emptySet() : converter.toEntities(request);
   }
 
   @Override
-  public Set<EducationExperience> getExistingExperiences() {
-    return profile.getEducationExperiences();
+  public Set<SideProject> getExistingExperiences() {
+    return profile.getSideProjects();
   }
 }

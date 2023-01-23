@@ -2,10 +2,10 @@ package com.smilebat.learntribe.learntribeinquisitve.converters;
 
 import com.smilebat.learntribe.assessment.AssessmentRequest;
 import com.smilebat.learntribe.assessment.response.AssessmentResponse;
+import com.smilebat.learntribe.dataaccess.jpa.entity.Assessment;
+import com.smilebat.learntribe.dataaccess.jpa.entity.Challenge;
 import com.smilebat.learntribe.enums.AssessmentDifficulty;
 import com.smilebat.learntribe.enums.AssessmentType;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Assessment;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;

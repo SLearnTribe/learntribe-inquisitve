@@ -55,11 +55,11 @@ public class AnalyticsController {
             code = 200,
             message = "Successfully retrieved",
             response = CandidateActivitiesResponse.class),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Url Not found"),
-        @ApiResponse(code = 422, message = "Invalid Data"),
+        @ApiResponse(code = 400, message = SCConstants.BAD_REQUEST),
+        @ApiResponse(code = 401, message = SCConstants.UN_AUTHORIZED),
+        @ApiResponse(code = 403, message = SCConstants.FORBIDDEN),
+        @ApiResponse(code = 404, message = SCConstants.URL_NOT_FOUND),
+        @ApiResponse(code = 422, message = SCConstants.INVALID_DATA),
       })
   public ResponseEntity<CandidateActivitiesResponse> evaluateCandidateActivities(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId) {

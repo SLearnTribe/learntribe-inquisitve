@@ -60,10 +60,8 @@ public class UserProfileController {
   public ResponseEntity<String> saveUserDetails(
       @AuthenticationPrincipal(expression = "subject") String id,
       @Valid @RequestBody UserProfileRequest request) {
-
     request.setKeyCloakId(id);
     userProfileService.saveUserProfile(request);
-
     return ResponseEntity.status(HttpStatus.OK).build();
   }
 

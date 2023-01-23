@@ -1,16 +1,17 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
+import com.smilebat.learntribe.dataaccess.jpa.entity.EducationExperience;
+import com.smilebat.learntribe.dataaccess.jpa.entity.SideProject;
+import com.smilebat.learntribe.dataaccess.jpa.entity.UserProfile;
+import com.smilebat.learntribe.dataaccess.jpa.entity.WorkExperience;
 import com.smilebat.learntribe.enums.Gender;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.response.CoreUserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.EducationalExpResponse;
+import com.smilebat.learntribe.inquisitve.response.SideProjectResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.WorkExperienceResponse;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.EducationExperience;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.WorkExperience;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,6 +32,8 @@ public class UserProfileConverter {
 
   private final EducationExperienceConverter edExperienceConverter;
 
+  private final SideProjectsConverter sideProjectsConverter;
+
   /**
    * Updates the entity
    *
@@ -43,7 +46,7 @@ public class UserProfileConverter {
     userProfile.setEmail(request.getEmail());
     userProfile.setCountry(request.getCountry());
     userProfile.setLinkedIn(request.getLinkedIn());
-    userProfile.setGitHub(request.getGitHub());
+    // userProfile.setGitHub(request.getGitHub());
     userProfile.setAbout(request.getAbout());
     userProfile.setPhone(request.getPhone());
     String skills = request.getSkills();
@@ -100,21 +103,26 @@ public class UserProfileConverter {
     }
 
     Set<WorkExperience> experienceSet = profile.getWorkExperiences();
-    List<WorkExperienceResponse> workExperienceResponses = Collections.emptyList();
     if (experienceSet != null && !experienceSet.isEmpty()) {
-      workExperienceResponses =
+      List<WorkExperienceResponse> workExperienceResponses =
           workExperienceConverter.toResponse(experienceSet.stream().collect(Collectors.toList()));
+      response.setWorkExperiences(workExperienceResponses);
     }
 
     Set<EducationExperience> edExperienceSet = profile.getEducationExperiences();
-    List<EducationalExpResponse> educationalExpResponses = Collections.emptyList();
     if (edExperienceSet != null && !edExperienceSet.isEmpty()) {
-      educationalExpResponses =
+      List<EducationalExpResponse> educationalExpResponses =
           edExperienceConverter.toResponse(edExperienceSet.stream().collect(Collectors.toList()));
+      response.setEducationExperiences(educationalExpResponses);
     }
 
-    response.setWorkExperiences(workExperienceResponses);
-    response.setEducationExperiences(educationalExpResponses);
+    Set<SideProject> sideProjects = profile.getSideProjects();
+    if (sideProjects != null && !sideProjects.isEmpty()) {
+      List<SideProjectResponse> sideProjectResponses =
+          sideProjectsConverter.toResponse(sideProjects.stream().collect(Collectors.toList()));
+      response.setSideProjects(sideProjectResponses);
+    }
+
     return response;
   }
 

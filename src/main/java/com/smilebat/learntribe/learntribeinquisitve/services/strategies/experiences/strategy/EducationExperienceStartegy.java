@@ -1,6 +1,6 @@
 package com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.strategy;
 
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.EducationExperience;
+import com.smilebat.learntribe.dataaccess.jpa.entity.EducationExperience;
 import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.DefaultExperienceStrategy;
 import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.context.EducationExperienceContext;
 import java.util.TreeSet;

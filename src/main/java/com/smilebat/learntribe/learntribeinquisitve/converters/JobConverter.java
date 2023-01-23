@@ -1,10 +1,10 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
+import com.smilebat.learntribe.dataaccess.jpa.entity.OthersBusiness;
 import com.smilebat.learntribe.enums.EmploymentType;
 import com.smilebat.learntribe.enums.JobStatus;
 import com.smilebat.learntribe.inquisitve.JobRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.OthersBusiness;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;

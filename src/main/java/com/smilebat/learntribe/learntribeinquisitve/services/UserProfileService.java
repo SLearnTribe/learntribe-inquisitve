@@ -1,17 +1,20 @@
 package com.smilebat.learntribe.learntribeinquisitve.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Verify;
 import com.smilebat.learntribe.assessment.response.AssessmentStatusResponse;
+import com.smilebat.learntribe.dataaccess.UserAstReltnRepository;
+import com.smilebat.learntribe.dataaccess.UserProfileRepository;
+import com.smilebat.learntribe.dataaccess.UserProfileSearchRepository;
+import com.smilebat.learntribe.dataaccess.jpa.entity.UserAstReltn;
+import com.smilebat.learntribe.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.enums.AssessmentStatus;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.response.CoreUserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.learntribeinquisitve.converters.UserProfileConverter;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserAstReltnRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserProfileRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.UserProfileSearchRepository;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserAstReltn;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
+import com.smilebat.learntribe.learntribeinquisitve.kafka.KafkaProducer;
 import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.ExperienceService;
 import java.util.Collections;
 import java.util.List;
@@ -47,6 +50,11 @@ public class UserProfileService {
   private final UserAstReltnRepository userAstReltnRepository;
 
   private final ExperienceService experienceService;
+
+  /*Kafka Messaging*/
+  private final KafkaProducer kafka;
+
+  private final ObjectMapper mapper = new ObjectMapper();
 
   /**
    * Retrieves all the user profile details based on id.
@@ -161,5 +169,11 @@ public class UserProfileService {
     profileConverter.updateEntity(profileRequest, userProfile);
     experienceService.saveAllExperiences(profileRequest, userProfile);
     userProfileRepository.save(userProfile);
+    try {
+      kafka.sendMessage(mapper.writeValueAsString(profileRequest));
+    } catch (JsonProcessingException e) {
+      log.info("Failed processing the User Profile for Kafka Streaming");
+      throw new RuntimeException(e);
+    }
   }
 }

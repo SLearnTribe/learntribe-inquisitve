@@ -1,7 +1,7 @@
 package com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences;
 
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Experience;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
+import com.smilebat.learntribe.dataaccess.jpa.entity.Experience;
+import com.smilebat.learntribe.dataaccess.jpa.entity.UserProfile;
 import java.util.Collection;
 import lombok.Getter;
 import lombok.Setter;

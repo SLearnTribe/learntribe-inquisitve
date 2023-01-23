@@ -1,7 +1,7 @@
 package com.smilebat.learntribe.learntribeinquisitve.converters;
 
 import com.smilebat.learntribe.assessment.response.ChallengeResponse;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.Challenge;
+import com.smilebat.learntribe.dataaccess.jpa.entity.Challenge;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -1,10 +1,12 @@
 package com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences;
 
+import com.smilebat.learntribe.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
-import com.smilebat.learntribe.learntribeinquisitve.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.context.EducationExperienceContext;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.context.SideProjectContext;
 import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.context.WorkExperienceContext;
 import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.strategy.EducationExperienceStartegy;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.strategy.SideProjectStrategy;
 import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.strategy.WorkExperienceStartegy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,9 @@ public class ExperienceService {
   private final EducationExperienceStartegy educationExperienceStartegy;
   private final EducationExperienceContext educationExperienceContext;
 
+  private final SideProjectContext sideProjectContext;
+  private final SideProjectStrategy sideProjectStrategy;
+
   /**
    * Executes all experience contexts.
    *
@@ -35,6 +40,7 @@ public class ExperienceService {
   public void saveAllExperiences(UserProfileRequest request, UserProfile profile) {
     saveWorkExperiences(request, profile);
     saveEducationExperiences(request, profile);
+    saveSideProjects(request, profile);
   }
 
   /**
@@ -59,5 +65,17 @@ public class ExperienceService {
     educationExperienceContext.setProfile(profile);
     educationExperienceContext.setRequest(request.getEducationExperiences());
     educationExperienceStartegy.updateExperiences(educationExperienceContext);
+  }
+
+  /**
+   * Executes Side Project experience contexts.
+   *
+   * @param request the {@link UserProfileRequest}
+   * @param profile the {@link UserProfile}
+   */
+  private void saveSideProjects(UserProfileRequest request, UserProfile profile) {
+    sideProjectContext.setProfile(profile);
+    sideProjectContext.setRequest(request.getSideProjects());
+    sideProjectStrategy.updateExperiences(sideProjectContext);
   }
 }
