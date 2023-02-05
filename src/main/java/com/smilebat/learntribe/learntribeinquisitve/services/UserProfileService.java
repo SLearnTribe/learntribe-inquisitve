@@ -54,7 +54,7 @@ public class UserProfileService {
   /*Kafka Messaging*/
   private final KafkaProducer kafka;
 
-  private final ObjectMapper mapper = new ObjectMapper();
+  private final ObjectMapper mapper;
 
   /**
    * Retrieves all the user profile details based on id.

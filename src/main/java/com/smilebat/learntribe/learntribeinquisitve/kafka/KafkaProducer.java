@@ -1,7 +1,10 @@
 package com.smilebat.learntribe.learntribeinquisitve.kafka;
 
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -14,8 +17,16 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Slf4j
+@ToString
+@RefreshScope
 public class KafkaProducer {
   @Autowired private KafkaTemplate<String, Object> kafkaTemplate;
+
+  @Value("${kafka.topic.out}")
+  private String outTopic = "assessment-topic-1";
+
+  @Value("${kafka.startup}")
+  private boolean startup;
 
   /**
    * Sends a notifcation to assessment service.
@@ -24,9 +35,11 @@ public class KafkaProducer {
    */
   public void sendMessage(String message) {
     try {
-      kafkaTemplate.send(ApplicationConstant.TOPIC_NAME, message);
+      if (startup) {
+       kafkaTemplate.send(outTopic, message);
+      }
     } catch (Exception e) {
-      log.info("Unable to send message {} to {}", message, ApplicationConstant.TOPIC_NAME);
+      log.info("Unable to send message {} to {}", message, outTopic);
       throw new RuntimeException(e);
     }
   }
