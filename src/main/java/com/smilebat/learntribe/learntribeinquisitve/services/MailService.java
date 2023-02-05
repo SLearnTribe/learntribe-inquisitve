@@ -12,6 +12,7 @@ import com.smilebat.learntribe.mail.HrMailRequest;
 import java.util.Optional;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,12 +23,12 @@ import org.springframework.stereotype.Service;
  * @author Pai,Sai Nandan
  */
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class MailService {
 
   private final EmailService service;
   private final UserProfileRepository profileRepository;
-
   private final OthersBusinessRepository jobRepository;
 
   /**
@@ -41,6 +42,8 @@ public class MailService {
     final String keyCloakId = mailRequest.getFromId();
     Verify.verifyNotNull(keyCloakId, "KeycloakId cannot be null");
     final UserProfile hrProfile = profileRepository.findByKeyCloakId(keyCloakId);
+
+    log.info("hr profile {}", hrProfile);
 
     String toEmail = mailRequest.getToEmail();
     final UserProfile candidateProfile = profileRepository.findByEmail(toEmail);

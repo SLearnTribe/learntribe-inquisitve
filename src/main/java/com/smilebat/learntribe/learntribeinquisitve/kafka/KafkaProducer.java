@@ -36,7 +36,7 @@ public class KafkaProducer {
   public void sendMessage(String message) {
     try {
       if (startup) {
-       kafkaTemplate.send(outTopic, message);
+        kafkaTemplate.send(outTopic, message);
       }
     } catch (Exception e) {
       log.info("Unable to send message {} to {}", message, outTopic);
