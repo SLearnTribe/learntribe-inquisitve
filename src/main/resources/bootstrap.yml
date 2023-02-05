@@ -1,6 +1,6 @@
 spring:
   application:
-    name: inquisitve
+    name: sb-inq
   cloud:
     consul:
       host: host.docker.internal
