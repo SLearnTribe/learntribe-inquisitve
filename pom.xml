@@ -23,6 +23,7 @@
 		<docker.registry.url>registry.hub.docker.com/smilebat96/learntribe-inquisitve</docker.registry.url>
 		<scm.developer.connection>scm:git:https://github.com/SLearnTribe/learntribe-inquisitve.git</scm.developer.connection>
 		<scm.connection>https://github.com/SLearnTribe/learntribe-inquisitve</scm.connection>
+		<start-class>com.smilebat.learntribe.learntribeinquisitve.LearntribeInquisitiveApplication</start-class>
 	</properties>
 
 	<dependencyManagement>
@@ -129,6 +130,18 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>com.smilebat.learntribe.learntribeinquisitve.LearntribeInquisitiveApplication</mainClass>
+					<layout>JAR</layout>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<source>9</source>
+					<target>9</target>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
