@@ -3,6 +3,7 @@ package com.smilebat.learntribe.learntribeinquisitve.controllers;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.learntribeinquisitve.services.MailService;
 import com.smilebat.learntribe.mail.HrMailRequest;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -54,7 +55,14 @@ public class EmailController {
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Url Not found"),
       })
-  public ResponseEntity<String> saveUserDetails(
+  @ApiImplicitParam(
+          name = "Authorization",
+          value = "Access Token",
+          required = true,
+          allowEmptyValue = false,
+          paramType = "header",
+          dataTypeClass = String.class,
+          example = "Bearer access_token")  public ResponseEntity<String> saveUserDetails(
       @AuthenticationPrincipal(expression = "subject") String id,
       @Valid @RequestBody HrMailRequest request) {
     request.setFromId(id);
