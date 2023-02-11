@@ -97,13 +97,13 @@ public class UserProfileController {
         @ApiResponse(code = 404, message = "Url Not found"),
       })
   @ApiImplicitParam(
-          name = "Authorization",
-          value = "Access Token",
-          required = true,
-          allowEmptyValue = false,
-          paramType = "header",
-          dataTypeClass = String.class,
-          example = "Bearer access_token")
+      name = "Authorization",
+      value = "Access Token",
+      required = true,
+      allowEmptyValue = false,
+      paramType = "header",
+      dataTypeClass = String.class,
+      example = "Bearer access_token")
   public ResponseEntity<?> getUserDetails(
       @AuthenticationPrincipal(expression = "subject") String id) {
     log.info("Fetching User Details");
@@ -124,13 +124,13 @@ public class UserProfileController {
   @ResponseBody
   @Deprecated
   @ApiImplicitParam(
-          name = "Authorization",
-          value = "Access Token",
-          required = true,
-          allowEmptyValue = false,
-          paramType = "header",
-          dataTypeClass = String.class,
-          example = "Bearer access_token")
+      name = "Authorization",
+      value = "Access Token",
+      required = true,
+      allowEmptyValue = false,
+      paramType = "header",
+      dataTypeClass = String.class,
+      example = "Bearer access_token")
   public ResponseEntity<List<? extends UserProfileResponse>> getUserDetailsFromSkill(
       @RequestParam String skillName, @RequestParam int page, @RequestParam int limit) {
     if (skillName == null) {
@@ -167,13 +167,13 @@ public class UserProfileController {
         @ApiResponse(code = 404, message = "Url Not found"),
       })
   @ApiImplicitParam(
-          name = "Authorization",
-          value = "Access Token",
-          required = true,
-          allowEmptyValue = false,
-          paramType = "header",
-          dataTypeClass = String.class,
-          example = "Bearer access_token")
+      name = "Authorization",
+      value = "Access Token",
+      required = true,
+      allowEmptyValue = false,
+      paramType = "header",
+      dataTypeClass = String.class,
+      example = "Bearer access_token")
   public ResponseEntity<List<CoreUserProfileResponse>> getAllUserDetails(
       @RequestParam int page,
       @RequestParam int limit,

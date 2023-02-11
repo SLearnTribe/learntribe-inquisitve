@@ -63,13 +63,13 @@ public class AnalyticsController {
         @ApiResponse(code = 422, message = SCConstants.INVALID_DATA),
       })
   @ApiImplicitParam(
-          name = "Authorization",
-          value = "Access Token",
-          required = true,
-          allowEmptyValue = false,
-          paramType = "header",
-          dataTypeClass = String.class,
-          example = "Bearer access_token")
+      name = "Authorization",
+      value = "Access Token",
+      required = true,
+      allowEmptyValue = false,
+      paramType = "header",
+      dataTypeClass = String.class,
+      example = "Bearer access_token")
   public ResponseEntity<CandidateActivitiesResponse> evaluateCandidateActivities(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
 
@@ -103,13 +103,13 @@ public class AnalyticsController {
         @ApiResponse(code = 422, message = "Invalid Data"),
       })
   @ApiImplicitParam(
-          name = "Authorization",
-          value = "Access Token",
-          required = true,
-          allowEmptyValue = false,
-          paramType = "header",
-          dataTypeClass = String.class,
-          example = "Bearer access_token")
+      name = "Authorization",
+      value = "Access Token",
+      required = true,
+      allowEmptyValue = false,
+      paramType = "header",
+      dataTypeClass = String.class,
+      example = "Bearer access_token")
   public ResponseEntity<List<OthersBusinessResponse>> evaluateConsideredJobs(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
 
@@ -146,13 +146,13 @@ public class AnalyticsController {
         @ApiResponse(code = 422, message = "Invalid Data"),
       })
   @ApiImplicitParam(
-          name = "Authorization",
-          value = "Access Token",
-          required = true,
-          allowEmptyValue = false,
-          paramType = "header",
-          dataTypeClass = String.class,
-          example = "Bearer access_token")
+      name = "Authorization",
+      value = "Access Token",
+      required = true,
+      allowEmptyValue = false,
+      paramType = "header",
+      dataTypeClass = String.class,
+      example = "Bearer access_token")
   public ResponseEntity<List<HrHiringsResponse>> evaluateHrHirings(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
       @RequestParam(value = "page") int page,

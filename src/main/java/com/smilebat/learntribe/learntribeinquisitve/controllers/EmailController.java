@@ -56,13 +56,14 @@ public class EmailController {
         @ApiResponse(code = 404, message = "Url Not found"),
       })
   @ApiImplicitParam(
-          name = "Authorization",
-          value = "Access Token",
-          required = true,
-          allowEmptyValue = false,
-          paramType = "header",
-          dataTypeClass = String.class,
-          example = "Bearer access_token")  public ResponseEntity<String> saveUserDetails(
+      name = "Authorization",
+      value = "Access Token",
+      required = true,
+      allowEmptyValue = false,
+      paramType = "header",
+      dataTypeClass = String.class,
+      example = "Bearer access_token")
+  public ResponseEntity<String> saveUserDetails(
       @AuthenticationPrincipal(expression = "subject") String id,
       @Valid @RequestBody HrMailRequest request) {
     request.setFromId(id);
