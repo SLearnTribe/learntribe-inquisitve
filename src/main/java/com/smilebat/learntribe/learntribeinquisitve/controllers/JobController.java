@@ -4,6 +4,7 @@ import com.smilebat.learntribe.inquisitve.JobRequest;
 import com.smilebat.learntribe.inquisitve.JobUpdateRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.JobService;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -68,6 +69,14 @@ public class JobController {
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Url Not found"),
       })
+  @ApiImplicitParam(
+          name = "Authorization",
+          value = "Access Token",
+          required = true,
+          allowEmptyValue = false,
+          paramType = "header",
+          dataTypeClass = String.class,
+          example = "Bearer access_token")
   public ResponseEntity<List<OthersBusinessResponse>> retrieveJob(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
       @RequestParam(value = "page") int page,
@@ -103,6 +112,14 @@ public class JobController {
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Url Not found"),
       })
+  @ApiImplicitParam(
+          name = "Authorization",
+          value = "Access Token",
+          required = true,
+          allowEmptyValue = false,
+          paramType = "header",
+          dataTypeClass = String.class,
+          example = "Bearer access_token")
   public ResponseEntity<OthersBusinessResponse> createJob(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
       @Valid @RequestBody JobRequest request) {
@@ -136,6 +153,14 @@ public class JobController {
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Url Not found"),
       })
+  @ApiImplicitParam(
+          name = "Authorization",
+          value = "Access Token",
+          required = true,
+          allowEmptyValue = false,
+          paramType = "header",
+          dataTypeClass = String.class,
+          example = "Bearer access_token")
   public ResponseEntity<OthersBusinessResponse> updateJob(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
       @Valid @RequestBody JobUpdateRequest request) {

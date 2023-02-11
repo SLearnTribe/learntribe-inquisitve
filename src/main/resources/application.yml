@@ -52,11 +52,11 @@ logging:
 domain: host.docker.internal
 
 kafka:
-  startup: false
+  startup: true
   server:
     url: localhost:29092
   groupid: sb-group-1
   topic:
-    out: assessment-topic-1
-
-
+    out:
+      ast: assessment-topic-1
+      sum : summaries-store-event-1

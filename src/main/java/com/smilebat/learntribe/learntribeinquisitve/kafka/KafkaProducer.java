@@ -22,8 +22,11 @@ import org.springframework.stereotype.Component;
 public class KafkaProducer {
   @Autowired private KafkaTemplate<String, Object> kafkaTemplate;
 
-  @Value("${kafka.topic.out}")
+  @Value("${kafka.topic.out.ast}")
   private String outTopic = "assessment-topic-1";
+
+  @Value("${kafka.topic.out.sum}")
+  private String outTopicSum = "summaries-store-event-1";
 
   @Value("${kafka.startup}")
   private boolean startup;
@@ -37,6 +40,19 @@ public class KafkaProducer {
     try {
       if (startup) {
         kafkaTemplate.send(outTopic, message);
+      }
+    } catch (Exception e) {
+      log.info("Unable to send message {} to {}", message, outTopic);
+      throw new RuntimeException(e);
+    }
+  }
+
+  public void loadSummaries(String message) {
+    try {
+      log.info(String.valueOf(startup));
+      if (startup) {
+        kafkaTemplate.send(outTopicSum, message);
+        log.info("Message Sent");
       }
     } catch (Exception e) {
       log.info("Unable to send message {} to {}", message, outTopic);

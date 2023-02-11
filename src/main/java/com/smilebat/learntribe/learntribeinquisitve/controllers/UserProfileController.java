@@ -4,6 +4,7 @@ import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.response.CoreUserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.UserProfileService;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -57,6 +58,14 @@ public class UserProfileController {
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Url Not found"),
       })
+  @ApiImplicitParam(
+      name = "Authorization",
+      value = "Access Token",
+      required = true,
+      allowEmptyValue = false,
+      paramType = "header",
+      dataTypeClass = String.class,
+      example = "Bearer access_token")
   public ResponseEntity<String> saveUserDetails(
       @AuthenticationPrincipal(expression = "subject") String id,
       @Valid @RequestBody UserProfileRequest request) {
@@ -87,6 +96,14 @@ public class UserProfileController {
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Url Not found"),
       })
+  @ApiImplicitParam(
+          name = "Authorization",
+          value = "Access Token",
+          required = true,
+          allowEmptyValue = false,
+          paramType = "header",
+          dataTypeClass = String.class,
+          example = "Bearer access_token")
   public ResponseEntity<?> getUserDetails(
       @AuthenticationPrincipal(expression = "subject") String id) {
     log.info("Fetching User Details");
@@ -106,6 +123,14 @@ public class UserProfileController {
   @GetMapping("/skill")
   @ResponseBody
   @Deprecated
+  @ApiImplicitParam(
+          name = "Authorization",
+          value = "Access Token",
+          required = true,
+          allowEmptyValue = false,
+          paramType = "header",
+          dataTypeClass = String.class,
+          example = "Bearer access_token")
   public ResponseEntity<List<? extends UserProfileResponse>> getUserDetailsFromSkill(
       @RequestParam String skillName, @RequestParam int page, @RequestParam int limit) {
     if (skillName == null) {
@@ -141,6 +166,14 @@ public class UserProfileController {
         @ApiResponse(code = 403, message = "Forbidden"),
         @ApiResponse(code = 404, message = "Url Not found"),
       })
+  @ApiImplicitParam(
+          name = "Authorization",
+          value = "Access Token",
+          required = true,
+          allowEmptyValue = false,
+          paramType = "header",
+          dataTypeClass = String.class,
+          example = "Bearer access_token")
   public ResponseEntity<List<CoreUserProfileResponse>> getAllUserDetails(
       @RequestParam int page,
       @RequestParam int limit,

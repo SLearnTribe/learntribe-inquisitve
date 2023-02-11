@@ -13,9 +13,11 @@ import com.smilebat.learntribe.enums.AssessmentStatus;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.response.CoreUserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
+import com.smilebat.learntribe.kafka.KafkaProfileRequest;
 import com.smilebat.learntribe.learntribeinquisitve.converters.UserProfileConverter;
 import com.smilebat.learntribe.learntribeinquisitve.kafka.KafkaProducer;
 import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.ExperienceService;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -161,16 +163,22 @@ public class UserProfileService {
    */
   @Transactional
   public void saveUserProfile(UserProfileRequest profileRequest) {
+    log.info("Inside save user profile");
     String keycloakId = profileRequest.getKeyCloakId();
     Verify.verifyNotNull(keycloakId, "User Id cannot be null");
     Verify.verifyNotNull(profileRequest, "User Profile Request cannot be null");
     UserProfile existingUserProfile = userProfileRepository.findByKeyCloakId(keycloakId);
     UserProfile userProfile = Optional.ofNullable(existingUserProfile).orElseGet(UserProfile::new);
+    KafkaProfileRequest kafkaProfileRequest = new KafkaProfileRequest();
+    kafkaProfileRequest.setRole(profileRequest.getRole());
+    kafkaProfileRequest.setSkills(Arrays.asList(profileRequest.getSkills().split(",")));
     profileConverter.updateEntity(profileRequest, userProfile);
     experienceService.saveAllExperiences(profileRequest, userProfile);
     userProfileRepository.save(userProfile);
     try {
+      log.info("Trying to send kafka message");
       kafka.sendMessage(mapper.writeValueAsString(profileRequest));
+      kafka.loadSummaries(mapper.writeValueAsString(kafkaProfileRequest));
     } catch (JsonProcessingException e) {
       log.info("Failed processing the User Profile for Kafka Streaming");
       throw new RuntimeException(e);

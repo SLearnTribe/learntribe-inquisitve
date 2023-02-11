@@ -5,6 +5,7 @@ import com.smilebat.learntribe.analytics.response.HrHiringsResponse;
 import com.smilebat.learntribe.assessment.response.AssessmentResponse;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.AnalyticsService;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -61,6 +62,14 @@ public class AnalyticsController {
         @ApiResponse(code = 404, message = SCConstants.URL_NOT_FOUND),
         @ApiResponse(code = 422, message = SCConstants.INVALID_DATA),
       })
+  @ApiImplicitParam(
+          name = "Authorization",
+          value = "Access Token",
+          required = true,
+          allowEmptyValue = false,
+          paramType = "header",
+          dataTypeClass = String.class,
+          example = "Bearer access_token")
   public ResponseEntity<CandidateActivitiesResponse> evaluateCandidateActivities(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
 
@@ -93,6 +102,14 @@ public class AnalyticsController {
         @ApiResponse(code = 404, message = "Url Not found"),
         @ApiResponse(code = 422, message = "Invalid Data"),
       })
+  @ApiImplicitParam(
+          name = "Authorization",
+          value = "Access Token",
+          required = true,
+          allowEmptyValue = false,
+          paramType = "header",
+          dataTypeClass = String.class,
+          example = "Bearer access_token")
   public ResponseEntity<List<OthersBusinessResponse>> evaluateConsideredJobs(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
 
@@ -128,6 +145,14 @@ public class AnalyticsController {
         @ApiResponse(code = 404, message = "Url Not found"),
         @ApiResponse(code = 422, message = "Invalid Data"),
       })
+  @ApiImplicitParam(
+          name = "Authorization",
+          value = "Access Token",
+          required = true,
+          allowEmptyValue = false,
+          paramType = "header",
+          dataTypeClass = String.class,
+          example = "Bearer access_token")
   public ResponseEntity<List<HrHiringsResponse>> evaluateHrHirings(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
       @RequestParam(value = "page") int page,
