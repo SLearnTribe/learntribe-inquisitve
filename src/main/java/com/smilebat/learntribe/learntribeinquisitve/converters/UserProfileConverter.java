@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
+@SuppressWarnings({"PMD.NcssMethodCount", "PMD.NcssCount"})
 public class UserProfileConverter {
   private final WorkExperienceConverter workExperienceConverter;
 
@@ -49,6 +50,9 @@ public class UserProfileConverter {
     // userProfile.setGitHub(request.getGitHub());
     userProfile.setAbout(request.getAbout());
     userProfile.setPhone(request.getPhone());
+    userProfile.setCurrentCtc(request.getCurrentCtc());
+    userProfile.setExpectedCtc(request.getExpectedCtc());
+    userProfile.setNoticePeriod(request.getNoticePeriod());
     String skills = request.getSkills();
     if (skills != null && !skills.isEmpty()) {
       userProfile.setSkills(skills.toUpperCase());
@@ -100,6 +104,9 @@ public class UserProfileConverter {
     Gender gender = profile.getGender();
     if (gender != null) {
       response.setGender(gender.name());
+      response.setExpectedCtc(profile.getExpectedCtc());
+      response.setCurrentCtc(profile.getCurrentCtc());
+      response.setNoticePeriod(profile.getNoticePeriod());
     }
 
     Set<WorkExperience> experienceSet = profile.getWorkExperiences();
