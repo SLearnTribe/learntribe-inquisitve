@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/analytics")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
+@Deprecated
 public class AnalyticsController {
 
   private final AnalyticsService analyticsService;
@@ -70,6 +71,7 @@ public class AnalyticsController {
       paramType = "header",
       dataTypeClass = String.class,
       example = "Bearer access_token")
+  @Deprecated
   public ResponseEntity<CandidateActivitiesResponse> evaluateCandidateActivities(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
 
@@ -102,14 +104,7 @@ public class AnalyticsController {
         @ApiResponse(code = 404, message = "Url Not found"),
         @ApiResponse(code = 422, message = "Invalid Data"),
       })
-  @ApiImplicitParam(
-      name = "Authorization",
-      value = "Access Token",
-      required = true,
-      allowEmptyValue = false,
-      paramType = "header",
-      dataTypeClass = String.class,
-      example = "Bearer access_token")
+  @Deprecated
   public ResponseEntity<List<OthersBusinessResponse>> evaluateConsideredJobs(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId) {
 
@@ -145,14 +140,7 @@ public class AnalyticsController {
         @ApiResponse(code = 404, message = "Url Not found"),
         @ApiResponse(code = 422, message = "Invalid Data"),
       })
-  @ApiImplicitParam(
-      name = "Authorization",
-      value = "Access Token",
-      required = true,
-      allowEmptyValue = false,
-      paramType = "header",
-      dataTypeClass = String.class,
-      example = "Bearer access_token")
+  @Deprecated
   public ResponseEntity<List<HrHiringsResponse>> evaluateHrHirings(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
       @RequestParam(value = "page") int page,

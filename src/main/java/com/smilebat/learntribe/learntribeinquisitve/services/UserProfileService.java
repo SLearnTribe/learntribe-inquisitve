@@ -1,6 +1,5 @@
 package com.smilebat.learntribe.learntribeinquisitve.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Verify;
 import com.smilebat.learntribe.assessment.response.AssessmentStatusResponse;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -162,26 +162,25 @@ public class UserProfileService {
    * @param profileRequest the {@link UserProfileRequest}
    */
   @Transactional
+  @SneakyThrows
   public void saveUserProfile(UserProfileRequest profileRequest) {
-    log.info("Inside save user profile");
     String keycloakId = profileRequest.getKeyCloakId();
     Verify.verifyNotNull(keycloakId, "User Id cannot be null");
     Verify.verifyNotNull(profileRequest, "User Profile Request cannot be null");
+    log.info("Saving profile for user id {}", keycloakId);
     UserProfile existingUserProfile = userProfileRepository.findByKeyCloakId(keycloakId);
     UserProfile userProfile = Optional.ofNullable(existingUserProfile).orElseGet(UserProfile::new);
     KafkaProfileRequest kafkaProfileRequest = new KafkaProfileRequest();
     kafkaProfileRequest.setRole(profileRequest.getRole());
-    kafkaProfileRequest.setSkills(Arrays.asList(profileRequest.getSkills().split(",")));
+    String skills = profileRequest.getSkills();
+    if (skills != null && !skills.isEmpty()) {
+      kafkaProfileRequest.setSkills(Arrays.asList(skills.split(",")));
+    }
     profileConverter.updateEntity(profileRequest, userProfile);
     experienceService.saveAllExperiences(profileRequest, userProfile);
     userProfileRepository.save(userProfile);
-    try {
-      log.info("Trying to send kafka message");
-      kafka.sendMessage(mapper.writeValueAsString(profileRequest));
-      kafka.loadSummaries(mapper.writeValueAsString(kafkaProfileRequest));
-    } catch (JsonProcessingException e) {
-      log.info("Failed processing the User Profile for Kafka Streaming");
-      throw new RuntimeException(e);
-    }
+    log.info("Trying to send kafka message to sb-ast & sb-oaip");
+    kafka.loadAssessments(mapper.writeValueAsString(profileRequest));
+    kafka.loadSummaries(mapper.writeValueAsString(kafkaProfileRequest));
   }
 }

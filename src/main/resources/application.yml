@@ -1,5 +1,5 @@
 server:
-  port: 8089
+  port: 0
 spring:
   datasource:
     url: jdbc:postgresql://${domain}:5432/inquisitve
@@ -59,4 +59,4 @@ kafka:
   topic:
     out:
       ast: assessment-topic-1
-      sum : summaries-store-event-1
+      sum: summaries-store-event-1

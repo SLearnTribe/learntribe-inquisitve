@@ -56,13 +56,13 @@ public class EmailController {
         @ApiResponse(code = 404, message = "Url Not found"),
       })
   @ApiImplicitParam(
-      name = "Authorization",
-      value = "Access Token",
+      name = SCConstants.AUTHORIZATION,
+      value = SCConstants.ACCESS_TOKEN,
       required = true,
       allowEmptyValue = false,
-      paramType = "header",
+      paramType = SCConstants.HEADER,
       dataTypeClass = String.class,
-      example = "Bearer access_token")
+      example = SCConstants.BEARER_TOKEN)
   public ResponseEntity<String> saveUserDetails(
       @AuthenticationPrincipal(expression = "subject") String id,
       @Valid @RequestBody HrMailRequest request) {
