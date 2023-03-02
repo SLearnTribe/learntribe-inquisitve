@@ -38,6 +38,7 @@ public class EducationExperienceConverter {
     edExperience.setDegree(request.getDegree());
     edExperience.setCollegeName(request.getCollegeName());
     edExperience.setFieldOfStudy(request.getFieldOfStudy());
+    edExperience.setLocation(request.getLocation());
     String endDate = request.getDateOfCompletion();
     if (endDate != null) {
       edExperience.setDateOfCompletion(commons.toInstant(endDate));
@@ -67,6 +68,7 @@ public class EducationExperienceConverter {
     response.setDegree(edExperience.getDegree());
     response.setCollegeName(edExperience.getCollegeName());
     response.setFieldOfStudy(edExperience.getFieldOfStudy());
+    response.setLocation(edExperience.getLocation());
     Instant dateOfCompletion = edExperience.getDateOfCompletion();
     if (dateOfCompletion != null) {
       response.setDateOfCompletion(commons.formatInstant.apply(dateOfCompletion));
