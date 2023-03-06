@@ -4,6 +4,7 @@ import com.smilebat.learntribe.inquisitve.JobRequest;
 import com.smilebat.learntribe.inquisitve.JobUpdateRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.JobService;
+import com.smilebat.learntribe.learntribevalidator.learntribeexceptions.BeanValidationException;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -50,6 +51,7 @@ public class JobController {
    * @param keyCloakId the acual IAM user Id
    * @param page page number for pageination.
    * @param limit for pageination.
+   * @param keyword the keyword.
    * @return the List of {@link OthersBusinessResponse}
    */
   @GetMapping(value = "/user")
@@ -80,12 +82,17 @@ public class JobController {
   public ResponseEntity<List<OthersBusinessResponse>> retrieveJob(
       @AuthenticationPrincipal(expression = "subject") String keyCloakId,
       @RequestParam(value = "page") int page,
-      @RequestParam(value = "limit") int limit) {
+      @RequestParam(value = "limit") int limit,
+      @RequestParam(value = "keyword", defaultValue = "", required = false) String keyword) {
+
+    if (page <= 0) {
+      throw new BeanValidationException("Page number must be > 0");
+    }
 
     Pageable paging = PageRequest.of(page - 1, limit);
     JobService.PageableJobRequest pageRequest =
         JobService.PageableJobRequest.builder().paging(paging).keyCloakId(keyCloakId).build();
-    List<OthersBusinessResponse> responses = jobService.retrieveJobs(pageRequest);
+    List<OthersBusinessResponse> responses = jobService.retrieveJobs(pageRequest, keyword);
     return ResponseEntity.ok(responses);
   }
 

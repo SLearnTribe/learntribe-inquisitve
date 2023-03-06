@@ -40,7 +40,7 @@ public class EducationExperienceConverter {
     edExperience.setFieldOfStudy(request.getFieldOfStudy());
     edExperience.setLocation(request.getLocation());
     String endDate = request.getDateOfCompletion();
-    if (endDate != null) {
+    if (endDate != null && !endDate.isBlank()) {
       edExperience.setDateOfCompletion(commons.toInstant(endDate));
     }
     return edExperience;
