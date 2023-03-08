@@ -191,11 +191,10 @@ public class UserProfileService {
    */
   @Transactional
   public UserProfile getUserByEmail(String email) {
-    try {
-      UserProfile profile = userProfileRepository.findByEmail(email);
-      return profile;
-    } catch (Exception exception) {
-      throw new InvalidDataException("Invalid data sent");
+    UserProfile profile = userProfileRepository.findByEmail(email);
+    if (profile == null) {
+      throw new InvalidDataException("Invalid Email");
     }
+    return profile;
   }
 }
