@@ -46,6 +46,13 @@ public class JobController {
 
   private final JobService jobService;
 
+  private final String badRequest = "Bad Request";
+  private final String unauthorised = "Unauthorized";
+  private final String forbidden = "Forbidden";
+  private final String urlNotFound = "Url Not found";
+
+  private final String subject = "subject";
+
   /**
    * Fetchs all the Jobs related to the User id.
    *
@@ -67,10 +74,10 @@ public class JobController {
             message = "Successfully retrieved",
             response = OthersBusinessResponse.class,
             responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 400, message = badRequest),
+        @ApiResponse(code = 401, message = unauthorised),
+        @ApiResponse(code = 403, message = forbidden),
+        @ApiResponse(code = 404, message = urlNotFound),
       })
   @ApiImplicitParam(
       name = "Authorization",
@@ -81,7 +88,7 @@ public class JobController {
       dataTypeClass = String.class,
       example = "Bearer access_token")
   public ResponseEntity<List<OthersBusinessResponse>> retrieveJob(
-      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @AuthenticationPrincipal(expression = subject) String keyCloakId,
       @RequestParam(value = "page") int page,
       @RequestParam(value = "limit") int limit,
       @RequestParam(value = "keyword", defaultValue = "", required = false) String keyword) {
@@ -115,13 +122,13 @@ public class JobController {
             code = 200,
             message = "Successfully retrieved",
             response = OthersBusinessResponse.class),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 400, message = badRequest),
+        @ApiResponse(code = 401, message = unauthorised),
+        @ApiResponse(code = 403, message = forbidden),
+        @ApiResponse(code = 404, message = urlNotFound),
       })
   public ResponseEntity<OthersBusinessResponse> createJob(
-      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @AuthenticationPrincipal(expression = subject) String keyCloakId,
       @Valid @RequestBody JobRequest request) {
 
     request.setCreatedBy(keyCloakId);
@@ -148,13 +155,13 @@ public class JobController {
             code = 200,
             message = "Successfully retrieved",
             response = OthersBusinessResponse.class),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 400, message = badRequest),
+        @ApiResponse(code = 401, message = unauthorised),
+        @ApiResponse(code = 403, message = forbidden),
+        @ApiResponse(code = 404, message = urlNotFound),
       })
   public ResponseEntity<OthersBusinessResponse> updateJob(
-      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @AuthenticationPrincipal(expression = subject) String keyCloakId,
       @Valid @RequestBody JobUpdateRequest request) {
 
     request.setCreatedBy(keyCloakId);
@@ -163,6 +170,11 @@ public class JobController {
     return ResponseEntity.ok(response);
   }
 
+  /**
+   * Creates a user_ob_relation with candidate and the job that he is shortlisted for.
+   *
+   * @param request the {@link ScheduleCallRequest}
+   */
   @PostMapping(value = "/call")
   @ApiOperation(value = "Schedule a call with candidate")
   @ApiResponses(
@@ -171,14 +183,12 @@ public class JobController {
             code = 200,
             message = "Successfully scheduled",
             response = OthersBusinessResponse.class),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 400, message = badRequest),
+        @ApiResponse(code = 401, message = unauthorised),
+        @ApiResponse(code = 403, message = forbidden),
+        @ApiResponse(code = 404, message = urlNotFound),
       })
-  public void scheduleCall(
-      @AuthenticationPrincipal(expression = "subject") String keycloakId,
-      @RequestBody ScheduleCallRequest request) {
+  public void scheduleCall(@RequestBody ScheduleCallRequest request) {
     jobService.scheduleCall(request.getEmailId(), request.getJobId());
   }
 }
