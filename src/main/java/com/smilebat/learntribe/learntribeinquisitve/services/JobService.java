@@ -11,6 +11,7 @@ import com.smilebat.learntribe.dataaccess.jpa.entity.OthersBusiness;
 import com.smilebat.learntribe.dataaccess.jpa.entity.UserAstReltn;
 import com.smilebat.learntribe.dataaccess.jpa.entity.UserObReltn;
 import com.smilebat.learntribe.enums.AssessmentStatus;
+import com.smilebat.learntribe.enums.HiringStatus;
 import com.smilebat.learntribe.enums.UserObReltnType;
 import com.smilebat.learntribe.inquisitve.JobRequest;
 import com.smilebat.learntribe.inquisitve.JobUpdateRequest;
@@ -24,6 +25,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+
+import com.smilebat.learntribe.learntribevalidator.learntribeexceptions.InvalidDataException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -54,8 +57,8 @@ public class JobService {
   private final UserAstReltnRepository userAstReltnRepository;
 
   private final JobsSearchRepository jobSearchRepository;
-
   private final AssessmentRepository assessmentRepository;
+  private final UserProfileService userProfileService;
 
   /** Job pagination concept builder. */
   @Getter
@@ -213,6 +216,12 @@ public class JobService {
     return userObReltn;
   }
 
+  /**
+   * Updates a User Job relation object.
+   *
+   * @param userObReltn the keyCloak user Id
+   * @param updatedJob the {@link OthersBusiness}
+   */
   private void updateUserObReltn(UserObReltn userObReltn, OthersBusiness updatedJob) {
     userObReltn.setJobId(updatedJob.getId());
     userObReltn.setUserObReltn(UserObReltnType.HR_RECRUITER);
@@ -220,5 +229,21 @@ public class JobService {
     userObReltn.setLocation(updatedJob.getLocation());
     userObReltn.setRequiredSkills(updatedJob.getRequiredSkills());
     userObReltn.setTitle(updatedJob.getTitle());
+  }
+
+  /**
+   * Creates a User Job relation object for candidate.
+   *
+   * @param emailId the keyCloak user Id
+   * @param jobId the Job ID
+   */
+  public void scheduleCall(String emailId, Long jobId) {
+      String keycloakId = userProfileService.getUserByEmail(emailId).getKeyCloakId();
+      UserObReltn userObReltn = new UserObReltn();
+      userObReltn.setJobId(jobId);
+      userObReltn.setUserId(keycloakId);
+      userObReltn.setHiringStatus(HiringStatus.SHORTLISTED);
+      userObReltn.setUserObReltn(UserObReltnType.CANDIDATE);
+      userObReltnRepository.save(userObReltn);
   }
 }

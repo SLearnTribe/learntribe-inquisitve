@@ -2,6 +2,7 @@ package com.smilebat.learntribe.learntribeinquisitve.controllers;
 
 import com.smilebat.learntribe.inquisitve.JobRequest;
 import com.smilebat.learntribe.inquisitve.JobUpdateRequest;
+import com.smilebat.learntribe.inquisitve.ScheduleCallRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.JobService;
 import com.smilebat.learntribe.learntribevalidator.learntribeexceptions.BeanValidationException;
@@ -160,5 +161,24 @@ public class JobController {
     final OthersBusinessResponse response = jobService.updateJob(request);
 
     return ResponseEntity.ok(response);
+  }
+
+  @PostMapping(value="/call")
+  @ApiOperation(value = "Schedule a call with candidate")
+  @ApiResponses(
+          value = {
+                  @ApiResponse(
+                          code = 200,
+                          message = "Successfully scheduled",
+                          response = OthersBusinessResponse.class),
+                  @ApiResponse(code = 400, message = "Bad Request"),
+                  @ApiResponse(code = 401, message = "Unauthorized"),
+                  @ApiResponse(code = 403, message = "Forbidden"),
+                  @ApiResponse(code = 404, message = "Url Not found"),
+          })
+  public void scheduleCall(
+          @AuthenticationPrincipal(expression = "subject") String keycloakId,
+          @RequestBody ScheduleCallRequest request){
+    jobService.scheduleCall(request.getEmailId(), request.getJobId());
   }
 }
