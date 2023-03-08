@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.smilebat.learntribe.learntribevalidator.learntribeexceptions.InvalidDataException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -180,5 +182,21 @@ public class UserProfileService {
     log.info("Trying to send kafka message to sb-ast & sb-oaip");
     kafka.loadAssessments(mapper.writeValueAsString(profileRequest));
     // kafka.loadSummaries(mapper.writeValueAsString(kafkaProfileRequest));
+  }
+
+  /**
+   * Find user profile by email ID
+   *
+   * @param email the email ID of the candidate
+   * @return profile {@link UserProfile}
+   */
+  @Transactional
+  public UserProfile getUserByEmail(String email) {
+    try {
+      UserProfile profile = userProfileRepository.findByEmail(email);
+      return profile;
+    }catch (Exception exception){
+      throw new InvalidDataException("Invalid data sent");
+    }
   }
 }
