@@ -2,6 +2,7 @@ package com.smilebat.learntribe.learntribeinquisitve.services;
 
 import com.google.common.base.Verify;
 import com.smilebat.learntribe.assessment.response.AssessmentStatusResponse;
+import com.smilebat.learntribe.dataaccess.AssessmentRepository;
 import com.smilebat.learntribe.dataaccess.JobsSearchRepository;
 import com.smilebat.learntribe.dataaccess.OthersBusinessRepository;
 import com.smilebat.learntribe.dataaccess.UserAstReltnRepository;
@@ -15,11 +16,13 @@ import com.smilebat.learntribe.inquisitve.JobRequest;
 import com.smilebat.learntribe.inquisitve.JobUpdateRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.converters.JobConverter;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.Builder;
 import lombok.Getter;
@@ -51,6 +54,8 @@ public class JobService {
   private final UserAstReltnRepository userAstReltnRepository;
 
   private final JobsSearchRepository jobSearchRepository;
+
+  private final AssessmentRepository assessmentRepository;
 
   /** Job pagination concept builder. */
   @Getter
@@ -107,8 +112,13 @@ public class JobService {
     final Long[] jobIds =
         userObReltns.stream().map(UserObReltn::getJobId).toArray(s -> new Long[s]);
     List<OthersBusiness> jobs = jobRepository.findAllById(paging, jobIds);
+
+    final List<Long> existingAssessmentIds = assessmentRepository.findByRelatedJobs(jobIds);
+    final List<UserAstReltn> usrAstReltns =
+        userAstReltnRepository.findAllByUserAstReltn(keyCloakId, existingAssessmentIds);
+
     List<OthersBusinessResponse> responses = jobConverter.toResponse(jobs);
-    responses.forEach(jobResponse -> updateUserAssessmentStatus(keyCloakId, jobResponse));
+    responses.forEach(jobResponse -> updateUserAssessmentStatus(usrAstReltns, jobResponse));
     return responses;
   }
 
@@ -123,31 +133,29 @@ public class JobService {
     }
   }
 
-  private void updateUserAssessmentStatus(String keyCloakId, OthersBusinessResponse jobResponse) {
+  private void updateUserAssessmentStatus(
+      List<UserAstReltn> userAstReltns, OthersBusinessResponse jobResponse) {
     String requiredSkills = jobResponse.getRequiredSkills();
     if (requiredSkills != null && !requiredSkills.isEmpty()) {
       String[] sanitizedSkills = requiredSkills.toUpperCase().split(",");
-      String[] skillQuery = new String[sanitizedSkills.length];
-      for (int i = 0; i < sanitizedSkills.length; i++) {
-        String skill = sanitizedSkills[i];
-        skillQuery[i] = skill.trim();
-      }
-
-      List<UserAstReltn> userAstReltns =
-          userAstReltnRepository.findAllByAssessmentTitle(keyCloakId, skillQuery);
-      List<AssessmentStatusResponse> statusResponses = new ArrayList<>(sanitizedSkills.length);
-      for (String requiredSkill : skillQuery) {
-        AssessmentStatusResponse assessmentStatusResponse =
-            userAstReltns
-                .stream()
-                .filter(userAstReltn -> userAstReltn.getAssessmentTitle().equals(requiredSkill))
-                .map(this::createAssessmentStatusResponse)
-                .findAny()
-                .orElseGet(createDefaultStatusResponse(requiredSkill));
-        statusResponses.add(assessmentStatusResponse);
-      }
+      final List<AssessmentStatusResponse> statusResponses =
+          Arrays.stream(sanitizedSkills)
+              .map(String::trim)
+              .map(getAssessmentStatusResponse(userAstReltns))
+              .collect(Collectors.toList());
       jobResponse.setRequiredAssessments(statusResponses);
     }
+  }
+
+  private Function<String, AssessmentStatusResponse> getAssessmentStatusResponse(
+      List<UserAstReltn> userAstReltns) {
+    return skill ->
+        userAstReltns
+            .stream()
+            .filter(userAstReltn -> skill.equals(userAstReltn.getAssessmentTitle()))
+            .map(this::createAssessmentStatusResponse)
+            .findAny()
+            .orElseGet(createDefaultStatusResponse(skill));
   }
 
   private Supplier<AssessmentStatusResponse> createDefaultStatusResponse(String requiredSkill) {

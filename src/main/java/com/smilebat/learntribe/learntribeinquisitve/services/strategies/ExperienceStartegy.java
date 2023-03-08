@@ -1,4 +1,4 @@
-package com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences;
+package com.smilebat.learntribe.learntribeinquisitve.services.strategies;
 
 /**
  * A Common Strategy interface for all experiences.

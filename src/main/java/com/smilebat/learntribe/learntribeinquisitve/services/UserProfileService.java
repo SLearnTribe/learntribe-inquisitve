@@ -14,7 +14,7 @@ import com.smilebat.learntribe.inquisitve.response.CoreUserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.learntribeinquisitve.converters.UserProfileConverter;
 import com.smilebat.learntribe.learntribeinquisitve.kafka.KafkaProducer;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.ExperienceService;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.ExperienceService;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
