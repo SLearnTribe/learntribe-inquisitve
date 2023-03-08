@@ -15,12 +15,11 @@ import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
 import com.smilebat.learntribe.learntribeinquisitve.converters.UserProfileConverter;
 import com.smilebat.learntribe.learntribeinquisitve.kafka.KafkaProducer;
 import com.smilebat.learntribe.learntribeinquisitve.services.strategies.ExperienceService;
+import com.smilebat.learntribe.learntribevalidator.learntribeexceptions.InvalidDataException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import com.smilebat.learntribe.learntribevalidator.learntribeexceptions.InvalidDataException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -195,7 +194,7 @@ public class UserProfileService {
     try {
       UserProfile profile = userProfileRepository.findByEmail(email);
       return profile;
-    }catch (Exception exception){
+    } catch (Exception exception) {
       throw new InvalidDataException("Invalid data sent");
     }
   }

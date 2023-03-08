@@ -163,22 +163,22 @@ public class JobController {
     return ResponseEntity.ok(response);
   }
 
-  @PostMapping(value="/call")
+  @PostMapping(value = "/call")
   @ApiOperation(value = "Schedule a call with candidate")
   @ApiResponses(
-          value = {
-                  @ApiResponse(
-                          code = 200,
-                          message = "Successfully scheduled",
-                          response = OthersBusinessResponse.class),
-                  @ApiResponse(code = 400, message = "Bad Request"),
-                  @ApiResponse(code = 401, message = "Unauthorized"),
-                  @ApiResponse(code = 403, message = "Forbidden"),
-                  @ApiResponse(code = 404, message = "Url Not found"),
-          })
+      value = {
+        @ApiResponse(
+            code = 200,
+            message = "Successfully scheduled",
+            response = OthersBusinessResponse.class),
+        @ApiResponse(code = 400, message = "Bad Request"),
+        @ApiResponse(code = 401, message = "Unauthorized"),
+        @ApiResponse(code = 403, message = "Forbidden"),
+        @ApiResponse(code = 404, message = "Url Not found"),
+      })
   public void scheduleCall(
-          @AuthenticationPrincipal(expression = "subject") String keycloakId,
-          @RequestBody ScheduleCallRequest request){
+      @AuthenticationPrincipal(expression = "subject") String keycloakId,
+      @RequestBody ScheduleCallRequest request) {
     jobService.scheduleCall(request.getEmailId(), request.getJobId());
   }
 }
