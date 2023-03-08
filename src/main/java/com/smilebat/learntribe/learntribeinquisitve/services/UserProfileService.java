@@ -191,7 +191,11 @@ public class UserProfileService {
    */
   @Transactional
   public UserProfile getUserByEmail(String email) {
-    UserProfile profile = userProfileRepository.findByEmail(email);
+    List<UserProfile> profiles = userProfileRepository.listByEmail(email);
+    if (profiles.size() > 1) {
+      throw new InvalidDataException("Invalid email");
+    }
+    UserProfile profile = profiles.get(0);
     if (profile == null) {
       throw new InvalidDataException("Invalid Email");
     }
