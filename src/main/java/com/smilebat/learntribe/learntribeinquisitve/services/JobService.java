@@ -25,8 +25,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
-
-import com.smilebat.learntribe.learntribevalidator.learntribeexceptions.InvalidDataException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -238,12 +236,12 @@ public class JobService {
    * @param jobId the Job ID
    */
   public void scheduleCall(String emailId, Long jobId) {
-      String keycloakId = userProfileService.getUserByEmail(emailId).getKeyCloakId();
-      UserObReltn userObReltn = new UserObReltn();
-      userObReltn.setJobId(jobId);
-      userObReltn.setUserId(keycloakId);
-      userObReltn.setHiringStatus(HiringStatus.SHORTLISTED);
-      userObReltn.setUserObReltn(UserObReltnType.CANDIDATE);
-      userObReltnRepository.save(userObReltn);
+    String keycloakId = userProfileService.getUserByEmail(emailId).getKeyCloakId();
+    UserObReltn userObReltn = new UserObReltn();
+    userObReltn.setJobId(jobId);
+    userObReltn.setUserId(keycloakId);
+    userObReltn.setHiringStatus(HiringStatus.SHORTLISTED);
+    userObReltn.setUserObReltn(UserObReltnType.CANDIDATE);
+    userObReltnRepository.save(userObReltn);
   }
 }
