@@ -12,11 +12,10 @@ import com.smilebat.learntribe.enums.AssessmentStatus;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.response.CoreUserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.UserProfileResponse;
-import com.smilebat.learntribe.kafka.KafkaProfileRequest;
 import com.smilebat.learntribe.learntribeinquisitve.converters.UserProfileConverter;
 import com.smilebat.learntribe.learntribeinquisitve.kafka.KafkaProducer;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.ExperienceService;
-import java.util.Arrays;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.ExperienceService;
+import com.smilebat.learntribe.learntribevalidator.learntribeexceptions.InvalidDataException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -170,17 +169,36 @@ public class UserProfileService {
     log.info("Saving profile for user id {}", keycloakId);
     UserProfile existingUserProfile = userProfileRepository.findByKeyCloakId(keycloakId);
     UserProfile userProfile = Optional.ofNullable(existingUserProfile).orElseGet(UserProfile::new);
-    KafkaProfileRequest kafkaProfileRequest = new KafkaProfileRequest();
-    kafkaProfileRequest.setRole(profileRequest.getRole());
-    String skills = profileRequest.getSkills();
-    if (skills != null && !skills.isEmpty()) {
-      kafkaProfileRequest.setSkills(Arrays.asList(skills.split(",")));
-    }
+    // KafkaProfileRequest kafkaProfileRequest = new KafkaProfileRequest();
+    // kafkaProfileRequest.setRole(profileRequest.getRole());
+    // String skills = profileRequest.getSkills();
+    // if (skills != null && !skills.isEmpty()) {
+    // kafkaProfileRequest.setSkills(Arrays.asList(skills.split(",")));
+    // }
     profileConverter.updateEntity(profileRequest, userProfile);
     experienceService.saveAllExperiences(profileRequest, userProfile);
     userProfileRepository.save(userProfile);
     log.info("Trying to send kafka message to sb-ast & sb-oaip");
     kafka.loadAssessments(mapper.writeValueAsString(profileRequest));
-    kafka.loadSummaries(mapper.writeValueAsString(kafkaProfileRequest));
+    // kafka.loadSummaries(mapper.writeValueAsString(kafkaProfileRequest));
+  }
+
+  /**
+   * Find user profile by email ID
+   *
+   * @param email the email ID of the candidate
+   * @return profile {@link UserProfile}
+   */
+  @Transactional
+  public UserProfile getUserByEmail(String email) {
+    List<UserProfile> profiles = userProfileRepository.listByEmail(email);
+    if (profiles.size() > 1) {
+      throw new InvalidDataException("Invalid email");
+    }
+    UserProfile profile = profiles.get(0);
+    if (profile == null) {
+      throw new InvalidDataException("Invalid Email");
+    }
+    return profile;
   }
 }

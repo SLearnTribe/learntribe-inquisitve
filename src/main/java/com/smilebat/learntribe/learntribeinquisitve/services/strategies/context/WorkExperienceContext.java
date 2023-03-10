@@ -1,11 +1,11 @@
-package com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.context;
+package com.smilebat.learntribe.learntribeinquisitve.services.strategies.context;
 
 import com.smilebat.learntribe.dataaccess.WorkExperienceRepository;
 import com.smilebat.learntribe.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.dataaccess.jpa.entity.WorkExperience;
 import com.smilebat.learntribe.inquisitve.WorkExperienceRequest;
 import com.smilebat.learntribe.learntribeinquisitve.converters.WorkExperienceConverter;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.ExperienceContext;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.ExperienceContext;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;

@@ -2,8 +2,10 @@ package com.smilebat.learntribe.learntribeinquisitve.controllers;
 
 import com.smilebat.learntribe.inquisitve.JobRequest;
 import com.smilebat.learntribe.inquisitve.JobUpdateRequest;
+import com.smilebat.learntribe.inquisitve.ScheduleCallRequest;
 import com.smilebat.learntribe.inquisitve.response.OthersBusinessResponse;
 import com.smilebat.learntribe.learntribeinquisitve.services.JobService;
+import com.smilebat.learntribe.learntribevalidator.learntribeexceptions.BeanValidationException;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -44,12 +46,20 @@ public class JobController {
 
   private final JobService jobService;
 
+  private final String badRequest = "Bad Request";
+  private final String unauthorised = "Unauthorized";
+  private final String forbidden = "Forbidden";
+  private final String urlNotFound = "Url Not found";
+
+  private final String subject = "subject";
+
   /**
    * Fetchs all the Jobs related to the User id.
    *
    * @param keyCloakId the acual IAM user Id
    * @param page page number for pageination.
    * @param limit for pageination.
+   * @param keyword the keyword.
    * @return the List of {@link OthersBusinessResponse}
    */
   @GetMapping(value = "/user")
@@ -64,10 +74,10 @@ public class JobController {
             message = "Successfully retrieved",
             response = OthersBusinessResponse.class,
             responseContainer = "List"),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 400, message = badRequest),
+        @ApiResponse(code = 401, message = unauthorised),
+        @ApiResponse(code = 403, message = forbidden),
+        @ApiResponse(code = 404, message = urlNotFound),
       })
   @ApiImplicitParam(
       name = "Authorization",
@@ -78,14 +88,19 @@ public class JobController {
       dataTypeClass = String.class,
       example = "Bearer access_token")
   public ResponseEntity<List<OthersBusinessResponse>> retrieveJob(
-      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @AuthenticationPrincipal(expression = subject) String keyCloakId,
       @RequestParam(value = "page") int page,
-      @RequestParam(value = "limit") int limit) {
+      @RequestParam(value = "limit") int limit,
+      @RequestParam(value = "keyword", defaultValue = "", required = false) String keyword) {
+
+    if (page <= 0) {
+      throw new BeanValidationException("Page number must be > 0");
+    }
 
     Pageable paging = PageRequest.of(page - 1, limit);
     JobService.PageableJobRequest pageRequest =
         JobService.PageableJobRequest.builder().paging(paging).keyCloakId(keyCloakId).build();
-    List<OthersBusinessResponse> responses = jobService.retrieveJobs(pageRequest);
+    List<OthersBusinessResponse> responses = jobService.retrieveJobs(pageRequest, keyword);
     return ResponseEntity.ok(responses);
   }
 
@@ -107,13 +122,13 @@ public class JobController {
             code = 200,
             message = "Successfully retrieved",
             response = OthersBusinessResponse.class),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 400, message = badRequest),
+        @ApiResponse(code = 401, message = unauthorised),
+        @ApiResponse(code = 403, message = forbidden),
+        @ApiResponse(code = 404, message = urlNotFound),
       })
   public ResponseEntity<OthersBusinessResponse> createJob(
-      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @AuthenticationPrincipal(expression = subject) String keyCloakId,
       @Valid @RequestBody JobRequest request) {
 
     request.setCreatedBy(keyCloakId);
@@ -140,18 +155,40 @@ public class JobController {
             code = 200,
             message = "Successfully retrieved",
             response = OthersBusinessResponse.class),
-        @ApiResponse(code = 400, message = "Bad Request"),
-        @ApiResponse(code = 401, message = "Unauthorized"),
-        @ApiResponse(code = 403, message = "Forbidden"),
-        @ApiResponse(code = 404, message = "Url Not found"),
+        @ApiResponse(code = 400, message = badRequest),
+        @ApiResponse(code = 401, message = unauthorised),
+        @ApiResponse(code = 403, message = forbidden),
+        @ApiResponse(code = 404, message = urlNotFound),
       })
   public ResponseEntity<OthersBusinessResponse> updateJob(
-      @AuthenticationPrincipal(expression = "subject") String keyCloakId,
+      @AuthenticationPrincipal(expression = subject) String keyCloakId,
       @Valid @RequestBody JobUpdateRequest request) {
 
     request.setCreatedBy(keyCloakId);
     final OthersBusinessResponse response = jobService.updateJob(request);
 
     return ResponseEntity.ok(response);
+  }
+
+  /**
+   * Creates a user_ob_relation with candidate and the job that he is shortlisted for.
+   *
+   * @param request the {@link ScheduleCallRequest}
+   */
+  @PostMapping(value = "/call")
+  @ApiOperation(value = "Schedule a call with candidate")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            code = 200,
+            message = "Successfully scheduled",
+            response = OthersBusinessResponse.class),
+        @ApiResponse(code = 400, message = badRequest),
+        @ApiResponse(code = 401, message = unauthorised),
+        @ApiResponse(code = 403, message = forbidden),
+        @ApiResponse(code = 404, message = urlNotFound),
+      })
+  public void scheduleCall(@RequestBody ScheduleCallRequest request) {
+    jobService.scheduleCall(request.getEmailId(), request.getJobId());
   }
 }

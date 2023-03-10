@@ -35,6 +35,7 @@ public class JobConverter {
     response.setDescription(jobEntity.getDescription());
     response.setRequiredSkills(jobEntity.getRequiredSkills());
     response.setRolesAndResponsibilities(jobEntity.getRolesAndResponsibilities());
+    response.setSalaryBudget(jobEntity.getSalaryBudget());
     Instant createdDate = jobEntity.getCreatedDate();
     if (createdDate != null) {
       Instant currentDate = Instant.now();
@@ -82,6 +83,7 @@ public class JobConverter {
     jobEntity.setCreatedBy(request.getCreatedBy());
     jobEntity.setQualificationRequired(request.getQualificationRequired());
     jobEntity.setLocation(request.getLocation());
+    jobEntity.setSalaryBudget(request.getSalaryBudget());
     return jobEntity;
   }
 }

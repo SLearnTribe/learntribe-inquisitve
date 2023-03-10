@@ -20,7 +20,11 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication
 @EnableDiscoveryClient
 @ComponentScan(
-    basePackages = {"com.smilebat.learntribe.learntribeclients", "com.smilebat.learntribe"})
+    basePackages = {
+      "com.smilebat.learntribe.learntribeclients",
+      "com.smilebat.learntribe.dataaccess",
+      "com.smilebat.learntribe"
+    })
 @EnableFeignClients(basePackages = "com.smilebat.learntribe.learntribeclients")
 @EnableJpaRepositories(
     basePackages = {"com.smilebat.learntribe.dataaccess", "com.smilebat.learntribe.dataaccess.jpa"})
