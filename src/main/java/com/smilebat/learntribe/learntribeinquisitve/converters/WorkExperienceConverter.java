@@ -38,10 +38,10 @@ public final class WorkExperienceConverter {
     workExperience.setOrgName(request.getOrgName());
     String startDate = request.getStartDate();
     String endDate = request.getEndDate();
-    if (startDate != null) {
+    if (startDate != null && !startDate.isBlank()) {
       workExperience.setStartDate(commons.toInstant(startDate));
     }
-    if (endDate != null) {
+    if (endDate != null && !endDate.isBlank()) {
       workExperience.setEndDate(commons.toInstant(endDate));
     }
     workExperience.setYears(request.getYears());

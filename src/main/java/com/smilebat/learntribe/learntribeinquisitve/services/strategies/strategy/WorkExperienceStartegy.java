@@ -1,8 +1,8 @@
-package com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.strategy;
+package com.smilebat.learntribe.learntribeinquisitve.services.strategies.strategy;
 
 import com.smilebat.learntribe.dataaccess.jpa.entity.WorkExperience;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.DefaultExperienceStrategy;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.context.WorkExperienceContext;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.DefaultExperienceStrategy;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.context.WorkExperienceContext;
 import java.util.Set;
 import java.util.TreeSet;
 import lombok.extern.slf4j.Slf4j;

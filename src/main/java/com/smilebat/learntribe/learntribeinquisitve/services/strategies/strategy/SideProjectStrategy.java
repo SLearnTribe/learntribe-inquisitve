@@ -1,8 +1,8 @@
-package com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.strategy;
+package com.smilebat.learntribe.learntribeinquisitve.services.strategies.strategy;
 
 import com.smilebat.learntribe.dataaccess.jpa.entity.SideProject;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.DefaultExperienceStrategy;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.context.SideProjectContext;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.DefaultExperienceStrategy;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.context.SideProjectContext;
 import java.util.TreeSet;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -5,6 +5,7 @@ import com.smilebat.learntribe.dataaccess.jpa.entity.SideProject;
 import com.smilebat.learntribe.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.dataaccess.jpa.entity.WorkExperience;
 import com.smilebat.learntribe.enums.Gender;
+import com.smilebat.learntribe.enums.InterviewStatus;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
 import com.smilebat.learntribe.inquisitve.response.CoreUserProfileResponse;
 import com.smilebat.learntribe.inquisitve.response.EducationalExpResponse;
@@ -53,6 +54,9 @@ public class UserProfileConverter {
     userProfile.setCurrentCtc(request.getCurrentCtc());
     userProfile.setExpectedCtc(request.getExpectedCtc());
     userProfile.setNoticePeriod(request.getNoticePeriod());
+    if (request.getAvailableForInterview() != null) {
+      userProfile.setAvailableForInterview(request.getAvailableForInterview());
+    }
     String skills = request.getSkills();
     if (skills != null && !skills.isEmpty()) {
       userProfile.setSkills(skills.toUpperCase());
@@ -101,13 +105,17 @@ public class UserProfileConverter {
     response.setPhone(profile.getPhone());
     response.setSkills(profile.getSkills());
     response.setCurrentRole(profile.getCurrentDesignation());
+    InterviewStatus status = profile.getAvailableForInterview();
+    if (status != null) {
+      response.setAvailableForInterview(profile.getAvailableForInterview().name());
+    }
     Gender gender = profile.getGender();
     if (gender != null) {
       response.setGender(gender.name());
-      response.setExpectedCtc(profile.getExpectedCtc());
-      response.setCurrentCtc(profile.getCurrentCtc());
-      response.setNoticePeriod(profile.getNoticePeriod());
     }
+    response.setExpectedCtc(profile.getExpectedCtc());
+    response.setCurrentCtc(profile.getCurrentCtc());
+    response.setNoticePeriod(profile.getNoticePeriod());
 
     Set<WorkExperience> experienceSet = profile.getWorkExperiences();
     if (experienceSet != null && !experienceSet.isEmpty()) {

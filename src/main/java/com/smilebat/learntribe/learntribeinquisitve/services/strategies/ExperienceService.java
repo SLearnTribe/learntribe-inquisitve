@@ -1,13 +1,14 @@
-package com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences;
+package com.smilebat.learntribe.learntribeinquisitve.services.strategies;
 
 import com.smilebat.learntribe.dataaccess.jpa.entity.UserProfile;
 import com.smilebat.learntribe.inquisitve.UserProfileRequest;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.context.EducationExperienceContext;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.context.SideProjectContext;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.context.WorkExperienceContext;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.strategy.EducationExperienceStartegy;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.strategy.SideProjectStrategy;
-import com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences.strategy.WorkExperienceStartegy;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.context.EducationExperienceContext;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.context.SideProjectContext;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.context.WorkExperienceContext;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.strategy.EducationExperienceStartegy;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.strategy.SideProjectStrategy;
+import com.smilebat.learntribe.learntribeinquisitve.services.strategies.strategy.WorkExperienceStartegy;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,7 @@ public class ExperienceService {
    * @param request the {@link UserProfileRequest}
    * @param profile the {@link UserProfile}
    */
+  @Transactional
   public void saveAllExperiences(UserProfileRequest request, UserProfile profile) {
     saveWorkExperiences(request, profile);
     saveEducationExperiences(request, profile);

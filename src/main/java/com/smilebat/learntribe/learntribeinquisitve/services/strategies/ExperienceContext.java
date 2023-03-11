@@ -1,4 +1,4 @@
-package com.smilebat.learntribe.learntribeinquisitve.services.strategies.experiences;
+package com.smilebat.learntribe.learntribeinquisitve.services.strategies;
 
 import com.smilebat.learntribe.dataaccess.jpa.entity.Experience;
 import com.smilebat.learntribe.dataaccess.jpa.entity.UserProfile;
