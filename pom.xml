@@ -9,7 +9,7 @@
 
 	<groupId>com.smilebat.learntribe</groupId>
 	<artifactId>learntribe-inquisitve</artifactId>
-	<version>1.1.23-SNAPSHOT</version>
+	<version>1.1.23</version>
 	<packaging>jar</packaging>
 	<name>learntribe-inquisitve</name>
 	<description>Initial</description>
@@ -158,4 +158,8 @@
 			</plugin>
 		</plugins>
 	</build>
+
+  <scm>
+    <tag>learntribe-inquisitve-1.1.23</tag>
+  </scm>
 </project>
