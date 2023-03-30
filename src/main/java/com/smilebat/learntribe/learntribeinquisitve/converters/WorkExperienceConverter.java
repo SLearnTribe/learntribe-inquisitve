@@ -46,6 +46,7 @@ public final class WorkExperienceConverter {
     }
     workExperience.setYears(request.getYears());
     workExperience.setLocation(request.getLocation());
+    workExperience.setCurrentlyWorkingHere(request.getCurrentlyWorkingHere());
     return workExperience;
   }
 
@@ -80,6 +81,7 @@ public final class WorkExperienceConverter {
     }
     response.setYears(workExperience.getYears());
     response.setOrgName(workExperience.getOrgName());
+    response.setCurrentlyWorkingHere(workExperience.getCurrentlyWorkingHere());
     return response;
   }
 
